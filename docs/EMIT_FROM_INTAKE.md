@@ -34,6 +34,8 @@ PowerShell wrapper normalizes with [`normalize-target-path.ps1`](../scripts/lib/
 
 **If emit fails or files appear under toolkit `C*` / nested `C:/...` folders:** remove those stray directories, fix `target_path` in answers JSON (`C:/path` or `/c/path` for Git Bash), and re-run—emit does not create missing target directories.
 
+**CI / golden round-trip:** create an empty target directory before emit (e.g. `mkdir -p /tmp/emit-out` after `rm -rf`). Real app repos must already exist on disk.
+
 ## Flags
 
 | Flag | Purpose |

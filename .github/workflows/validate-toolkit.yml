@@ -79,6 +79,7 @@ jobs:
         run: |
           bash scripts/normalize-harness-text-lf.sh fixtures/golden-full-emit
           rm -rf /tmp/emit-out
+          mkdir -p /tmp/emit-out
           bash scripts/emit-from-intake.sh \
             --answers fixtures/golden-full-emit/intake.answers.json \
             --target /tmp/emit-out \
@@ -96,6 +97,7 @@ jobs:
         run: |
           bash scripts/normalize-harness-text-lf.sh fixtures/golden-portable-only-emit
           rm -rf /tmp/emit-portable
+          mkdir -p /tmp/emit-portable
           bash scripts/emit-from-intake.sh \
             --answers fixtures/golden-portable-only-emit/intake.answers.json \
             --target /tmp/emit-portable \
@@ -109,6 +111,7 @@ jobs:
         run: |
           bash scripts/normalize-harness-text-lf.sh fixtures/golden-cursor-only-emit
           rm -rf /tmp/emit-cursor
+          mkdir -p /tmp/emit-cursor
           bash scripts/emit-from-intake.sh \
             --answers fixtures/golden-cursor-only-emit/intake.answers.json \
             --target /tmp/emit-cursor \
