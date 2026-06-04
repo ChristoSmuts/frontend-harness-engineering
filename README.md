@@ -4,6 +4,36 @@ A **bootstrap toolkit** for coding-agent harness and orchestration on frontend p
 
 Works with **Cursor**, **Claude Code**, **Codex CLI**, **Gemini CLI**, and other agents that support `AGENTS.md` and portable `SKILL.md` skills.
 
+## What this toolkit does
+
+A **harness** is the agent-facing layer around your app: `AGENTS.md`, skills, rules, hooks, and orchestration notes. It is not your React/Next/Vite code — it is how coding agents learn your stack, verify their work, and stay aligned with your team.
+
+This repo is the **source kit** for that layer. You (or your agent) run a structured bootstrap in a **target frontend repo** and end up with a repeatable layout: thin always-on context, task-shaped skills, optional Cursor hooks for lint/typecheck, and scripts to validate and sync paths across tools.
+
+Typical flow:
+
+1. **Intake** — Answer questions about stack, tools (Cursor vs CLI agents), emit strategy, and platform (Unix vs Windows). See [intake/QUESTIONNAIRE.md](intake/QUESTIONNAIRE.md).
+2. **Plan** — Agent proposes which artifacts to create (rules, skills, hooks, CI) from [manifest/ARTIFACT_MANIFEST.md](manifest/ARTIFACT_MANIFEST.md).
+3. **Emit** — Files land in the target project from [templates/](templates/) (or via [scripts/emit-from-intake.sh](scripts/emit-from-intake.sh) for a deterministic tree).
+4. **Verify** — `validate-target-harness` checks placeholders, emit strategy consistency, skill mirrors, and hook references; target repos can add [harness CI](docs/HARNESS_CI.md).
+5. **Maintain** — Edit canonical skills, run `sync-skills`, grow the harness when agents fail the same way twice ([docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md)).
+
+Emit modes (`full`, `portable-only`, `cursor-only`) control how much is generated — from Cursor-only rules and hooks to multi-tool parity with `.agents/skills/` as the canonical hub. Details: [docs/EMIT_STRATEGIES.md](docs/EMIT_STRATEGIES.md).
+
+## Why use it
+
+| Benefit | What you get |
+|--------|----------------|
+| **Faster, consistent setup** | One questionnaire and manifest instead of ad-hoc `AGENTS.md` and copy-pasted rules per repo. |
+| **Less context noise** | Thin `AGENTS.md` (~60 lines); depth lives in skills loaded only when relevant — agents stay focused on your code. |
+| **Multi-tool without drift** | On `full` emit, write skills once under `.agents/skills/`, mirror to Cursor/Claude with `sync-skills`, and validate parity in CI. |
+| **Automatic quality gates** | Optional Cursor stop hooks run lint/typecheck; validate scripts catch unreplaced `{{placeholders}}` and broken hook paths before merge. |
+| **Cross-platform maintenance** | Bash and PowerShell scripts for validate/sync on Linux, macOS, and Windows — same harness on every OS your team uses. |
+| **Failure-driven growth** | Start minimal; add rules, skills, or hooks when agents repeat the same mistake — avoids bloated MCP and rule dumps up front. |
+| **Team-ready defaults** | Orchestration handoffs, security skill pairing, governance docs, and golden fixtures so upgrades and reviews stay predictable. |
+
+You keep owning the target repo; this toolkit only supplies templates, prompts, and maintenance scripts. Deeper walkthrough: [docs/START_HERE.md](docs/START_HERE.md).
+
 ## What this repo provides
 
 | Path | Purpose |
