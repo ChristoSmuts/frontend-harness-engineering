@@ -1,0 +1,148 @@
+name: Validate toolkit
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  validate-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
+
+      - name: Confirm template skill files use placeholders
+        run: |
+          test "$(find templates/skills -name SKILL.md | wc -l)" -gt 0
+          rg -q '\{\{LINT_CMD\}\}' templates/skills/frontend-verify/SKILL.md
+
+      - name: Bootstrap skills in sync
+        run: |
+          diff -q .cursor/skills/frontend-harness-bootstrap/SKILL.md agents/skills/frontend-harness-bootstrap/SKILL.md
+
+      - name: Maintenance scripts exist (bash + PowerShell)
+        run: |
+          test -f scripts/sync-skills.sh
+          test -f scripts/sync-skills.ps1
+          test -f scripts/validate-target-harness.sh
+          test -f scripts/validate-target-harness.ps1
+          test -f scripts/emit-from-intake.sh
+          test -f scripts/validate-fixture-manifest.sh
+          test -f scripts/compare-fixture-maintenance-scripts.sh
+
+      - name: Fixture maintenance scripts match toolkit
+        run: bash scripts/compare-fixture-maintenance-scripts.sh
+
+      - name: Shellcheck scripts and hook templates
+        run: |
+          sudo apt-get install -y -qq shellcheck
+          shellcheck scripts/*.sh scripts/lib/*.sh templates/hooks/*.sh
+
+      - name: Validate minimal fixture (bash)
+        run: bash scripts/validate-target-harness.sh fixtures/minimal-full-emit
+
+      - name: Validate golden fixture (bash strict)
+        run: bash scripts/validate-target-harness.sh --strict fixtures/golden-full-emit
+
+      - name: Validate golden manifest paths
+        run: bash scripts/validate-fixture-manifest.sh --profile full fixtures/golden-full-emit
+
+      - name: Validate portable-only manifest paths
+        run: bash scripts/validate-fixture-manifest.sh --profile portable-only fixtures/golden-portable-only-emit
+
+      - name: Validate cursor-only manifest paths
+        run: bash scripts/validate-fixture-manifest.sh --profile cursor-only fixtures/golden-cursor-only-emit
+
+      - name: Sync smoke (bash)
+        run: |
+          cp -r fixtures/minimal-full-emit /tmp/harness-sync-smoke
+          echo "# smoke" >> /tmp/harness-sync-smoke/.agents/skills/frontend-verify/SKILL.md
+          cd /tmp/harness-sync-smoke
+          bash scripts/sync-skills.sh --all-mirrors
+          cmp -s .agents/skills/frontend-verify/SKILL.md .cursor/skills/frontend-verify/SKILL.md
+          bash scripts/validate-target-harness.sh .
+
+      - name: Emitter round-trip vs golden
+        run: |
+          rm -rf /tmp/emit-out
+          bash scripts/emit-from-intake.sh \
+            --answers fixtures/golden-full-emit/intake.answers.json \
+            --target /tmp/emit-out \
+            --toolkit .
+          diff -ru fixtures/golden-full-emit /tmp/emit-out \
+            --exclude=intake.answers.json \
+            --exclude=HARNESS_CHANGELOG.md || {
+            echo "Emitter output differs from golden fixture (changelog date may differ)"
+            diff -ru fixtures/golden-full-emit /tmp/emit-out --exclude=intake.answers.json || true
+            exit 1
+          }
+
+      - name: Emitter round-trip portable-only
+        run: |
+          rm -rf /tmp/emit-portable
+          bash scripts/emit-from-intake.sh \
+            --answers fixtures/golden-portable-only-emit/intake.answers.json \
+            --target /tmp/emit-portable \
+            --toolkit .
+          diff -ru fixtures/golden-portable-only-emit /tmp/emit-portable \
+            --exclude=intake.answers.json \
+            --exclude=HARNESS_CHANGELOG.md
+
+      - name: Emitter round-trip cursor-only
+        run: |
+          rm -rf /tmp/emit-cursor
+          bash scripts/emit-from-intake.sh \
+            --answers fixtures/golden-cursor-only-emit/intake.answers.json \
+            --target /tmp/emit-cursor \
+            --toolkit .
+          diff -ru fixtures/golden-cursor-only-emit /tmp/emit-cursor \
+            --exclude=intake.answers.json \
+            --exclude=HARNESS_CHANGELOG.md
+
+  validate-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate minimal fixture (PowerShell)
+        shell: pwsh
+        run: pwsh -File scripts/validate-target-harness.ps1 -TargetRoot fixtures/minimal-full-emit
+
+      - name: Validate golden fixture (PowerShell strict)
+        shell: pwsh
+        run: pwsh -File scripts/validate-target-harness.ps1 -Strict -TargetRoot fixtures/golden-full-emit
+
+      - name: Validate golden manifest paths
+        shell: pwsh
+        run: pwsh -File scripts/validate-fixture-manifest.ps1 -Profile full -TargetRoot fixtures/golden-full-emit
+
+      - name: Compare fixture maintenance scripts
+        shell: pwsh
+        run: bash scripts/compare-fixture-maintenance-scripts.sh
+
+      - name: Sync smoke (PowerShell)
+        shell: pwsh
+        run: |
+          Copy-Item -Recurse fixtures/minimal-full-emit $env:RUNNER_TEMP\harness-sync-smoke
+          Add-Content "$env:RUNNER_TEMP\harness-sync-smoke\.agents\skills\frontend-verify\SKILL.md" "`n# smoke"
+          Set-Location $env:RUNNER_TEMP\harness-sync-smoke
+          pwsh -File scripts/sync-skills.ps1 -AllMirrors
+          $a = Get-FileHash .agents/skills/frontend-verify/SKILL.md
+          $b = Get-FileHash .cursor/skills/frontend-verify/SKILL.md
+          if ($a.Hash -ne $b.Hash) { throw "Mirror drift after sync" }
+          pwsh -File scripts/validate-target-harness.ps1
+
+  validate-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install jq
+        run: brew install jq
+
+      - name: Validate golden fixture (PowerShell on macOS)
+        shell: pwsh
+        run: pwsh -File scripts/validate-target-harness.ps1 -Strict -TargetRoot fixtures/golden-full-emit

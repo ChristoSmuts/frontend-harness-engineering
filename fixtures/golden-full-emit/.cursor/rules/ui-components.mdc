@@ -1,0 +1,16 @@
+---
+description: UI components and styling conventions
+globs: "**/components/**, **/app/**"
+alwaysApply: false
+---
+
+# UI components
+
+- Component library: **shadcn/ui**
+- Styling: **Tailwind**
+- Tokens/theme: `src/app/globals.css`
+
+- Use existing primitives before adding new UI patterns.
+
+- Reuse existing primitives before adding new base components.
+- Keep accessibility: labels, focus, keyboard for interactive elements (Radix/shadcn patterns if applicable).

@@ -1,0 +1,8 @@
+## Hooks (Cursor)
+
+Configured in `.cursor/hooks.json`:
+
+- **stop:** `verify-frontend` — format/lint + typecheck; success is silent
+- **beforeShellExecution:** `deny-dangerous` — blocks migrations, prod deploy, destructive git/shell (if enabled)
+
+Other tools: use skill `frontend-verify` or commands in `AGENTS.md` before claiming done.
