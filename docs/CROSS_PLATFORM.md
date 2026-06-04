@@ -1,0 +1,85 @@
+# Cross-platform harness maintenance
+
+Harness maintenance scripts and Cursor verify hooks must work on **Linux**, **macOS**, and **Windows** without requiring WSL.
+
+## Requirements
+
+| Component | Linux / macOS | Windows |
+|-----------|---------------|---------|
+| Validate harness | `bash scripts/validate-target-harness.sh` | `pwsh -File scripts/validate-target-harness.ps1` |
+| Sync skill mirrors | `bash scripts/sync-skills.sh --all-mirrors` | `pwsh -File scripts/sync-skills.ps1 -AllMirrors` |
+| Cursor stop hook (default) | `.cursor/hooks/verify-frontend.sh` | `.cursor/hooks/verify-frontend.ps1` when **Windows-primary** |
+| PowerShell for `.ps1` scripts | Optional (pwsh 7+ if you prefer PS over bash) | **PowerShell 7+** (`pwsh`) — [install](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell) |
+
+Bash on Windows via Git Bash is **optional** for maintenance scripts, not required.
+
+## Validate
+
+From the **target repo root** (or pass a path as the first argument):
+
+```bash
+# Linux / macOS
+bash scripts/validate-target-harness.sh
+bash scripts/validate-target-harness.sh path/to/repo
+bash scripts/validate-target-harness.sh --strict path/to/repo
+```
+
+```powershell
+# Windows (PowerShell 7+)
+pwsh -File scripts/validate-target-harness.ps1
+pwsh -File scripts/validate-target-harness.ps1 -TargetRoot path\to\repo
+pwsh -File scripts/validate-target-harness.ps1 -Strict
+```
+
+## Sync skills
+
+After editing **canonical** skills (usually `.agents/skills/` on `full` emit):
+
+```bash
+bash scripts/sync-skills.sh --all-mirrors
+# Optional: custom canonical dir (cursor-only → full migration)
+CANONICAL_SKILLS_DIR=.cursor/skills bash scripts/sync-skills.sh --canonical .cursor/skills --all-mirrors
+```
+
+```powershell
+pwsh -File scripts/sync-skills.ps1 -AllMirrors
+pwsh -File scripts/sync-skills.ps1 -Canonical .cursor/skills -AllMirrors
+```
+
+Orchestration sync (when using split shared + cursor-hooks templates):
+
+```bash
+bash scripts/sync-skills.sh --orchestration
+```
+
+```powershell
+pwsh -File scripts/sync-skills.ps1 -Orchestration
+```
+
+## Cursor hooks
+
+| Intake `platform_primary` | `hooks.json` stop command | Template |
+|---------------------------|---------------------------|----------|
+| `unix` (default) | `.cursor/hooks/verify-frontend.sh` | `templates/hooks/hooks.json.template` |
+| `windows` | `.cursor/hooks/verify-frontend.ps1` | `templates/hooks/hooks.windows.json.template` |
+
+| Intake `platform_primary` | Shell guard (`beforeShellExecution`) |
+|---------------------------|--------------------------------------|
+| `unix` (default) | `.cursor/hooks/deny-dangerous.sh` (bash) |
+| `windows` | `.cursor/hooks/deny-dangerous.ps1` (PowerShell) |
+
+Mixed teams on Windows with `platform_primary: unix` still use the bash deny script (Git Bash required). Prefer `platform_primary: windows` on Windows-primary machines so both stop verify and shell guard use `.ps1`.
+
+## Monorepo
+
+When the app package is not the repo root, bootstrap sets `{{APP_PACKAGE_PATH}}` in verify hooks (see [MONOREPO_HARNESS.md](MONOREPO_HARNESS.md)). Both `.sh` and `.ps1` verify scripts `cd` into that path before lint/typecheck.
+
+## CI (toolkit meta-repo)
+
+GitHub Actions runs bash validate on `ubuntu-latest` and PowerShell validate on `windows-latest` against `fixtures/minimal-full-emit/` and `fixtures/golden-full-emit/` (see [HARNESS_CI.md](HARNESS_CI.md)).
+
+## See also
+
+- [START_HERE.md](START_HERE.md)
+- [TOOLKIT_CONSUMPTION.md](TOOLKIT_CONSUMPTION.md)
+- [EMIT_STRATEGIES.md](EMIT_STRATEGIES.md)

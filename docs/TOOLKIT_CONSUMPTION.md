@@ -1,0 +1,61 @@
+# Consuming the toolkit without cloning into the app repo
+
+Ways to run bootstrap when Frontend Harness Engineering is not the open workspace.
+
+## Options
+
+| Method | Pros |
+|--------|------|
+| **Submodule** | Pin version; `templates/` and `scripts/` always available |
+| **One-time copy** | Copy `templates/`, `scripts/`, and `prompts/MASTER_BOOTSTRAP.md` into target or internal repo |
+| **Paste prompt** | Paste `MASTER_BOOTSTRAP.md` + path to templates on disk |
+| **Cursor multi-root** | Open toolkit + target; agent reads both |
+
+Phase A of bootstrap must record **which method** and the **toolkit path** on disk. Do not start Phase C without a resolvable `templates/` directory.
+
+## Recommended copy set (target `tools/frontend-harness/`)
+
+```
+tools/frontend-harness/
+  templates/
+  manifest/emit-manifest.json
+  intake/answers.schema.json
+  scripts/validate-target-harness.sh
+  scripts/validate-target-harness.ps1
+  scripts/sync-skills.sh
+  scripts/sync-skills.ps1
+  scripts/emit-from-intake.sh
+  scripts/emit-from-intake.ps1
+  scripts/lib/
+  prompts/MASTER_BOOTSTRAP.md
+  docs/HARNESS_GROWTH.md
+  docs/CROSS_PLATFORM.md
+  docs/EMIT_FROM_INTAKE.md
+```
+
+On bootstrap Phase C, copy the four scripts to the **target repo** `scripts/` on **every** emit strategy (`full`, `portable-only`, `cursor-only`).
+
+Record toolkit git SHA in target `HARNESS_CHANGELOG.md` when bootstrapping or upgrading (see [templates/HARNESS_CHANGELOG.md.template](../templates/HARNESS_CHANGELOG.md.template)).
+
+## Upgrade path
+
+1. Diff toolkit `templates/` vs your copy.
+2. Merge intentional template changes into target harness files (do not blind overwrite customized skills).
+3. Re-run validate and sync using [CROSS_PLATFORM.md](CROSS_PLATFORM.md):
+
+   ```bash
+   bash scripts/validate-target-harness.sh
+   bash scripts/sync-skills.sh --all-mirrors
+   ```
+
+   ```powershell
+   pwsh -File scripts/validate-target-harness.ps1
+   pwsh -File scripts/sync-skills.ps1 -AllMirrors
+   ```
+
+## See also
+
+- [START_HERE.md](START_HERE.md)
+- [USAGE.md](USAGE.md)
+- [HARNESS_GROWTH.md](HARNESS_GROWTH.md)
+- [CROSS_PLATFORM.md](CROSS_PLATFORM.md)

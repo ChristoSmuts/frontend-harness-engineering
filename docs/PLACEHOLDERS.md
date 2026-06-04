@@ -45,5 +45,18 @@ Replace all `{{TOKEN}}` values when generating into a target project.
 | `{{A11Y_PROJECT_PATTERNS}}` | Team a11y notes | free text |
 | `{{A11Y_CMD_OPTIONAL}}` | axe etc. | optional |
 | `{{SKILL_*_WHEN}}` | Orchestration table | short when-clauses |
+| `{{BOOTSTRAP_DATE}}` | Changelog | ISO date |
+| `{{TOOLKIT_SHA}}` | Toolkit git rev at bootstrap | `abc1234` |
+| `{{MONOREPO_CD_BLOCK_START}}` | Marker in verify hooks | Remove block when not monorepo |
+| `{{MONOREPO_CD_BLOCK_END}}` | Marker in verify hooks | Pair with START |
+| `{{HARNESS_PATHS}}` | Per-tool harness bullets | Per-strategy fragments under `templates/fragments/HARNESS_PATHS.*.example.md` |
+| `{{CURSOR_HARNESS_LINE}}` | Cursor stop-hook note in `AGENTS.md` | Empty when `portable-only` or Cursor not selected |
+| `{{MONOREPO_SKILL_NOTE}}` | `frontend-verify` cwd hint | Empty or ` (or \`apps/web\` in monorepos)` |
+| `{{CANONICAL_SKILLS_DIR}}` | Source of truth for skills | `.agents/skills/` (`full` / `portable-only`); `.cursor/skills/` (`cursor-only`) |
+| `{{EMIT_STRATEGY}}` | Bootstrap emit mode | `full` / `portable-only` / `cursor-only` |
+| `{{PLATFORM_PRIMARY}}` | Primary dev OS for hooks | `unix` / `windows` |
+| `{{HARNESS_OWNER}}` | Harness maintainer | `@handle` or `solo` |
+| `{{CODEX_HOOKS_BLOCK}}` | Codex `[hooks]` TOML block | Set by emitter when `features.codex_hooks` |
+| `{{SKILLS_DIR}}` | Path in always-on rules | Same as `{{CANONICAL_SKILLS_DIR}}` unless `primary_tool` is Cursor-only with `cursor-only` |
 
 Skill-specific placeholders in `_SKILL_TEMPLATE.md` use the same naming style.
