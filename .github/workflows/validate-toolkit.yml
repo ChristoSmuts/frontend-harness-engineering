@@ -47,6 +47,7 @@ jobs:
       - name: Golden full-emit mirror sync-check
         run: |
           cd fixtures/golden-full-emit
+          find .cursor/skills .claude/skills -name SKILL.md -exec sed -i 's/\r$//' {} +
           bash scripts/sync-skills.sh --all-mirrors
           git diff --exit-code -- .cursor/skills .claude/skills || {
             echo "Mirror drift in golden-full-emit: run sync-skills locally and commit SKILL.md mirrors"

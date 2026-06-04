@@ -4,6 +4,7 @@ set -euo pipefail
 
 cd "${AGENT_PROJECT_ROOT:-${CURSOR_PROJECT_DIR:-${CODEX_PROJECT_DIR:-.}}}"
 
+
 LINT_CMD="pnpm biome check --write ."
 TYPECHECK_CMD="pnpm exec tsc --noEmit"
 
