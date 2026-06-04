@@ -52,6 +52,7 @@ jobs:
             echo "No mirrors; skip sync-check"
             exit 0
           fi
+          find .cursor/skills .claude/skills -name SKILL.md -exec sed -i 's/\r$//' {} +
           bash scripts/sync-skills.sh --all-mirrors
           git diff --exit-code -- .cursor/skills .claude/skills || {
             echo "Mirror drift: run sync-skills locally and commit"
