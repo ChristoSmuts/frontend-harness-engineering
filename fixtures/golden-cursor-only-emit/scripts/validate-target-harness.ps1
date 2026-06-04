@@ -47,16 +47,16 @@ function Test-EmitStrategyTools([string]$Strategy, [string]$AgentsContent) {
         if ($AgentsContent -match '(?i)(Codex|Gemini|Claude)') {
             Fail "emit_strategy cursor-only incompatible with Codex, Gemini, or Claude Code documented in AGENTS.md"
         }
-        if ((Test-Path ".agents/skills") -and $AgentsContent -match '(?i)(Codex|Gemini)') {
+        if ((Test-Path -LiteralPath ".agents/skills") -and $AgentsContent -match '(?i)(Codex|Gemini)') {
             Fail "emit_strategy cursor-only with .agents/skills/ requires Codex/Gemini in AGENTS.md (use full)"
         }
     }
 
     if ($Strategy -eq "portable-only") {
-        if ($AgentsContent -match '(?i)Claude' -and -not (Test-Path "CLAUDE.md") -and -not (Test-Path ".claude/rules")) {
+        if ($AgentsContent -match '(?i)Claude' -and -not (Test-Path "CLAUDE.md") -and -not (Test-Path -LiteralPath ".claude/rules")) {
             Fail "Claude Code documented in AGENTS.md but CLAUDE.md or .claude/rules/ missing (portable-only)"
         }
-        if ((Test-Path ".cursor/skills") -and -not (Test-Path ".agents/skills")) {
+        if ((Test-Path -LiteralPath ".cursor/skills") -and -not (Test-Path -LiteralPath ".agents/skills")) {
             Fail "emit_strategy portable-only with .cursor/skills/ but no .agents/skills/ (canonical hub missing)"
         }
     }
@@ -76,14 +76,14 @@ function Test-Placeholders([string]$FilePath) {
 $HarnessPaths = @("AGENTS.md", "agents", ".agents", ".cursor", ".claude")
 
 foreach ($base in $HarnessPaths) {
-    if (-not (Test-Path $base)) { continue }
+    if (-not (Test-Path -LiteralPath $base)) { continue }
 
-    if ((Get-Item $base).PSIsContainer -eq $false) {
+    if ((Get-Item -LiteralPath $base).PSIsContainer -eq $false) {
         Test-Placeholders $base
         continue
     }
 
-    Get-ChildItem -Path $base -Recurse -File -Include "*.md", "*.mdc", "*.sh", "*.ps1", "hooks.json" -ErrorAction SilentlyContinue |
+    Get-ChildItem -LiteralPath $base -Recurse -File -Include "*.md", "*.mdc", "*.sh", "*.ps1", "hooks.json" -ErrorAction SilentlyContinue |
         Where-Object { $_.FullName -notmatch "frontend-harness-bootstrap" } |
         ForEach-Object { Test-Placeholders $_.FullName }
 }
@@ -101,7 +101,7 @@ if (Test-Path "AGENTS.md") {
     }
     $hasPlatform = $agentsContent -match '(?i)platform\s*primary[^a-z]*(unix|windows)'
 
-    if (Test-Path ".cursor/hooks.json") {
+    if (Test-Path -LiteralPath ".cursor/hooks.json") {
         if (-not $emitStrategy) {
             Fail "AGENTS.md missing emit_strategy (required when .cursor/hooks.json exists)"
         }
@@ -112,12 +112,12 @@ if (Test-Path "AGENTS.md") {
 
     if ($emitStrategy) {
         Test-EmitStrategyTools $emitStrategy $agentsContent
-        if ($emitStrategy -eq "full" -and -not (Test-Path ".agents/skills")) {
+        if ($emitStrategy -eq "full" -and -not (Test-Path -LiteralPath ".agents/skills")) {
             Fail "emit_strategy full but .agents/skills/ is missing"
         }
     }
 
-    if (Test-Path ".cursor/hooks.json") {
+    if (Test-Path -LiteralPath ".cursor/hooks.json") {
         $hooksJson = Get-Content ".cursor/hooks.json" -Raw
         if ($hooksJson -match 'verify-frontend\.ps1' -and $agentsContent -match '(?i)platform\s*primary\s*:\s*unix') {
             Warn "platform_primary unix but hooks.json uses verify-frontend.ps1"
@@ -140,13 +140,13 @@ try {
 
 if (Get-Command Test-SecretScanFile -ErrorAction SilentlyContinue) {
     foreach ($base in $HarnessPaths) {
-        if (-not (Test-Path $base)) { continue }
+        if (-not (Test-Path -LiteralPath $base)) { continue }
         $files = @()
-        if ((Get-Item $base).PSIsContainer) {
-            $files = Get-ChildItem -Path $base -Recurse -Include "*.md", "*.mdc" -File -ErrorAction SilentlyContinue |
+        if ((Get-Item -LiteralPath $base).PSIsContainer) {
+            $files = Get-ChildItem -LiteralPath $base -Recurse -Include "*.md", "*.mdc" -File -ErrorAction SilentlyContinue |
                 Where-Object { $_.FullName -notmatch 'frontend-harness-bootstrap' }
         } else {
-            $files = @(Get-Item $base)
+            $files = @(Get-Item -LiteralPath $base)
         }
         foreach ($f in $files) {
             if (Test-SecretScanFile $f.FullName) {
@@ -157,7 +157,7 @@ if (Get-Command Test-SecretScanFile -ErrorAction SilentlyContinue) {
     }
 }
 
-if (Test-Path ".cursor/hooks.json") {
+if (Test-Path -LiteralPath ".cursor/hooks.json") {
     $hooksJson = Get-Content ".cursor/hooks.json" -Raw
     foreach ($script in @(
             ".cursor/hooks/verify-frontend.sh",
@@ -168,13 +168,13 @@ if (Test-Path ".cursor/hooks.json") {
             ".cursor/hooks/scan-secrets.ps1"
         )) {
         $base = Split-Path -Leaf $script
-        if ($hooksJson -match [regex]::Escape($base) -and -not (Test-Path $script)) {
+        if ($hooksJson -match [regex]::Escape($base) -and -not (Test-Path -LiteralPath $script)) {
             Fail "hooks.json references missing $script"
         }
     }
 }
 
-if ((Test-Path "agents/ORCHESTRATION.md") -and (Test-Path ".claude/ORCHESTRATION.md")) {
+if ((Test-Path "agents/ORCHESTRATION.md") -and (Test-Path -LiteralPath ".claude/ORCHESTRATION.md")) {
     $hAgents = Get-FileHashHex "agents/ORCHESTRATION.md"
     $hClaude = Get-FileHashHex ".claude/ORCHESTRATION.md"
     if ($hAgents -ne $hClaude) {
@@ -183,21 +183,21 @@ if ((Test-Path "agents/ORCHESTRATION.md") -and (Test-Path ".claude/ORCHESTRATION
 }
 
 function Test-MirrorDir([string]$MirrorBase) {
-    if (-not (Test-Path ".agents/skills")) { return }
-    if (-not (Test-Path $MirrorBase)) { return }
+    if (-not (Test-Path -LiteralPath ".agents/skills")) { return }
+    if (-not (Test-Path -LiteralPath $MirrorBase)) { return }
 
-    Get-ChildItem ".agents/skills/*/SKILL.md" -ErrorAction SilentlyContinue | ForEach-Object {
+    Get-ChildItem -LiteralPath ".agents/skills" -Filter "SKILL.md" -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object {
         $name = $_.Directory.Name
         $mirror = Join-Path $MirrorBase "$name/SKILL.md"
-        if ((Test-Path $mirror) -and -not ((Get-FileHash $_.FullName).Hash -eq (Get-FileHash $mirror).Hash)) {
+        if ((Test-Path -LiteralPath $mirror) -and -not ((Get-FileHash $_.FullName).Hash -eq (Get-FileHash $mirror).Hash)) {
             Warn "Skill $name differs: canonical vs $MirrorBase mirror (run scripts/sync-skills.ps1)"
         }
     }
 }
 
-if ((Test-Path ".agents/skills/frontend-verify") -or (Test-Path ".cursor/skills/frontend-verify")) {
-    if (-not (Test-Path ".agents/skills/frontend-security/SKILL.md") -and
-        -not (Test-Path ".cursor/skills/frontend-security/SKILL.md")) {
+if ((Test-Path -LiteralPath ".agents/skills/frontend-verify") -or (Test-Path -LiteralPath ".cursor/skills/frontend-verify")) {
+    if (-not (Test-Path -LiteralPath ".agents/skills/frontend-security/SKILL.md") -and
+        -not (Test-Path -LiteralPath ".cursor/skills/frontend-security/SKILL.md")) {
         Fail "frontend-security skill missing (required P1 with frontend-verify)"
     }
 }

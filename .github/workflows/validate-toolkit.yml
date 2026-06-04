@@ -17,7 +17,7 @@ jobs:
       - name: Confirm template skill files use placeholders
         run: |
           test "$(find templates/skills -name SKILL.md | wc -l)" -gt 0
-          rg -q '\{\{LINT_CMD\}\}' templates/skills/frontend-verify/SKILL.md
+          grep -Fq '{{LINT_CMD}}' templates/skills/frontend-verify/SKILL.md
 
       - name: Bootstrap skills in sync
         run: |
