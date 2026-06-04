@@ -1,8 +1,14 @@
 # Bootstrap one-liners
 
-Copy into the **target** project chat.
+## Toolkit repo open (remote target)
 
-## New project
+```text
+Bootstrap frontend harness from this toolkit repo. target_path: /Users/you/dev/acme-web (or C:\dev\acme-web). toolkit_path: . AI tools: Cursor + Codex CLI. Run MASTER_BOOTSTRAP Phase A–E.
+```
+
+## Target project chat
+
+### New project
 
 ```text
 Bootstrap frontend harness for this repo. Use skill frontend-harness-bootstrap (or prompts/MASTER_BOOTSTRAP.md from Frontend Harness Engineering). Run Phase A intake — I'll answer — then Phase B plan for approval, then generate.

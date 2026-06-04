@@ -13,6 +13,39 @@ Harness maintenance scripts and Cursor verify hooks must work on **Linux**, **ma
 
 Bash on Windows via Git Bash is **optional** for maintenance scripts, not required.
 
+## Remote `target_path` (bootstrap from toolkit)
+
+When the open workspace is **Frontend Harness Engineering**, intake records **`target_path`** — the frontend repo that receives harness files. It is independent of **`platform_primary`** (hook templates only).
+
+| OS | Example `target_path` |
+|----|------------------------|
+| macOS | `/Users/you/dev/acme-web` |
+| Linux | `/home/you/projects/acme-web` |
+| Windows | `C:\dev\acme-web` or `C:/dev/acme-web` |
+
+Prefer **absolute** paths. `scripts/emit-from-intake.sh` normalizes paths via [`scripts/lib/normalize-target-path.sh`](../scripts/lib/normalize-target-path.sh) and refuses to emit into the toolkit meta-repo.
+
+Emit from toolkit root:
+
+```bash
+bash scripts/emit-from-intake.sh \
+  --answers intake/answers.json \
+  --target "/Users/you/dev/acme-web" \
+  --toolkit .
+```
+
+(`--target` optional when `target_path` is in the answers JSON.)
+
+Validate before target `scripts/` exist:
+
+```bash
+bash scripts/validate-target-harness.sh --strict "/Users/you/dev/acme-web"
+```
+
+```powershell
+pwsh -File scripts/validate-target-harness.ps1 -Strict -TargetRoot 'C:\dev\acme-web'
+```
+
 ## Validate
 
 From the **target repo root** (or pass a path as the first argument):

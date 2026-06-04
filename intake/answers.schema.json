@@ -13,6 +13,7 @@
     "package_manager",
     "platform_primary",
     "toolkit_path",
+    "target_path",
     "project_name",
     "lint_cmd",
     "typecheck_cmd",
@@ -63,6 +64,10 @@
     "toolkit_path": {
       "type": "string",
       "description": "Path to toolkit root (contains templates/)"
+    },
+    "target_path": {
+      "type": "string",
+      "description": "Absolute or relative path to the frontend repo receiving harness artifacts (macOS/Linux: /Users/... or /home/...; Windows: C:\\... or C:/...). Use . when the open workspace is the target app."
     },
     "project_name": { "type": "string" },
     "repo_type": {

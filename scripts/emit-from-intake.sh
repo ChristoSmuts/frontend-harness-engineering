@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Emit harness artifacts from intake answers JSON.
-# Usage: ./scripts/emit-from-intake.sh --answers intake/answers.json --target /path/to/repo [--toolkit .] [--merge] [--no-strict]
+# Usage: ./scripts/emit-from-intake.sh --answers intake/answers.json [--target /path/to/repo] [--toolkit .] [--merge] [--no-strict]
+#   --target defaults to answers JSON target_path; paths normalized (macOS/Linux/Windows)
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -14,6 +15,8 @@ source "$SCRIPT_DIR/lib/mdc-to-claude-md.sh"
 source "$SCRIPT_DIR/lib/build-answers-map.sh"
 # shellcheck source=lib/normalize-text-lf.sh
 source "$SCRIPT_DIR/lib/normalize-text-lf.sh"
+# shellcheck source=lib/normalize-target-path.sh
+source "$SCRIPT_DIR/lib/normalize-target-path.sh"
 
 ANSWERS=""
 TARGET=""
@@ -22,7 +25,8 @@ MERGE=false
 STRICT=true
 
 usage() {
-  echo "Usage: $0 --answers FILE --target DIR [--toolkit DIR] [--merge] [--no-strict]"
+  echo "Usage: $0 --answers FILE [--target DIR] [--toolkit DIR] [--merge] [--no-strict]"
+  echo "  --target defaults to answers JSON target_path when omitted"
   exit 1
 }
 
@@ -39,7 +43,7 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-[[ -n "$ANSWERS" && -n "$TARGET" ]] || usage
+[[ -n "$ANSWERS" ]] || usage
 
 if [[ "$ANSWERS" != /* ]]; then
   ANSWERS="$(cd "$(dirname "$ANSWERS")" && pwd)/$(basename "$ANSWERS")"
@@ -53,10 +57,20 @@ fi
 
 command -v jq >/dev/null 2>&1 || { echo "jq is required" >&2; exit 1; }
 
-mkdir -p "$TARGET"
-if [[ "$TARGET" != /* ]]; then
-  TARGET="$(cd "$TARGET" && pwd)"
+if [[ -z "$TARGET" ]]; then
+  TARGET=$(jq -r '.target_path // empty' "$ANSWERS")
 fi
+[[ -n "$TARGET" ]] || { echo "Missing --target or target_path in answers JSON" >&2; usage; }
+
+mkdir -p "$TARGET" 2>/dev/null || true
+TARGET=$(normalize_target_path "$TARGET") || exit 1
+
+if is_toolkit_meta_repo "$TARGET"; then
+  echo "ERROR: target_path must not be the Frontend Harness Engineering toolkit root ($TARGET)" >&2
+  echo "Provide the frontend app repo path, not this meta-repo." >&2
+  exit 1
+fi
+
 cd "$TARGET"
 
 map_tmp=$(mktemp)

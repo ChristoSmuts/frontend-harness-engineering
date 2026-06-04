@@ -2,11 +2,11 @@
 
 See [MULTI_TOOL.md](MULTI_TOOL.md) for Cursor, Claude Code, Codex CLI, and Gemini CLI specifics. After bootstrap, see [HARNESS_GROWTH.md](HARNESS_GROWTH.md).
 
-## Three ways to bootstrap a target project
+## Ways to bootstrap a target project
 
 ### 1. Bootstrap skill (recommended)
 
-In the **target** frontend repo, copy the bootstrap skill from this toolkit:
+**From the target repo** — copy the bootstrap skill from this toolkit:
 
 | Tool | Copy from toolkit |
 |------|-------------------|
@@ -19,13 +19,17 @@ Then run:
 
 > Bootstrap the frontend harness for this project. AI tools: \<list yours\>. Follow MASTER_BOOTSTRAP phases A–E.
 
+**From the toolkit repo** — open Frontend Harness Engineering, run the same skill (or point the agent at this repo). At intake, set **`target_path`** to the absolute path of each app you bootstrap (`toolkit_path`: `.`). Re-run with a new `target_path` for the next project. See [TOOLKIT_CONSUMPTION.md](TOOLKIT_CONSUMPTION.md).
+
 ### 2. Paste master prompt (any agent)
 
-Open [prompts/MASTER_BOOTSTRAP.md](../prompts/MASTER_BOOTSTRAP.md) in the target workspace chat. Add:
+**Target workspace:** [prompts/MASTER_BOOTSTRAP.md](../prompts/MASTER_BOOTSTRAP.md) in the app repo chat:
 
-> Target is this repo. AI tools: Cursor, Codex CLI. Run intake from intake/QUESTIONNAIRE.md. Templates at `<path-to-this-toolkit>/templates/`. Paths per manifest/TOOL_LAYOUT.md.
+> Target is this repo (`target_path` .). AI tools: Cursor, Codex CLI. Templates at `<path-to-toolkit>/templates/`.
 
-If the toolkit is not in workspace, attach or paste the questionnaire and relevant templates.
+**Toolkit workspace:**
+
+> Toolkit is this repo. Bootstrap harness at target_path: `/Users/you/dev/acme-web` (or `C:\dev\acme-web`). AI tools: Cursor. toolkit_path: .
 
 ### 3. Manual copy
 
@@ -40,7 +44,7 @@ If the toolkit is not in workspace, attach or paste the questionnaire and releva
 | Scenario | Agent behavior |
 |----------|----------------|
 | **New** | Ask full intake (or defaults); generate full P0+P1; add P2 from stack answers |
-| **Existing** | Read `package.json`, `components.json`, tree; minimal questions; merge with existing harness dirs — do not blindly overwrite |
+| **Existing** | Read `package.json`, `components.json`, tree under **`target_path`**; minimal questions; merge with existing harness dirs — do not blindly overwrite |
 
 ## Merging with existing harness
 

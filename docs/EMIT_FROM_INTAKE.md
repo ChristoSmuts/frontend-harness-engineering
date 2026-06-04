@@ -10,19 +10,24 @@ Reproducible bootstrap for P0+P1+P2 artifacts using [intake/answers.schema.json]
 ## Quick start
 
 ```bash
-# From toolkit root (or pass --toolkit)
+# From toolkit root (macOS/Linux target)
 bash scripts/emit-from-intake.sh \
   --answers intake/answers.example.json \
-  --target /path/to/frontend-repo \
+  --target /Users/you/dev/acme-web \
   --toolkit .
+
+# --target optional when answers JSON includes target_path
+bash scripts/emit-from-intake.sh --answers my-app.answers.json --toolkit .
 ```
 
 ```powershell
 pwsh -File scripts/emit-from-intake.ps1 `
   -Answers intake/answers.example.json `
-  -Target C:\path\to\frontend-repo `
+  -Target 'C:\dev\acme-web' `
   -Toolkit .
 ```
+
+Paths are normalized by [`scripts/lib/normalize-target-path.sh`](../scripts/lib/normalize-target-path.sh). Emit is rejected if the target is the toolkit meta-repo.
 
 PowerShell wrapper delegates to bash when Git Bash is available.
 
@@ -30,6 +35,8 @@ PowerShell wrapper delegates to bash when Git Bash is available.
 
 | Flag | Purpose |
 |------|---------|
+| `--target` | Frontend repo directory (optional if `target_path` is in answers JSON) |
+| `--toolkit` | Toolkit root containing `templates/` (default: script parent repo) |
 | `--merge` | Respect `merge_policy` in answers (skip paths marked `skip`) |
 | `--no-strict` | Do not fail emit when validate warnings occur |
 

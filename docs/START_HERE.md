@@ -4,14 +4,23 @@ Entry point for **Frontend Harness Engineering** — bootstrap and maintain codi
 
 ## Bootstrap a target project
 
+### A — Target frontend repo open
+
 1. Make the toolkit reachable: [TOOLKIT_CONSUMPTION.md](TOOLKIT_CONSUMPTION.md) (submodule, copy into `tools/frontend-harness/`, or multi-root).
-2. Open the **target frontend repo** in your agent (Cursor, Claude Code, Codex, Gemini, etc.).
-3. Run intake and generate:
-   - **Skill:** `frontend-harness-bootstrap` from `.cursor/skills/` or `agents/skills/`
-   - **Or paste:** [prompts/MASTER_BOOTSTRAP.md](../prompts/MASTER_BOOTSTRAP.md) with your AI tools listed
-4. Approve the Phase B plan, then generate artifacts in the **target** repo (not this meta-repo).
-5. Verify: [CROSS_PLATFORM.md](CROSS_PLATFORM.md) — run validate (`--strict` in CI) + lint/typecheck; on `full` emit, run sync.
-6. Optional: deterministic emit via [EMIT_FROM_INTAKE.md](EMIT_FROM_INTAKE.md) and `scripts/emit-from-intake.sh`.
+2. Open the **target frontend repo** in your agent.
+3. Run `frontend-harness-bootstrap` or paste [prompts/MASTER_BOOTSTRAP.md](../prompts/MASTER_BOOTSTRAP.md). Intake **`target_path`** defaults to `.` (this repo).
+4. Approve Phase B, generate at **`target_path`**, verify per [CROSS_PLATFORM.md](CROSS_PLATFORM.md).
+
+### B — Toolkit repo open (bootstrap many apps from one checkout)
+
+1. Open **Frontend Harness Engineering** (this repo) in your agent.
+2. Run the bootstrap skill or MASTER_BOOTSTRAP. At intake, provide **`target_path`** — absolute path to the app repo (macOS `/Users/.../app`, Linux `/home/.../app`, Windows `C:\...\app` or `C:/.../app`). **`toolkit_path`** is usually `.`.
+3. Approve Phase B; emit into **`target_path`** via agent writes or `scripts/emit-from-intake.sh --target "<target_path>" --toolkit .`.
+4. Validate from toolkit if needed: `bash scripts/validate-target-harness.sh --strict "<target_path>"`. Open **`target_path`** for day-to-day agent work.
+
+See [intake/QUESTIONNAIRE.md](../intake/QUESTIONNAIRE.md) (`target_path`) and [CROSS_PLATFORM.md](CROSS_PLATFORM.md) (path normalization).
+
+Optional deterministic emit: [EMIT_FROM_INTAKE.md](EMIT_FROM_INTAKE.md).
 
 ## Choose emit strategy
 

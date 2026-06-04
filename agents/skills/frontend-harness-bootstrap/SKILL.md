@@ -14,7 +14,7 @@ disable-model-invocation: true
 
 
 
-Bootstrap **coding-agent harness + orchestration** for the current workspace (the target frontend project).
+Bootstrap **coding-agent harness + orchestration** at **`target_path`** (see `prompts/MASTER_BOOTSTRAP.md`). The open workspace may be the app repo or this toolkit; when the toolkit is open, collect an absolute **`target_path`** to the frontend app.
 
 
 
@@ -40,13 +40,17 @@ Bootstrap **coding-agent harness + orchestration** for the current workspace (th
 
 - Use `intake/QUESTIONNAIRE.md` (AskQuestion when available); optional `intake/answers.schema.json`.
 
-- Collect **Required before Phase C**: `emit_strategy`, `primary_tool`, `harness_owner`, `canonical_skills_dir`, `platform_primary` (`unix` | `windows`), `toolkit_path`.
+- Collect **Required before Phase C**: `target_path`, `toolkit_path`, `emit_strategy`, `primary_tool`, `harness_owner`, `canonical_skills_dir`, `platform_primary` (`unix` | `windows`).
 
-- **Emit guardrails:** Cursor + Codex/Gemini → `full` (not `cursor-only`). Fix mismatches before Phase C.
+- **Workspace:** toolkit root has `manifest/ARTIFACT_MANIFEST.md` + `prompts/MASTER_BOOTSTRAP.md` → require **`target_path`**; default **`toolkit_path`** to `.`. App workspace → **`target_path`** `.`, user supplies **`toolkit_path`**.
+
+- **`target_path` examples:** macOS `/Users/.../app`, Linux `/home/.../app`, Windows `C:\...\app` or `C:/.../app` — absolute preferred (`docs/CROSS_PLATFORM.md`).
+
+- **Emit guardrails:** Cursor + Codex/Gemini → `full` (not `cursor-only`). Never emit into toolkit root.
 
 - Collect section **I** (AI coding tools) and sections G/H as needed.
 
-- Brownfield: read `package.json`, `components.json`, existing `.cursor/`, `.claude/`, `.agents/`, `.gemini/`, app tree first.
+- Brownfield: read `package.json`, harness dirs, app tree under **`target_path`** first.
 
 - Accept **defaults** shortcut from questionnaire if user provides it.
 
@@ -58,7 +62,7 @@ Bootstrap **coding-agent harness + orchestration** for the current workspace (th
 
 - Build table from `manifest/ARTIFACT_MANIFEST.md` (P0/P1/P2 only what applies).
 
-- Include **emit_strategy**, canonical skills path, **platform_primary**, **toolkit_path**, paths per `TOOL_LAYOUT.md`.
+- Header **target_path** (absolute). Include **emit_strategy**, canonical skills path, **platform_primary**, **toolkit_path**, paths per `TOOL_LAYOUT.md` (relative to **target_path**).
 
 - Show create / merge / skip for existing harness files.
 
@@ -70,7 +74,7 @@ Bootstrap **coding-agent harness + orchestration** for the current workspace (th
 
 
 
-- Write into **current workspace root** (target project).
+- Write into **`target_path`** (not toolkit root). Use `emit-from-intake` or shell if IDE blocks out-of-workspace writes.
 
 - Branch on **emit_strategy** per `docs/EMIT_STRATEGIES.md` and `MASTER_BOOTSTRAP` Phase C.
 
@@ -83,7 +87,7 @@ Bootstrap **coding-agent harness + orchestration** for the current workspace (th
 - **P1 security:** `frontend-security` rule + skill always (`docs/FRONTEND_SECURITY.md`).
 - **Hooks:** select template from `platform_primary`, `features.shell_guard`, and `features.secret_scan_hook` (default true); copy `scan-secrets` when enabled.
 
-- **Optional deterministic emit:** `bash scripts/emit-from-intake.sh --answers <json> --target . --toolkit <toolkit_path>` — see `docs/EMIT_FROM_INTAKE.md`.
+- **Optional deterministic emit:** `bash scripts/emit-from-intake.sh --answers <json> --target "<target_path>" --toolkit <toolkit_path>` — see `docs/EMIT_FROM_INTAKE.md` (`--target` optional if JSON has `target_path`).
 
 - Templates: `AGENTS.md.template`, orchestration shared + cursor-hooks, `CLAUDE.md.template`, `GEMINI.md.template`, `fragments/HARNESS_PATHS.example.md`, `rules/*`, `skills/*`, `hooks/*`; optional `templates/codex/config.toml.template`; optional `templates/github/workflows/harness-validate.yml.template`.
 
@@ -99,9 +103,9 @@ Bootstrap **coding-agent harness + orchestration** for the current workspace (th
 
 
 
-- Run validate per OS (`docs/CROSS_PLATFORM.md`): bash or `pwsh -File scripts/validate-target-harness.ps1`.
+- Validate **`target_path`**: target-local `scripts/validate-target-harness.*`, or from toolkit: `bash "<toolkit_path>/scripts/validate-target-harness.sh" --strict "<target_path>"`.
 
-- Run lint + typecheck from `AGENTS.md` / verify hook; for `full`, run sync (bash or ps1) after mirrors.
+- Lint + typecheck at **target_path**; for `full`, sync from target then re-validate.
 
 
 
@@ -109,7 +113,7 @@ Bootstrap **coding-agent harness + orchestration** for the current workspace (th
 
 
 
-- Summarize emit strategy, canonical path, platform_primary, artifacts per tool, validate/sync commands.
+- Summarize **target_path**, emit strategy, canonical path, platform_primary, artifacts per tool, validate/sync commands. User opens **target_path** for daily work.
 
 - Point to `docs/START_HERE.md`, `docs/HARNESS_GROWTH.md`, `docs/MULTI_TOOL.md`, `docs/CROSS_PLATFORM.md`.
 

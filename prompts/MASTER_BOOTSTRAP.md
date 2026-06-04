@@ -2,7 +2,7 @@
 
 
 
-You are bootstrapping **coding-agent harness + orchestration** for a **target frontend project** (the workspace the user is bootstrapping—not necessarily the "Frontend Harness Engineering" toolkit repo unless that is the target).
+You are bootstrapping **coding-agent harness + orchestration** for a **target frontend project** at **`target_path`** on disk. The open workspace may be that app repo **or** this Frontend Harness Engineering toolkit—when the toolkit is open, intake **must** collect `target_path` (absolute path to the app). Never emit harness files into the toolkit meta-repo.
 
 
 
@@ -30,7 +30,7 @@ Reference toolkit paths (if this repo is available): `intake/QUESTIONNAIRE.md`, 
 
 6. **Failure-driven** — only add MCP servers, skills, and hooks the project needs; prefer CLI over bloated MCP tool lists.
 
-7. **Inspect before inventing** — on brownfield repos, read `package.json`, existing harness dirs (`.cursor/`, `.claude/`, `.agents/`, `.gemini/`), `components.json`, and folder layout before generating.
+7. **Inspect before inventing** — on brownfield repos, read `package.json`, existing harness dirs (`.cursor/`, `.claude/`, `.agents/`, `.gemini/`), `components.json`, and folder layout under **`target_path`** before generating.
 
 8. **Multi-tool** — intake must record which AI tools the team uses; apply **emit_strategy** (see `docs/EMIT_STRATEGIES.md`). `AGENTS.md` is always the shared entry; canonical skills live in `.agents/skills/` for `full` emit; mirrors sync via `scripts/sync-skills.sh` or `scripts/sync-skills.ps1`.
 
@@ -40,11 +40,18 @@ Reference toolkit paths (if this repo is available): `intake/QUESTIONNAIRE.md`, 
 
 
 
-Use the AskQuestion tool when available. Otherwise ask conversationally. Collect every item in `intake/QUESTIONNAIRE.md`, including **Required before Phase C**: `emit_strategy`, `primary_tool`, `harness_owner`, `canonical_skills_dir` (default `.agents/skills/`), `platform_primary` (`unix` | `windows`), and **toolkit_path** (how templates are resolved—submodule, `tools/frontend-harness/`, multi-root, or absolute path). Infer from the repo when possible; only ask for gaps.
+Use the AskQuestion tool when available. Otherwise ask conversationally. Collect every item in `intake/QUESTIONNAIRE.md`, including **Required before Phase C**: `target_path`, `toolkit_path`, `emit_strategy`, `primary_tool`, `harness_owner`, `canonical_skills_dir` (default `.agents/skills/`), and `platform_primary` (`unix` | `windows`). Infer from the repo when possible; only ask for gaps.
 
+**Workspace roles:**
 
+- **Toolkit workspace** — `manifest/ARTIFACT_MANIFEST.md` and `prompts/MASTER_BOOTSTRAP.md` at repo root: **must** ask for **`target_path`** (absolute path to the frontend app). Default **`toolkit_path`** to `.` (this repo). Do not default `target_path` to `.` (that would mean the toolkit).
+- **Target workspace** — the open folder is the app: default **`target_path`** to `.`; set **`toolkit_path`** from submodule, `tools/frontend-harness/`, multi-root, or user-provided path.
+
+**`target_path` (cross-platform):** macOS `/Users/you/dev/acme-web`, Linux `/home/you/projects/acme-web`, Windows `C:\dev\acme-web` or `C:/dev/acme-web`. Prefer absolute paths; normalize before Phase C (see `docs/CROSS_PLATFORM.md`). Quote paths in shell commands. Avoid storing raw `~/...` in answers JSON—expand to absolute.
 
 **Toolkit:** Do not start Phase C until `templates/` is reachable at `toolkit_path`. See `docs/TOOLKIT_CONSUMPTION.md`.
+
+**Guardrails:** Reject if resolved `target_path` is the toolkit meta-repo. Brownfield inspection uses **`target_path`**, not the toolkit root when the toolkit is open.
 
 
 
@@ -60,7 +67,7 @@ Use the AskQuestion tool when available. Otherwise ask conversationally. Collect
 
 
 
-**Defaults shortcut:** user may say *"defaults: Next 15 App Router + pnpm + shadcn + Tailwind + Biome + Vitest + Playwright CI-only"* — then infer the rest from the repo. If emit strategy omitted: solo Cursor → `cursor-only`; any CLI tool → `full` or `portable-only` per user preference.
+**Defaults shortcut:** user may say *"defaults: Next 15 App Router + pnpm + shadcn + Tailwind + Biome + Vitest + Playwright CI-only"* — then infer the rest from the repo at **`target_path`**. If emit strategy omitted: solo Cursor → `cursor-only`; any CLI tool → `full` or `portable-only` per user preference.
 
 
 
@@ -82,15 +89,15 @@ Emit a **Harness Plan** table:
 
 
 
-List only what this project needs (see `manifest/ARTIFACT_MANIFEST.md`). Include **emit_strategy**, **canonical_skills_dir**, **platform_primary**, **toolkit_path**, and **per-tool target paths** from `manifest/TOOL_LAYOUT.md`. Wait for user approval unless they said **"generate without review"**.
+List only what this project needs (see `manifest/ARTIFACT_MANIFEST.md`). Header: **target_path** (absolute). Include **emit_strategy**, **canonical_skills_dir**, **platform_primary**, **toolkit_path**, and **per-tool paths** from `manifest/TOOL_LAYOUT.md` (paths in the table are relative to **target_path**). Wait for user approval unless they said **"generate without review"**.
 
 
 
-## Phase C — Generate (in the target project)
+## Phase C — Generate (at `target_path`)
 
 
 
-Apply **emit_strategy** from `docs/EMIT_STRATEGIES.md` (default paths in `manifest/TOOL_LAYOUT.md`).
+Apply **emit_strategy** from `docs/EMIT_STRATEGIES.md` (default paths in `manifest/TOOL_LAYOUT.md`). All files go under **`target_path`**. If the IDE blocks writes outside the open workspace, use terminal/`emit-from-intake` from the toolkit.
 
 
 
@@ -169,8 +176,10 @@ Replace all `{{PLACEHOLDER}}` values. Remove unused skill folders.
 **Deterministic emit (recommended when jq + bash available):** after intake, write `answers.json` and run:
 
 ```bash
-bash scripts/emit-from-intake.sh --answers path/to/answers.json --target . --toolkit path/to/frontend-harness-engineering
+bash scripts/emit-from-intake.sh --answers path/to/answers.json --target "<target_path>" --toolkit path/to/frontend-harness-engineering
 ```
+
+(`--target` may be omitted when `target_path` is set in the answers JSON.)
 
 See `docs/EMIT_FROM_INTAKE.md`. Agent still reviews brownfield merges and app-specific skill content.
 
@@ -184,15 +193,15 @@ Do not copy the entire toolkit into the target—only selected artifacts plus th
 
 
 
-1. Run validate from target root using the platform-appropriate script (`docs/CROSS_PLATFORM.md`):
+1. Run validate on **`target_path`** (`docs/CROSS_PLATFORM.md`):
 
-   - Unix: `bash scripts/validate-target-harness.sh`
+   - From **target** (after scripts copied): `bash scripts/validate-target-harness.sh` or `pwsh -File scripts/validate-target-harness.ps1`
 
-   - Windows: `pwsh -File scripts/validate-target-harness.ps1`
+   - From **toolkit** (before or without local scripts): `bash "<toolkit_path>/scripts/validate-target-harness.sh" --strict "<target_path>"` (or pwsh `-TargetRoot`)
 
-2. Run fast lint + typecheck from `AGENTS.md` / verify hook. Fix script paths if they fail.
+2. Run fast lint + typecheck from target `AGENTS.md` / verify hook (cwd = **target_path**). Fix script paths if they fail.
 
-3. For `full` emit with mirrors: run sync (`sync-skills.sh` or `sync-skills.ps1 -AllMirrors`) and re-run validate.
+3. For `full` emit with mirrors: run sync from **target_path** (`sync-skills.sh` or `sync-skills.ps1 -AllMirrors`) and re-run validate.
 
 
 
@@ -207,6 +216,8 @@ Summarize what was created (one short paragraph).
 Tell the user:
 
 
+
+- **target_path** (absolute)—open that folder for day-to-day agent work; re-bootstrap another app from the toolkit with a new `target_path`
 
 - **emit_strategy**, canonical skills path, **platform_primary**, and paths created per tool
 

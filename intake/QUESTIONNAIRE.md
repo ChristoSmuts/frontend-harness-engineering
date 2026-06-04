@@ -8,7 +8,8 @@ Optional machine-readable export: [answers.schema.json](answers.schema.json) and
 
 | Field | Example | Notes |
 |-------|---------|-------|
-| **toolkit_path** | `tools/frontend-harness/` or submodule path | Must contain `templates/` before Phase C |
+| **target_path** | macOS `/Users/you/dev/acme-web` · Linux `/home/you/projects/acme-web` · Windows `C:\dev\acme-web` or `C:/dev/acme-web` | Absolute path to the **frontend repo** where harness files are emitted. Use `.` when the open workspace is already that repo. **Required** when the open workspace is this toolkit (detect `manifest/ARTIFACT_MANIFEST.md` + `prompts/MASTER_BOOTSTRAP.md` at root). Monorepo app paths (e.g. `apps/web`) are relative to `target_path`. See [docs/CROSS_PLATFORM.md](../docs/CROSS_PLATFORM.md). |
+| **toolkit_path** | `.` (toolkit open) · `tools/frontend-harness/` · submodule path | Must contain `templates/` before Phase C |
 | **emit_strategy** | `full` / `portable-only` / `cursor-only` | See [docs/EMIT_STRATEGIES.md](../docs/EMIT_STRATEGIES.md) |
 | **primary_tool** | Cursor, Claude Code, Codex CLI, Gemini CLI | Most-used agent product |
 | **harness_owner** | `@handle` or `solo` | Who approves harness PRs |

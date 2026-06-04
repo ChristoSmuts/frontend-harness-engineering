@@ -8,6 +8,7 @@
   "package_manager": "pnpm",
   "platform_primary": "unix",
   "toolkit_path": ".",
+  "target_path": ".",
   "project_name": "Fixture App",
   "repo_type": "greenfield",
   "monorepo": false,

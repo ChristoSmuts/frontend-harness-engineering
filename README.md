@@ -12,9 +12,9 @@ This repo is the **source kit** for that layer. You (or your agent) run a struct
 
 Typical flow:
 
-1. **Intake** — Answer questions about stack, tools (Cursor vs CLI agents), emit strategy, and platform (Unix vs Windows). See [intake/QUESTIONNAIRE.md](intake/QUESTIONNAIRE.md).
+1. **Intake** — Stack, tools, emit strategy, platform, **`target_path`** (where the app repo lives), and **`toolkit_path`**. When this toolkit repo is open, the agent asks for an absolute **`target_path`** to each app. See [intake/QUESTIONNAIRE.md](intake/QUESTIONNAIRE.md).
 2. **Plan** — Agent proposes which artifacts to create (rules, skills, hooks, CI) from [manifest/ARTIFACT_MANIFEST.md](manifest/ARTIFACT_MANIFEST.md).
-3. **Emit** — Files land in the target project from [templates/](templates/) (or via [scripts/emit-from-intake.sh](scripts/emit-from-intake.sh) for a deterministic tree).
+3. **Emit** — Files land at **`target_path`** from [templates/](templates/) (or via [scripts/emit-from-intake.sh](scripts/emit-from-intake.sh) with `--target` / JSON `target_path`).
 4. **Verify** — `validate-target-harness` checks placeholders, emit strategy consistency, skill mirrors, and hook references; target repos can add [harness CI](docs/HARNESS_CI.md).
 5. **Maintain** — Edit canonical skills, run `sync-skills`, grow the harness when agents fail the same way twice ([docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md)).
 
@@ -24,7 +24,7 @@ Emit modes (`full`, `portable-only`, `cursor-only`) control how much is generate
 
 | Benefit | What you get |
 |--------|----------------|
-| **Faster, consistent setup** | One questionnaire and manifest instead of ad-hoc `AGENTS.md` and copy-pasted rules per repo. |
+| **Faster, consistent setup** | One questionnaire and manifest instead of ad-hoc `AGENTS.md` per repo; bootstrap many apps from one toolkit checkout via **`target_path`**. |
 | **Less context noise** | Thin `AGENTS.md` (~60 lines); depth lives in skills loaded only when relevant — agents stay focused on your code. |
 | **Multi-tool without drift** | On `full` emit, write skills once under `.agents/skills/`, mirror to Cursor/Claude with `sync-skills`, and validate parity in CI. |
 | **Automatic quality gates** | Optional Cursor stop hooks run lint/typecheck; validate scripts catch unreplaced `{{placeholders}}` and broken hook paths before merge. |
@@ -39,7 +39,7 @@ You keep owning the target repo; this toolkit only supplies templates, prompts, 
 | Path | Purpose |
 |------|---------|
 | [prompts/MASTER_BOOTSTRAP.md](prompts/MASTER_BOOTSTRAP.md) | Paste into any coding agent to run the full workflow |
-| [intake/QUESTIONNAIRE.md](intake/QUESTIONNAIRE.md) | Fields the agent collects from the user |
+| [intake/QUESTIONNAIRE.md](intake/QUESTIONNAIRE.md) | Intake fields (`target_path`, `toolkit_path`, stack, tools) |
 | [manifest/ARTIFACT_MANIFEST.md](manifest/ARTIFACT_MANIFEST.md) | What to generate and in what order |
 | [manifest/TOOL_LAYOUT.md](manifest/TOOL_LAYOUT.md) | Per-tool paths (Cursor, Claude, Codex, Gemini) |
 | [docs/MULTI_TOOL.md](docs/MULTI_TOOL.md) | How to use the harness with each product |
@@ -57,19 +57,29 @@ You keep owning the target repo; this toolkit only supplies templates, prompts, 
 
 ## Quick start
 
-### New project
+### A — Target frontend repo open
 
-1. Scaffold your app (Next, Vite, etc.).
-2. Open the app repo in your coding agent (Cursor, Claude Code, Codex, Gemini CLI, etc.).
-3. Either:
-   - **Skill:** Copy `frontend-harness-bootstrap` from `.cursor/skills/` or `agents/skills/` in this toolkit, then ask to bootstrap, or
-   - **Paste:** Copy [prompts/MASTER_BOOTSTRAP.md](prompts/MASTER_BOOTSTRAP.md) into chat and say which tools you use, e.g. *Bootstrap frontend harness for this project. Tools: Cursor + Codex CLI.*
+1. Scaffold your app (Next, Vite, etc.) and open it in your agent.
+2. Run `frontend-harness-bootstrap` or paste [prompts/MASTER_BOOTSTRAP.md](prompts/MASTER_BOOTSTRAP.md). **`target_path`** is `.` (this repo).
+3. Approve the plan; harness files are written here.
 
-The agent runs intake → plan → generates artifacts **in the target project** (not in this toolkit repo).
+### B — Toolkit repo open (multiple projects)
+
+1. Open **Frontend Harness Engineering** in Cursor (or your agent).
+2. Run the bootstrap skill or MASTER_BOOTSTRAP. At intake, set **`target_path`** to the app repo, for example:
+
+   - macOS: `/Users/you/dev/acme-web`
+   - Linux: `/home/you/projects/acme-web`
+   - Windows: `C:\dev\acme-web` or `C:/dev/acme-web`
+
+3. **`toolkit_path`** is usually `.` here. Emit: `bash scripts/emit-from-intake.sh --answers answers.json --target "<path>" --toolkit .`
+4. Open **`target_path`** for daily agent work; repeat with a new path for the next app.
+
+Details: [docs/START_HERE.md](docs/START_HERE.md), [docs/CROSS_PLATFORM.md](docs/CROSS_PLATFORM.md).
 
 ### Existing project
 
-Same as above. The agent should **inspect** `package.json`, folder layout, and any existing harness dirs (`.cursor/`, `.claude/`, `.agents/`, `.gemini/`) before asking intake questions.
+Same as A or B. The agent **inspects** `package.json`, layout, and harness dirs under **`target_path`** before generating.
 
 ### Using templates manually
 
@@ -80,6 +90,7 @@ Copy from [templates/](templates/) into your target repo and replace `{{PLACEHOL
 - **Canonical skills:** `.agents/skills/` for multi-tool `full` emit; run `scripts/sync-skills.sh` after skill edits.
 - **Validate:** `bash scripts/validate-target-harness.sh` (add `--strict` in CI).
 - **Re-emit:** `bash scripts/emit-from-intake.sh` with intake JSON — see [docs/EMIT_FROM_INTAKE.md](docs/EMIT_FROM_INTAKE.md).
+- **Another app from toolkit:** same bootstrap flow, new **`target_path`** — [docs/TOOLKIT_CONSUMPTION.md](docs/TOOLKIT_CONSUMPTION.md).
 - **Grow the harness:** [docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md).
 
 ## Principles

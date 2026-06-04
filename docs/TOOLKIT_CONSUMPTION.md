@@ -1,17 +1,18 @@
 # Consuming the toolkit without cloning into the app repo
 
-Ways to run bootstrap when Frontend Harness Engineering is not the open workspace.
+Ways to run bootstrap when the harness toolkit and the frontend app are not the same folder.
 
 ## Options
 
 | Method | Pros |
 |--------|------|
-| **Submodule** | Pin version; `templates/` and `scripts/` always available |
+| **Toolkit repo open** | Keep one Frontend Harness Engineering checkout; bootstrap many apps via intake **`target_path`** (see [CROSS_PLATFORM.md](CROSS_PLATFORM.md)) |
+| **Submodule** | Pin version; `templates/` and `scripts/` always available in the app repo |
 | **One-time copy** | Copy `templates/`, `scripts/`, and `prompts/MASTER_BOOTSTRAP.md` into target or internal repo |
 | **Paste prompt** | Paste `MASTER_BOOTSTRAP.md` + path to templates on disk |
-| **Cursor multi-root** | Open toolkit + target; agent reads both |
+| **Cursor multi-root** | Open toolkit + target; agent reads both (`target_path` may still be explicit) |
 
-Phase A of bootstrap must record **which method** and the **toolkit path** on disk. Do not start Phase C without a resolvable `templates/` directory.
+Phase A must record **`toolkit_path`** (where `templates/` lives) and **`target_path`** (where harness files are written). Do not start Phase C without resolvable `templates/`. Do not set `target_path` to the toolkit meta-repo root.
 
 ## Recommended copy set (target `tools/frontend-harness/`)
 

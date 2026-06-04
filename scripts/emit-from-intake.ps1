@@ -1,5 +1,6 @@
 # Emit harness artifacts from intake answers JSON (PowerShell).
-# Usage: pwsh -File scripts/emit-from-intake.ps1 -Answers intake/answers.json -Target path [-Toolkit .] [-Merge] [-NoStrict]
+# Usage: pwsh -File scripts/emit-from-intake.ps1 -Answers intake/answers.json [-Target path] [-Toolkit .] [-Merge] [-NoStrict]
+#   -Target optional when answers JSON includes target_path
 param(
     [Parameter(Mandatory = $true)]
     [string]$Answers,
