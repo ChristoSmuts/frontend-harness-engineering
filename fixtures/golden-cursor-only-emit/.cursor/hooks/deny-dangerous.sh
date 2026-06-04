@@ -19,7 +19,7 @@ deny_patterns=(
   'deploy --prod'
   'vercel --prod'
   'rm -rf /'
-  'rm -rf \\'
+  "rm -rf \\\\"
   'git push --force'
   'git push -f'
   'git reset --hard'
