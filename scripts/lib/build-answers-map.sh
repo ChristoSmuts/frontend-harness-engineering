@@ -88,6 +88,24 @@ build_answers_map_file() {
     echo "SKILL_FORMS_WHEN=N/A — skill not installed"
     echo "SKILL_E2E_WHEN=N/A — skill not installed"
     echo "SKILL_A11Y_WHEN=N/A — skill not installed"
+    echo "SKILL_SECURITY_WHEN=auth, env, API keys, or security-sensitive UI/API work"
+  } >> "$out_map"
+
+  local public_prefix auth_stack
+  public_prefix=$(jq -r '.public_env_prefix // ""' "$answers_json")
+  if [[ -z "$public_prefix" || "$public_prefix" == "null" ]]; then
+    if echo "$framework" | grep -qiE 'next|remix|nuxt|sveltekit|astro'; then
+      public_prefix="NEXT_PUBLIC_"
+    elif echo "$framework" | grep -qiE 'vite|vue'; then
+      public_prefix="VITE_"
+    else
+      public_prefix="NEXT_PUBLIC_"
+    fi
+  fi
+  auth_stack=$(jq -r '.auth_stack // "none (follow existing patterns)"' "$answers_json")
+  {
+    echo "PUBLIC_ENV_PREFIX=$public_prefix"
+    echo "AUTH_STACK=$auth_stack"
   } >> "$out_map"
 
   MAP_FILE="$out_map"

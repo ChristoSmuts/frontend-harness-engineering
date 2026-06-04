@@ -25,6 +25,10 @@ Use these for agent self-check—not full CI.
 
 {{FORBIDDEN_PATHS}}
 
+## Security
+
+- Follow rule **`frontend-security`** and skill **`frontend-security`** for auth, env vars, API keys, and client/server boundaries.
+
 ## Harness
 
 {{HARNESS_PATHS}}

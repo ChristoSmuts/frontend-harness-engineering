@@ -74,13 +74,14 @@ Bootstrap **coding-agent harness + orchestration** for the current workspace (th
 
 - Branch on **emit_strategy** per `docs/EMIT_STRATEGIES.md` and `MASTER_BOOTSTRAP` Phase C.
 
-- **Always copy four scripts** to target `scripts/`: `validate-target-harness.sh`, `validate-target-harness.ps1`, `sync-skills.sh`, `sync-skills.ps1`.
+- **Always copy maintenance scripts** to target `scripts/`: validate, sync, and `lib/secret-patterns.sh` / `lib/secret-patterns.ps1`.
 
 - **HARNESS_CHANGELOG.md** with `{{TOOLKIT_SHA}}` from toolkit git rev.
 
 - **Canonical skills:** `.agents/skills/` for `full` / `portable-only`; `.cursor/skills/` for `cursor-only` only.
 
-- **Hooks:** `platform_primary: windows` → `hooks.windows.json.template`; else `hooks.json.template`.
+- **P1 security:** `frontend-security` rule + skill always (`docs/FRONTEND_SECURITY.md`).
+- **Hooks:** select template from `platform_primary`, `features.shell_guard`, and `features.secret_scan_hook` (default true); copy `scan-secrets` when enabled.
 
 - **Optional deterministic emit:** `bash scripts/emit-from-intake.sh --answers <json> --target . --toolkit <toolkit_path>` — see `docs/EMIT_FROM_INTAKE.md`.
 

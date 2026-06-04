@@ -15,6 +15,7 @@ disable-model-invocation: true
 ## Conventions
 
 - Env vars: `VITE_*` prefix only in client code; never expose secrets.
+- Auth, API keys, env: load skill **`frontend-security`** before changing client or env configuration.
 - Lazy-load route chunks when the repo already uses `React.lazy` + router patterns.
 - Match existing router (React Router / TanStack Router / file-based) — inspect before adding routes.
 

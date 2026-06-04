@@ -5,6 +5,10 @@
       {
         "command": ".cursor/hooks/verify-frontend.ps1",
         "timeout": 300
+      },
+      {
+        "command": ".cursor/hooks/scan-secrets.ps1",
+        "timeout": 60
       }
     ]
   }

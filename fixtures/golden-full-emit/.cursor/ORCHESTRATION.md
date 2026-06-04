@@ -37,6 +37,7 @@ Canonical skill files: `.agents/skills//`. After editing, run `scripts/sync-skil
 | Skill | When to use |
 |-------|-------------|
 | `frontend-verify` | Before claiming done; lint + typecheck |
+| `frontend-security` | auth, env, API keys, or security-sensitive UI/API work |
 | `shadcn-components` | shadcn/ui components and primitives |
 | `next-app-router` | App Router routes and RSC boundaries |
 | `vite-react` | N/A — skill not installed |
@@ -60,6 +61,7 @@ Add one fix per repeatable failure: a rule line, skill section, or hook—not bu
 Configured in `.cursor/hooks.json`:
 
 - **stop:** `verify-frontend` — format/lint + typecheck; success is silent
+- **stop:** `scan-secrets` — scans git-changed files for high-confidence secret literals (if enabled)
 - **beforeShellExecution:** `deny-dangerous` — blocks migrations, prod deploy, destructive git/shell (if enabled)
 
 Other tools: use skill `frontend-verify` or commands in `AGENTS.md` before claiming done.

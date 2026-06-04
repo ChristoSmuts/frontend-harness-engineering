@@ -37,6 +37,7 @@ Canonical skill files: `.agents/skills//`. After editing, run `scripts/sync-skil
 | Skill | When to use |
 |-------|-------------|
 | `frontend-verify` | Before claiming done; lint + typecheck |
+| `frontend-security` | auth, env, API keys, or security-sensitive UI/API work |
 | `shadcn-components` | shadcn/ui components and primitives |
 | `next-app-router` | App Router routes and RSC boundaries |
 | `vite-react` | N/A — skill not installed |

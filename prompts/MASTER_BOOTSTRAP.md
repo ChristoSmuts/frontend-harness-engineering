@@ -100,11 +100,13 @@ Apply **emit_strategy** from `docs/EMIT_STRATEGIES.md` (default paths in `manife
 
 - Root `AGENTS.md` from `templates/AGENTS.md.template` — Harness section from `templates/fragments/HARNESS_PATHS.example.md` pattern; **must** include `emit_strategy`, `harness_owner`, and `platform_primary` (unix | windows); state canonical skills dir and sync/validate scripts
 
-- Copy all four maintenance scripts to target `scripts/`:
+- Copy maintenance scripts to target `scripts/`:
 
   - `validate-target-harness.sh`, `validate-target-harness.ps1`
 
   - `sync-skills.sh`, `sync-skills.ps1`
+
+  - `lib/secret-patterns.sh`, `lib/secret-patterns.ps1`
 
 - `HARNESS_CHANGELOG.md` from `templates/HARNESS_CHANGELOG.md.template` — include **Toolkit SHA** (git rev of toolkit at bootstrap) in the initial row or a `Toolkit SHA:` line under the table
 
@@ -150,13 +152,15 @@ Apply **emit_strategy** from `docs/EMIT_STRATEGIES.md` (default paths in `manife
 
 
 
-**Skills:** enable only relevant P2 skills. **Hooks:** Cursor only when Cursor paths emitted.
+**Skills:** P1 always includes `frontend-verify` and **`frontend-security`**; enable only relevant P2 skills. **Hooks:** Cursor only when Cursor paths emitted.
 
 
 
-- `platform_primary: unix` → `templates/hooks/hooks.json.template` → `.cursor/hooks.json` (stop: `verify-frontend.sh`)
+- **P1 security:** `templates/rules/frontend-security.mdc.template`, `templates/skills/frontend-security/SKILL.md` (see `docs/FRONTEND_SECURITY.md`)
 
-- `platform_primary: windows` → `templates/hooks/hooks.windows.json.template` → `.cursor/hooks.json` (stop: `verify-frontend.ps1`)
+- **Hooks template** (pick by `platform_primary`, `features.shell_guard`, `features.secret_scan_hook` default true): `hooks.json.template` / `hooks.no-secret-scan.json.template` / `hooks.no-shell-guard.json.template` / `hooks.verify-only.json.template` (and `hooks.windows.*` counterparts)
+
+- Copy `scan-secrets.sh` / `.ps1` when `secret_scan_hook` is enabled
 
 
 

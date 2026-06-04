@@ -24,6 +24,8 @@
   "ui_library": "shadcn/ui",
   "scope_globs": "src/**",
   "mcp_policy": "Prefer CLI for git/GitHub. Enable design MCP only for design-to-code tasks.",
+  "public_env_prefix": "NEXT_PUBLIC_",
+  "auth_stack": "none (follow existing patterns)",
   "skills_dir": ".agents/skills/",
   "toolkit_sha": "golden",
   "bootstrap_date": "2026-06-04",
@@ -34,6 +36,7 @@
     "forms_validation": false,
     "accessibility": false,
     "shell_guard": true,
+    "secret_scan_hook": true,
     "codex_hooks": true,
     "harness_ci_workflow": true
   }

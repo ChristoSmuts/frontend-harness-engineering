@@ -5,6 +5,10 @@
       {
         "command": ".cursor/hooks/verify-frontend.sh",
         "timeout": 300
+      },
+      {
+        "command": ".cursor/hooks/scan-secrets.sh",
+        "timeout": 60
       }
     ],
     "beforeShellExecution": [

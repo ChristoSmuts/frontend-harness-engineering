@@ -21,3 +21,8 @@ disable-model-invocation: true
 ## shadcn Form
 
 If using shadcn Form + RHF, follow patterns in existing `FormField` usage—copy a nearby form before inventing new structure.
+
+## Security
+
+- Do not log passwords, tokens, or OTP values in `console.*` or error reports.
+- Login/signup and auth flows: follow skill **`frontend-security`** and existing auth patterns.

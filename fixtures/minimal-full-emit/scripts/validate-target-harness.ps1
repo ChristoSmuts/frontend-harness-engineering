@@ -8,6 +8,10 @@ param(
 $ErrorActionPreference = "Stop"
 Set-Location $TargetRoot
 
+$ValidateScriptDir = Split-Path -Parent $PSCommandPath
+$SecretPatternsLib = Join-Path $ValidateScriptDir "lib/secret-patterns.ps1"
+if (Test-Path $SecretPatternsLib) { . $SecretPatternsLib }
+
 if ((Test-Path "manifest/ARTIFACT_MANIFEST.md") -and (Test-Path "prompts/MASTER_BOOTSTRAP.md")) {
     Write-Host "Toolkit meta-repo detected; skip target harness validation (use CI validate-toolkit workflow)."
     exit 0
@@ -124,13 +128,44 @@ if (Test-Path "AGENTS.md") {
     }
 }
 
+try {
+    git rev-parse --is-inside-work-tree 2>$null | Out-Null
+    foreach ($envf in @(".env", ".env.local", ".env.production", ".env.development")) {
+        $tracked = git ls-files --error-unmatch $envf 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            Fail "Tracked env file must not be committed: $envf"
+        }
+    }
+} catch { }
+
+if (Get-Command Test-SecretScanFile -ErrorAction SilentlyContinue) {
+    foreach ($base in $HarnessPaths) {
+        if (-not (Test-Path $base)) { continue }
+        $files = @()
+        if ((Get-Item $base).PSIsContainer) {
+            $files = Get-ChildItem -Path $base -Recurse -Include "*.md", "*.mdc" -File -ErrorAction SilentlyContinue |
+                Where-Object { $_.FullName -notmatch 'frontend-harness-bootstrap' }
+        } else {
+            $files = @(Get-Item $base)
+        }
+        foreach ($f in $files) {
+            if (Test-SecretScanFile $f.FullName) {
+                if ($Strict) { Fail "Possible secret literal in harness file: $($f.FullName)" }
+                else { Warn "Possible secret literal in harness file: $($f.FullName)" }
+            }
+        }
+    }
+}
+
 if (Test-Path ".cursor/hooks.json") {
     $hooksJson = Get-Content ".cursor/hooks.json" -Raw
     foreach ($script in @(
             ".cursor/hooks/verify-frontend.sh",
             ".cursor/hooks/verify-frontend.ps1",
             ".cursor/hooks/deny-dangerous.sh",
-            ".cursor/hooks/deny-dangerous.ps1"
+            ".cursor/hooks/deny-dangerous.ps1",
+            ".cursor/hooks/scan-secrets.sh",
+            ".cursor/hooks/scan-secrets.ps1"
         )) {
         $base = Split-Path -Leaf $script
         if ($hooksJson -match [regex]::Escape($base) -and -not (Test-Path $script)) {
@@ -157,6 +192,13 @@ function Test-MirrorDir([string]$MirrorBase) {
         if ((Test-Path $mirror) -and -not ((Get-FileHash $_.FullName).Hash -eq (Get-FileHash $mirror).Hash)) {
             Warn "Skill $name differs: canonical vs $MirrorBase mirror (run scripts/sync-skills.ps1)"
         }
+    }
+}
+
+if ((Test-Path ".agents/skills/frontend-verify") -or (Test-Path ".cursor/skills/frontend-verify")) {
+    if (-not (Test-Path ".agents/skills/frontend-security/SKILL.md") -and
+        -not (Test-Path ".cursor/skills/frontend-security/SKILL.md")) {
+        Fail "frontend-security skill missing (required P1 with frontend-verify)"
     }
 }
 

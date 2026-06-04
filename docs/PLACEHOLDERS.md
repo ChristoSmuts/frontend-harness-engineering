@@ -27,6 +27,9 @@ Replace all `{{TOKEN}}` values when generating into a target project.
 | `{{SHADCN_ADD_CMD}}` | Add component | `pnpm dlx shadcn@latest add` |
 | `{{SCOPE_GLOBS}}` | Sub-agent scope | `src/**` |
 | `{{MCP_POLICY}}` | MCP usage | `Figma MCP only for design tasks` |
+| `{{PUBLIC_ENV_PREFIX}}` | Client-safe env prefix | `NEXT_PUBLIC_`, `VITE_` |
+| `{{AUTH_STACK}}` | Auth approach | `NextAuth`, `none (follow existing patterns)` |
+| `{{SKILL_SECURITY_WHEN}}` | Orchestration table | auth, env, API keys, security-sensitive work |
 | `{{APP_PACKAGE_NAME}}` | Turbo filter | `web` |
 | `{{APP_PACKAGE_PATH}}` | Monorepo cwd | `apps/web` |
 | `{{DATA_FETCHING_PATTERN}}` | Data layer | `TanStack Query v5` |

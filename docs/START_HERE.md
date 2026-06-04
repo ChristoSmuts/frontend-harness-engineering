@@ -30,6 +30,7 @@ Details: [EMIT_STRATEGIES.md](EMIT_STRATEGIES.md). Paths: [manifest/TOOL_LAYOUT.
 | Need | Doc |
 |------|-----|
 | Day 0 checks | [HARNESS_GROWTH.md](HARNESS_GROWTH.md) |
+| Security harness | [FRONTEND_SECURITY.md](FRONTEND_SECURITY.md) |
 | Per-product usage | [MULTI_TOOL.md](MULTI_TOOL.md) |
 | Linux / macOS / Windows commands | [CROSS_PLATFORM.md](CROSS_PLATFORM.md) |
 | Team PR rules | [TEAM_GOVERNANCE.md](TEAM_GOVERNANCE.md) |

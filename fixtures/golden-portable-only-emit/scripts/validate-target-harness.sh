@@ -23,6 +23,13 @@ done
 
 cd "$ROOT"
 
+VALIDATE_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/secret-patterns.sh
+if [[ -f "$VALIDATE_SCRIPT_DIR/lib/secret-patterns.sh" ]]; then
+  # shellcheck disable=SC1091
+  source "$VALIDATE_SCRIPT_DIR/lib/secret-patterns.sh"
+fi
+
 if [[ -f "manifest/ARTIFACT_MANIFEST.md" && -f "prompts/MASTER_BOOTSTRAP.md" ]]; then
   echo "Toolkit meta-repo detected; skip target harness validation (use CI validate-toolkit workflow)."
   exit 0
@@ -156,14 +163,60 @@ if [[ -f AGENTS.md ]]; then
   fi
 fi
 
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  for envf in .env .env.local .env.production .env.development; do
+    if git ls-files --error-unmatch "$envf" >/dev/null 2>&1; then
+      fail "Tracked env file must not be committed: $envf"
+    fi
+  done
+fi
+
+if declare -f secret_scan_file >/dev/null 2>&1; then
+  for base in "${HARNESS_PATHS[@]}"; do
+    [[ -e "$base" ]] || continue
+    if [[ -f "$base" ]]; then
+      if ! secret_scan_file "$base"; then
+        if $STRICT; then fail "Possible secret literal in harness file: $base"
+        else warn "Possible secret literal in harness file: $base"
+        fi
+      fi
+      continue
+    fi
+    while IFS= read -r -d '' f; do
+      case "$f" in
+        *frontend-harness-bootstrap*) continue ;;
+      esac
+      case "$f" in
+        *.md|*.mdc) ;;
+        *) continue ;;
+      esac
+      if ! secret_scan_file "$f"; then
+        if $STRICT; then fail "Possible secret literal in harness file: $f"
+        else warn "Possible secret literal in harness file: $f"
+        fi
+      fi
+    done < <(find "$base" -type f \( -name '*.md' -o -name '*.mdc' \) -print0 2>/dev/null)
+  done
+fi
+
 if [[ -f .cursor/hooks.json ]]; then
   hooks_json=$(cat .cursor/hooks.json)
-  for script in .cursor/hooks/verify-frontend.sh .cursor/hooks/verify-frontend.ps1 .cursor/hooks/deny-dangerous.sh .cursor/hooks/deny-dangerous.ps1; do
+  for script in .cursor/hooks/verify-frontend.sh .cursor/hooks/verify-frontend.ps1 .cursor/hooks/deny-dangerous.sh .cursor/hooks/deny-dangerous.ps1 .cursor/hooks/scan-secrets.sh .cursor/hooks/scan-secrets.ps1; do
     base=$(basename "$script")
     if echo "$hooks_json" | grep -q "$base" && [[ ! -f "$script" ]]; then
       fail "hooks.json references missing $script"
     fi
   done
+fi
+
+has_verify=false
+has_security=false
+[[ -f .agents/skills/frontend-verify/SKILL.md ]] && has_verify=true
+[[ -f .cursor/skills/frontend-verify/SKILL.md ]] && has_verify=true
+[[ -f .agents/skills/frontend-security/SKILL.md ]] && has_security=true
+[[ -f .cursor/skills/frontend-security/SKILL.md ]] && has_security=true
+if $has_verify && ! $has_security; then
+  fail "frontend-security skill missing (required P1 with frontend-verify)"
 fi
 
 if [[ -f agents/ORCHESTRATION.md ]] && [[ -f .claude/ORCHESTRATION.md ]]; then

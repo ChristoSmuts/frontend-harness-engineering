@@ -46,6 +46,7 @@ Parent agent: trust the summary; open **Sources** only when implementing.
 | Skill | When to use |
 |-------|-------------|
 | `frontend-verify` | Before claiming done; lint + typecheck |
+| `frontend-security` | {{SKILL_SECURITY_WHEN}} |
 | `shadcn-components` | {{SKILL_SHADCN_WHEN}} |
 | `next-app-router` | {{SKILL_NEXT_WHEN}} |
 | `vite-react` | {{SKILL_VITE_WHEN}} |

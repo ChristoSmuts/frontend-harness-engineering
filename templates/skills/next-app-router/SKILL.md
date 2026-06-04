@@ -22,6 +22,7 @@ disable-model-invocation: true
 
 - Fetch on server when possible; pass serializable props to client children.
 - Do not import server-only modules into client components.
+- Use `NEXT_PUBLIC_*` only for client-safe env; server secrets stay server-side (see **`frontend-security`**).
 
 ## Files to avoid editing
 

@@ -98,6 +98,13 @@ for s in validate-target-harness.sh validate-target-harness.ps1 sync-skills.sh s
   cp "$TOOLKIT/scripts/$s" "$dest"
   chmod +x "$dest" 2>/dev/null || true
 done
+mkdir -p scripts/lib
+for s in secret-patterns.sh secret-patterns.ps1; do
+  dest="scripts/lib/$s"
+  if should_skip "$dest"; then continue; fi
+  cp "$TOOLKIT/scripts/lib/$s" "$dest"
+  chmod +x "$dest" 2>/dev/null || true
+done
 
 # Core artifacts
 emit_substitute "$TOOLKIT/templates/AGENTS.md.template" "AGENTS.md"
@@ -125,7 +132,7 @@ if tool_selected "$ANSWERS" "Claude" && [[ "$emit_strategy" == "full" || "$emit_
   emit_substitute "$TOOLKIT/templates/CLAUDE.md.template" "CLAUDE.md"
 fi
 
-if tool_selected "$ANSWERS" "Gemini" ]]; then
+if tool_selected "$ANSWERS" "Gemini"; then
   emit_substitute "$TOOLKIT/templates/GEMINI.md.template" "GEMINI.md"
 fi
 
@@ -139,14 +146,14 @@ fi
 
 # Cursor rules
 if tool_selected "$ANSWERS" "Cursor" && [[ "$emit_strategy" != "portable-only" ]]; then
-  for rule in frontend-core typescript-react ui-components; do
+  for rule in frontend-core frontend-security typescript-react ui-components; do
     emit_substitute "$TOOLKIT/templates/rules/${rule}.mdc.template" ".cursor/rules/${rule}.mdc"
   done
 fi
 
 # Claude rules
 if tool_selected "$ANSWERS" "Claude" && [[ "$emit_strategy" == "full" || "$emit_strategy" == "portable-only" ]]; then
-  for rule in frontend-core typescript-react ui-components; do
+  for rule in frontend-core frontend-security typescript-react ui-components; do
     mdc_template_to_claude_md "$TOOLKIT/templates/rules/${rule}.mdc.template" ".claude/rules/${rule}.md" "$map_tmp"
     echo "emit .claude/rules/${rule}.md"
   done
@@ -159,16 +166,25 @@ fi
 # Hooks
 if tool_selected "$ANSWERS" "Cursor" && [[ "$emit_strategy" != "portable-only" ]]; then
   shell_guard_on=false
+  secret_scan_on=true
   feature_enabled "$ANSWERS" "shell_guard" && shell_guard_on=true
-  hooks_tpl="$TOOLKIT/templates/hooks/hooks.json.template"
+  [[ "$(jq -r '.features.secret_scan_hook // "true"' "$ANSWERS")" == "false" ]] && secret_scan_on=false
+
+  hooks_name="hooks.json.template"
   if [[ "$platform" == "windows" ]]; then
-    hooks_tpl="$TOOLKIT/templates/hooks/hooks.windows.json.template"
-    if ! $shell_guard_on; then
-      hooks_tpl="$TOOLKIT/templates/hooks/hooks.windows.no-shell-guard.json.template"
+    if $shell_guard_on && $secret_scan_on; then hooks_name="hooks.windows.json.template"
+    elif $shell_guard_on; then hooks_name="hooks.windows.no-secret-scan.json.template"
+    elif $secret_scan_on; then hooks_name="hooks.windows.no-shell-guard.json.template"
+    else hooks_name="hooks.windows.verify-only.json.template"
     fi
-  elif ! $shell_guard_on; then
-    hooks_tpl="$TOOLKIT/templates/hooks/hooks.no-shell-guard.json.template"
+  else
+    if $shell_guard_on && $secret_scan_on; then hooks_name="hooks.json.template"
+    elif $shell_guard_on; then hooks_name="hooks.no-secret-scan.json.template"
+    elif $secret_scan_on; then hooks_name="hooks.no-shell-guard.json.template"
+    else hooks_name="hooks.verify-only.json.template"
+    fi
   fi
+  hooks_tpl="$TOOLKIT/templates/hooks/$hooks_name"
   cp "$hooks_tpl" .cursor/hooks.json
   mkdir -p .cursor/hooks
   for hook_script in verify-frontend.sh verify-frontend.ps1; do
@@ -177,6 +193,12 @@ if tool_selected "$ANSWERS" "Cursor" && [[ "$emit_strategy" != "portable-only" ]
   done
   if $shell_guard_on; then
     for hook_script in deny-dangerous.sh deny-dangerous.ps1; do
+      cp "$TOOLKIT/templates/hooks/$hook_script" ".cursor/hooks/$hook_script" 2>/dev/null || true
+      chmod +x ".cursor/hooks/$hook_script" 2>/dev/null || true
+    done
+  fi
+  if $secret_scan_on; then
+    for hook_script in scan-secrets.sh scan-secrets.ps1; do
       cp "$TOOLKIT/templates/hooks/$hook_script" ".cursor/hooks/$hook_script" 2>/dev/null || true
       chmod +x ".cursor/hooks/$hook_script" 2>/dev/null || true
     done
@@ -233,7 +255,7 @@ for ((i = 0; i < skill_count; i++)); do
 done
 
 # SKILL_*_WHEN rows for orchestration — minimal defaults
-for key in SKILL_SHADCN_WHEN SKILL_NEXT_WHEN SKILL_VITE_WHEN SKILL_DATA_WHEN SKILL_FORMS_WHEN SKILL_E2E_WHEN SKILL_A11Y_WHEN; do
+for key in SKILL_SHADCN_WHEN SKILL_NEXT_WHEN SKILL_VITE_WHEN SKILL_DATA_WHEN SKILL_FORMS_WHEN SKILL_E2E_WHEN SKILL_A11Y_WHEN SKILL_SECURITY_WHEN; do
   if ! grep -q "^${key}=" "$map_tmp" 2>/dev/null; then
     echo "${key}=When task matches skill name in ORCHESTRATION.md" >> "$map_tmp"
   fi

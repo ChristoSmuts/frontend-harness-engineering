@@ -10,22 +10,27 @@
         ".cursor/ORCHESTRATION.md",
         ".cursor/ORCHESTRATION.cursor-hooks.md",
         ".cursor/rules/frontend-core.mdc",
+        ".cursor/rules/frontend-security.mdc",
         ".cursor/rules/typescript-react.mdc",
         ".cursor/rules/ui-components.mdc",
         ".cursor/hooks.json",
         ".cursor/hooks/verify-frontend.sh",
         ".cursor/hooks/verify-frontend.ps1",
         ".agents/skills/frontend-verify/SKILL.md",
+        ".agents/skills/frontend-security/SKILL.md",
         ".agents/skills/next-app-router/SKILL.md",
         ".agents/skills/shadcn-components/SKILL.md",
         ".cursor/skills/frontend-verify/SKILL.md",
+        ".cursor/skills/frontend-security/SKILL.md",
         ".cursor/skills/next-app-router/SKILL.md",
         ".cursor/skills/shadcn-components/SKILL.md",
         ".github/workflows/harness-validate.yml",
         "scripts/validate-target-harness.sh",
         "scripts/validate-target-harness.ps1",
         "scripts/sync-skills.sh",
-        "scripts/sync-skills.ps1"
+        "scripts/sync-skills.ps1",
+        "scripts/lib/secret-patterns.sh",
+        "scripts/lib/secret-patterns.ps1"
       ]
     },
     "portable-only": {
@@ -34,10 +39,13 @@
         "HARNESS_CHANGELOG.md",
         "agents/ORCHESTRATION.md",
         ".agents/skills/frontend-verify/SKILL.md",
+        ".agents/skills/frontend-security/SKILL.md",
         "scripts/validate-target-harness.sh",
         "scripts/validate-target-harness.ps1",
         "scripts/sync-skills.sh",
-        "scripts/sync-skills.ps1"
+        "scripts/sync-skills.ps1",
+        "scripts/lib/secret-patterns.sh",
+        "scripts/lib/secret-patterns.ps1"
       ]
     },
     "cursor-only": {
@@ -46,16 +54,22 @@
         "HARNESS_CHANGELOG.md",
         ".cursor/ORCHESTRATION.md",
         ".cursor/rules/frontend-core.mdc",
+        ".cursor/rules/frontend-security.mdc",
         ".cursor/hooks.json",
         ".cursor/skills/frontend-verify/SKILL.md",
+        ".cursor/skills/frontend-security/SKILL.md",
         "scripts/validate-target-harness.sh",
         "scripts/validate-target-harness.ps1",
         "scripts/sync-skills.sh",
-        "scripts/sync-skills.ps1"
+        "scripts/sync-skills.ps1",
+        "scripts/lib/secret-patterns.sh",
+        "scripts/lib/secret-patterns.ps1"
       ]
     }
   },
   "conditional_paths": [
+    { "path": ".cursor/hooks/scan-secrets.sh", "profiles": ["full", "cursor-only"], "feature": "secret_scan_hook" },
+    { "path": ".cursor/hooks/scan-secrets.ps1", "profiles": ["full", "cursor-only"], "feature": "secret_scan_hook" },
     { "path": ".cursor/hooks/deny-dangerous.sh", "profiles": ["full", "cursor-only"], "feature": "shell_guard" },
     { "path": ".cursor/hooks/deny-dangerous.ps1", "profiles": ["full", "cursor-only"], "feature": "shell_guard" },
     { "path": ".codex/config.toml", "profiles": ["full", "portable-only"], "feature": "codex_hooks" },
@@ -65,7 +79,9 @@
     { "template": "scripts/validate-target-harness.sh", "target": "scripts/validate-target-harness.sh", "substitute": false },
     { "template": "scripts/validate-target-harness.ps1", "target": "scripts/validate-target-harness.ps1", "substitute": false },
     { "template": "scripts/sync-skills.sh", "target": "scripts/sync-skills.sh", "substitute": false },
-    { "template": "scripts/sync-skills.ps1", "target": "scripts/sync-skills.ps1", "substitute": false }
+    { "template": "scripts/sync-skills.ps1", "target": "scripts/sync-skills.ps1", "substitute": false },
+    { "template": "scripts/lib/secret-patterns.sh", "target": "scripts/lib/secret-patterns.sh", "substitute": false },
+    { "template": "scripts/lib/secret-patterns.ps1", "target": "scripts/lib/secret-patterns.ps1", "substitute": false }
   ],
   "artifacts": [
     { "id": "agents-md", "template": "templates/AGENTS.md.template", "target": "AGENTS.md", "emit_strategies": ["full", "portable-only", "cursor-only"], "substitute": true },
@@ -80,12 +96,14 @@
   "cursor_rules": [
     { "template": "templates/rules/frontend-core.mdc.template", "target": ".cursor/rules/frontend-core.mdc", "emit_strategies": ["full", "cursor-only"], "tools": ["Cursor"] },
     { "template": "templates/rules/typescript-react.mdc.template", "target": ".cursor/rules/typescript-react.mdc", "emit_strategies": ["full", "cursor-only"], "tools": ["Cursor"] },
-    { "template": "templates/rules/ui-components.mdc.template", "target": ".cursor/rules/ui-components.mdc", "emit_strategies": ["full", "cursor-only"], "tools": ["Cursor"] }
+    { "template": "templates/rules/ui-components.mdc.template", "target": ".cursor/rules/ui-components.mdc", "emit_strategies": ["full", "cursor-only"], "tools": ["Cursor"] },
+    { "template": "templates/rules/frontend-security.mdc.template", "target": ".cursor/rules/frontend-security.mdc", "emit_strategies": ["full", "cursor-only"], "tools": ["Cursor"] }
   ],
   "claude_rules": [
     { "template": "templates/rules/frontend-core.mdc.template", "target": ".claude/rules/frontend-core.md", "emit_strategies": ["full", "portable-only"], "tools": ["Claude Code"] },
     { "template": "templates/rules/typescript-react.mdc.template", "target": ".claude/rules/typescript-react.md", "emit_strategies": ["full", "portable-only"], "tools": ["Claude Code"] },
-    { "template": "templates/rules/ui-components.mdc.template", "target": ".claude/rules/ui-components.md", "emit_strategies": ["full", "portable-only"], "tools": ["Claude Code"] }
+    { "template": "templates/rules/ui-components.mdc.template", "target": ".claude/rules/ui-components.md", "emit_strategies": ["full", "portable-only"], "tools": ["Claude Code"] },
+    { "template": "templates/rules/frontend-security.mdc.template", "target": ".claude/rules/frontend-security.md", "emit_strategies": ["full", "portable-only"], "tools": ["Claude Code"] }
   ],
   "hooks": {
     "unix": {
@@ -95,7 +113,9 @@
         { "template": "templates/hooks/verify-frontend.sh", "target": ".cursor/hooks/verify-frontend.sh" },
         { "template": "templates/hooks/verify-frontend.ps1", "target": ".cursor/hooks/verify-frontend.ps1" },
         { "template": "templates/hooks/deny-dangerous.sh", "target": ".cursor/hooks/deny-dangerous.sh", "feature": "shell_guard" },
-        { "template": "templates/hooks/deny-dangerous.ps1", "target": ".cursor/hooks/deny-dangerous.ps1" }
+        { "template": "templates/hooks/deny-dangerous.ps1", "target": ".cursor/hooks/deny-dangerous.ps1" },
+        { "template": "templates/hooks/scan-secrets.sh", "target": ".cursor/hooks/scan-secrets.sh", "feature": "secret_scan_hook" },
+        { "template": "templates/hooks/scan-secrets.ps1", "target": ".cursor/hooks/scan-secrets.ps1", "feature": "secret_scan_hook" }
       ]
     },
     "windows": {
@@ -105,12 +125,15 @@
         { "template": "templates/hooks/verify-frontend.sh", "target": ".cursor/hooks/verify-frontend.sh" },
         { "template": "templates/hooks/verify-frontend.ps1", "target": ".cursor/hooks/verify-frontend.ps1" },
         { "template": "templates/hooks/deny-dangerous.sh", "target": ".cursor/hooks/deny-dangerous.sh" },
-        { "template": "templates/hooks/deny-dangerous.ps1", "target": ".cursor/hooks/deny-dangerous.ps1", "feature": "shell_guard" }
+        { "template": "templates/hooks/deny-dangerous.ps1", "target": ".cursor/hooks/deny-dangerous.ps1", "feature": "shell_guard" },
+        { "template": "templates/hooks/scan-secrets.sh", "target": ".cursor/hooks/scan-secrets.sh", "feature": "secret_scan_hook" },
+        { "template": "templates/hooks/scan-secrets.ps1", "target": ".cursor/hooks/scan-secrets.ps1", "feature": "secret_scan_hook" }
       ]
     }
   },
   "skills": [
     { "name": "frontend-verify", "template": "templates/skills/frontend-verify/SKILL.md", "priority": "P1", "always": true },
+    { "name": "frontend-security", "template": "templates/skills/frontend-security/SKILL.md", "priority": "P1", "always": true },
     { "name": "shadcn-components", "template": "templates/skills/shadcn-components/SKILL.md", "feature": "shadcn" },
     { "name": "next-app-router", "template": "templates/skills/next-app-router/SKILL.md", "framework_match": "Next" },
     { "name": "vite-react", "template": "templates/skills/vite-react/SKILL.md", "framework_match": "Vite" },

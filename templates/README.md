@@ -15,7 +15,10 @@ See [../docs/PLACEHOLDERS.md](../docs/PLACEHOLDERS.md).
 
 - Ensure Unix scripts are executable: `chmod +x .cursor/hooks/*.sh`
 - `deny-dangerous.sh` (unix) / `deny-dangerous.ps1` (windows) block dangerous shell when `features.shell_guard` is true
-- `hooks.no-shell-guard.json.template` / `hooks.windows.no-shell-guard.json.template` — verify-only hooks when shell guard is off
+- `scan-secrets.sh` / `scan-secrets.ps1` scan git-changed files when `features.secret_scan_hook` is true (default)
+- Hook JSON variants: `hooks.json.template` (shell + scan), `hooks.no-secret-scan.json.template`, `hooks.no-shell-guard.json.template`, `hooks.verify-only.json.template` (+ `hooks.windows.*`)
+- P1 `rules/frontend-security.mdc.template` and `skills/frontend-security/` — see [../docs/FRONTEND_SECURITY.md](../docs/FRONTEND_SECURITY.md)
+- Copy `scripts/lib/secret-patterns.*` to target with maintenance scripts
 - See [../docs/CROSS_PLATFORM.md](../docs/CROSS_PLATFORM.md) for validate/sync on each OS
 
 ## Monorepo verify hooks

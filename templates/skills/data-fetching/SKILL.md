@@ -24,3 +24,5 @@ disable-model-invocation: true
 ## Security
 
 - No secrets in client bundles; use server routes or BFF for privileged calls.
+- Load skill **`frontend-security`** for auth, env, or API key work.
+- Cookie/session auth: use `httpOnly`/`Secure` where applicable; consider CSRF on mutating requests.

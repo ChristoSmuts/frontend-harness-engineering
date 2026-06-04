@@ -49,6 +49,132 @@ run "Manifest profile portable-only" bash scripts/validate-fixture-manifest.sh -
 run "Manifest profile cursor-only" bash scripts/validate-fixture-manifest.sh --profile cursor-only fixtures/golden-cursor-only-emit
 
 echo ""
+echo "=== Security templates ==="
+SEC_TPL_OK=true
+for f in \
+  templates/rules/frontend-security.mdc.template \
+  templates/skills/frontend-security/SKILL.md \
+  templates/hooks/scan-secrets.sh \
+  templates/hooks/scan-secrets.ps1 \
+  scripts/lib/secret-patterns.sh \
+  scripts/lib/secret-patterns.ps1; do
+  if [[ ! -f "$f" ]]; then
+    echo "Missing: $f"
+    SEC_TPL_OK=false
+  fi
+done
+if $SEC_TPL_OK \
+  && grep -q '{{PUBLIC_ENV_PREFIX}}' templates/rules/frontend-security.mdc.template \
+  && grep -q '{{AUTH_STACK}}' templates/skills/frontend-security/SKILL.md \
+  && grep -q 'scan-secrets' templates/hooks/hooks.json.template; then
+  pass "Security templates"
+else
+  fail "Security templates"
+fi
+
+echo ""
+echo "=== Golden full security layout ==="
+FULL_SEC_OK=true
+for f in \
+  fixtures/golden-full-emit/.cursor/rules/frontend-security.mdc \
+  fixtures/golden-full-emit/.agents/skills/frontend-security/SKILL.md \
+  fixtures/golden-full-emit/.cursor/hooks/scan-secrets.sh \
+  fixtures/golden-full-emit/.cursor/hooks/scan-secrets.ps1 \
+  fixtures/golden-full-emit/scripts/lib/secret-patterns.sh; do
+  [[ -f "$f" ]] || { echo "Missing: $f"; FULL_SEC_OK=false; }
+done
+if $FULL_SEC_OK && grep -q 'scan-secrets.sh' fixtures/golden-full-emit/.cursor/hooks.json; then
+  pass "Golden full security layout"
+else
+  fail "Golden full security layout"
+fi
+
+echo ""
+echo "=== Golden cursor-only security layout ==="
+CURSOR_SEC_OK=true
+for f in \
+  fixtures/golden-cursor-only-emit/.cursor/rules/frontend-security.mdc \
+  fixtures/golden-cursor-only-emit/.cursor/skills/frontend-security/SKILL.md \
+  fixtures/golden-cursor-only-emit/.cursor/hooks/scan-secrets.sh; do
+  [[ -f "$f" ]] || { echo "Missing: $f"; CURSOR_SEC_OK=false; }
+done
+if $CURSOR_SEC_OK && grep -q 'scan-secrets.sh' fixtures/golden-cursor-only-emit/.cursor/hooks.json; then
+  pass "Golden cursor-only security layout"
+else
+  fail "Golden cursor-only security layout"
+fi
+
+echo ""
+echo "=== Golden portable-only security (no Cursor hooks) ==="
+PORTABLE_SEC_OK=true
+[[ -f fixtures/golden-portable-only-emit/.agents/skills/frontend-security/SKILL.md ]] || PORTABLE_SEC_OK=false
+[[ -f fixtures/golden-portable-only-emit/scripts/lib/secret-patterns.sh ]] || PORTABLE_SEC_OK=false
+[[ ! -d fixtures/golden-portable-only-emit/.cursor ]] || PORTABLE_SEC_OK=false
+if $PORTABLE_SEC_OK; then
+  pass "Golden portable-only security layout"
+else
+  fail "Golden portable-only security layout"
+fi
+
+echo ""
+echo "=== secret-patterns detects literals ==="
+# shellcheck source=lib/secret-patterns.sh
+source "$ROOT/scripts/lib/secret-patterns.sh"
+PAT_TMP="$(mktemp)"
+# Use api_key assignment (not sk_live_) so GitHub push protection does not flag test literals.
+printf '%s\n' 'api_key = "harness-test-fake-secret-not-real";' > "$PAT_TMP"
+if secret_scan_file "$PAT_TMP" >/dev/null 2>&1; then
+  fail "secret-patterns detects literals"
+else
+  pass "secret-patterns detects literals"
+fi
+rm -f "$PAT_TMP"
+
+echo ""
+echo "=== scan-secrets hook blocks changed file ==="
+SCAN_REPO="$(mktemp -d)"
+(
+  set -euo pipefail
+  cd "$SCAN_REPO"
+  git init -q
+  git config user.email "test@example.com"
+  git config user.name "Toolkit Test"
+  mkdir -p scripts/lib .cursor/hooks src
+  cp "$ROOT/scripts/lib/secret-patterns.sh" scripts/lib/
+  cp "$ROOT/templates/hooks/scan-secrets.sh" .cursor/hooks/
+  chmod +x .cursor/hooks/scan-secrets.sh
+  printf '%s\n' '// clean' > src/app.ts
+  git add .
+  git commit -q -m "init"
+  printf '%s\n' 'api_key = "harness-test-fake-secret-not-real";' >> src/app.ts
+  code=0
+  out=$(bash .cursor/hooks/scan-secrets.sh 2>&1) || code=$?
+  [[ "$code" -eq 2 ]] && [[ "$out" == *Blocked* ]] || exit 1
+) && pass "scan-secrets hook blocks changed file" || fail "scan-secrets hook blocks changed file"
+rm -rf "$SCAN_REPO"
+
+echo ""
+echo "=== scan-secrets hook allows clean diff ==="
+SCAN_CLEAN="$(mktemp -d)"
+(
+  set -euo pipefail
+  cd "$SCAN_CLEAN"
+  git init -q
+  git config user.email "test@example.com"
+  git config user.name "Toolkit Test"
+  mkdir -p scripts/lib .cursor/hooks src
+  cp "$ROOT/scripts/lib/secret-patterns.sh" scripts/lib/
+  cp "$ROOT/templates/hooks/scan-secrets.sh" .cursor/hooks/
+  chmod +x .cursor/hooks/scan-secrets.sh
+  printf '%s\n' 'export const ok = 1;' > src/app.ts
+  git add .
+  git commit -q -m "init"
+  printf '%s\n' 'export const alsoOk = 2;' >> src/app.ts
+  bash .cursor/hooks/scan-secrets.sh
+) && pass "scan-secrets hook allows clean diff" || fail "scan-secrets hook allows clean diff"
+rm -rf "$SCAN_CLEAN"
+
+echo ""
 echo "=== cursor-only no agents/ORCHESTRATION.md ==="
 if [[ ! -f fixtures/golden-cursor-only-emit/agents/ORCHESTRATION.md ]]; then
   pass "cursor-only orchestration layout"

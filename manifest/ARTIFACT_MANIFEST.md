@@ -20,6 +20,7 @@ Apply **emit_strategy** from [docs/EMIT_STRATEGIES.md](../docs/EMIT_STRATEGIES.m
 | Orchestration (Cursor) | `.cursor/ORCHESTRATION.md` | — | — | shared + `templates/ORCHESTRATION.cursor-hooks.md.template` |
 | Cursor hooks fragment | `.cursor/ORCHESTRATION.cursor-hooks.md` | — | — | `templates/ORCHESTRATION.cursor-hooks.md.template` (for sync) |
 | Core rule | `.cursor/rules/frontend-core.mdc` | `.claude/rules/frontend-core.md` | — | `templates/rules/frontend-core.mdc.template` |
+| Security rule | `.cursor/rules/frontend-security.mdc` | `.claude/rules/frontend-security.md` | — | `templates/rules/frontend-security.mdc.template` |
 | Claude entry (optional) | — | `CLAUDE.md` | — | `templates/CLAUDE.md.template` |
 | Gemini entry (optional) | — | — | `GEMINI.md` | `templates/GEMINI.md.template` |
 
@@ -33,6 +34,9 @@ Apply **emit_strategy** from [docs/EMIT_STRATEGIES.md](../docs/EMIT_STRATEGIES.m
 | Verify scripts | `.cursor/hooks/verify-frontend.sh` / `.ps1` | — | — | `templates/hooks/*` |
 | Shell guard | `.cursor/hooks/deny-dangerous.sh` | — | — | `templates/hooks/deny-dangerous.sh` |
 | Verify skill | mirror | mirror | **canonical** `.agents/skills/frontend-verify/` | `templates/skills/frontend-verify/SKILL.md` |
+| Security skill | mirror | mirror | **canonical** `.agents/skills/frontend-security/` | `templates/skills/frontend-security/SKILL.md` |
+| Secret scan hook | `.cursor/hooks/scan-secrets.*` | — | — | `templates/hooks/scan-secrets.sh` / `.ps1` (opt-out: `features.secret_scan_hook`) |
+| Secret patterns lib | — | — | `scripts/lib/secret-patterns.*` | toolkit `scripts/lib/` (copied on emit) |
 | Harness changelog (teams) | — | — | `HARNESS_CHANGELOG.md` | `templates/HARNESS_CHANGELOG.md.template` |
 | Maintenance scripts | `scripts/sync-skills.sh` + `.ps1` | — | — | toolkit `scripts/` (**every** emit) |
 | Validate scripts | `scripts/validate-target-harness.sh` + `.ps1` | — | — | toolkit `scripts/` (**every** emit) |

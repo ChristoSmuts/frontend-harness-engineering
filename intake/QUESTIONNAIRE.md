@@ -75,6 +75,7 @@ Optional machine-readable export: [answers.schema.json](answers.schema.json) and
 | Data fetching | fetch, TanStack Query, tRPC, server actions |
 | Error/loading UI pattern | brief description or file path |
 | Public env prefix | `NEXT_PUBLIC_` |
+| Auth stack | none, NextAuth, Clerk, custom BFF, etc. |
 
 ## G. Harness preferences
 
@@ -84,6 +85,7 @@ Optional machine-readable export: [answers.schema.json](answers.schema.json) and
 | CLI preferred over MCP | gh, linear custom CLI, etc. |
 | Hooks on stop | format + typecheck yes/no |
 | Shell guards | deny migrations, deploy, `rm -rf` yes/no |
+| Secret scan hook (Cursor stop) | scan git-changed files for secret literals yes/no (default yes) |
 | Product in-app AI (BAML) | yes / no — separate from coding-agent harness |
 
 ## H. Team workflow

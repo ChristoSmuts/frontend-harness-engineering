@@ -25,6 +25,10 @@ Use these for agent self-check—not full CI.
 
 `.next`, `dist`, `node_modules`
 
+## Security
+
+- Follow rule **`frontend-security`** and skill **`frontend-security`** for auth, env vars, API keys, and client/server boundaries.
+
 ## Harness
 
 - **Emit strategy:** cursor-only · **Harness owner:** solo · **Platform primary:** unix
