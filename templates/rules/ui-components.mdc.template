@@ -1,0 +1,16 @@
+---
+description: UI components and styling conventions
+globs: "{{UI_RULE_GLOBS}}"
+alwaysApply: false
+---
+
+# UI components
+
+- Component library: **{{UI_LIBRARY}}**
+- Styling: **{{STYLING}}**
+- Tokens/theme: `{{TOKENS_PATH}}`
+
+{{UI_LIBRARY_SPECIFIC_RULES}}
+
+- Reuse existing primitives before adding new base components.
+- Keep accessibility: labels, focus, keyboard for interactive elements (Radix/shadcn patterns if applicable).

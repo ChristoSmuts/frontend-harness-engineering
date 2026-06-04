@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "hooks": {
+    "stop": [
+      {
+        "command": ".cursor/hooks/verify-frontend.sh",
+        "timeout": 300
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": ".cursor/hooks/deny-dangerous.sh",
+        "timeout": 10
+      }
+    ]
+  }
+}

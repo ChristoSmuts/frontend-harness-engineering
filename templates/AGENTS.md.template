@@ -1,0 +1,36 @@
+# {{PROJECT_NAME}} — agent guide
+
+## Stack
+
+{{FRAMEWORK}} · TypeScript · {{STYLING}} · {{UI_LIBRARY}}
+
+## Layout
+
+- Routes/pages: `{{ROUTES_PATH}}`
+- Components: `{{COMPONENTS_PATH}}`
+- Shared UI: `{{SHARED_UI_PATH}}`
+- API / data client: `{{API_CLIENT_PATH}}`
+
+## Commands (fast verification)
+
+Use these for agent self-check—not full CI.
+
+- Install: `{{INSTALL_CMD}}`
+- Lint/format: `{{LINT_CMD}}`
+- Typecheck: `{{TYPECHECK_CMD}}`
+- Unit (single file): `{{UNIT_TEST_SINGLE_CMD}}`
+- E2E: use skill `playwright-e2e` or CI only—do not run the full suite after small edits
+
+## Do not edit
+
+{{FORBIDDEN_PATHS}}
+
+## Harness
+
+- Orchestration: `.cursor/ORCHESTRATION.md`
+- Skills: listed in ORCHESTRATION.md
+- On stop, hooks run verify scripts; fix all reported errors before finishing
+
+## Sub-agents
+
+For broad search or flow tracing, delegate to an explore sub-agent. Require replies with **Sources** as `path:startLine-endLine`. Parent opens only cited files.

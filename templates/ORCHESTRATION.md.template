@@ -1,0 +1,61 @@
+# Orchestration — {{PROJECT_NAME}}
+
+How coding agents should work in this frontend repo.
+
+## Context strategy
+
+| Task | Approach |
+|------|----------|
+| Find files / map an area | Explore sub-agent or parallel explore tasks |
+| Find symbol / needle | Direct Grep/Glob in parent, then Read |
+| Implement UI change | Parent reads cited files only; edits locally |
+| Full architecture survey | One explore sub-agent per concern (routing, data, UI) |
+
+Do **not** use role-based sub-agents ("frontend engineer", "backend engineer"). Use **task-shaped** delegation.
+
+## Sub-agent handoff contract
+
+Include in every sub-agent prompt:
+
+```text
+Scope paths: {{SCOPE_GLOBS}}
+Do not edit files.
+Return format:
+---
+Answer: (max 5 sentences)
+Sources: path:startLine-endLine per claim
+Not found: (if applicable)
+---
+```
+
+Parent agent: trust the summary; open **Sources** only when implementing.
+
+## Skills index
+
+| Skill | When to use |
+|-------|-------------|
+| `frontend-verify` | Before claiming done; lint + typecheck |
+| `shadcn-components` | {{SKILL_SHADCN_WHEN}} |
+| `next-app-router` | {{SKILL_NEXT_WHEN}} |
+| `vite-react` | {{SKILL_VITE_WHEN}} |
+| `data-fetching` | {{SKILL_DATA_WHEN}} |
+| `forms-validation` | {{SKILL_FORMS_WHEN}} |
+| `playwright-e2e` | {{SKILL_E2E_WHEN}} |
+| `accessibility` | {{SKILL_A11Y_WHEN}} |
+
+Remove rows for skills not installed in this project.
+
+## Hooks
+
+- **stop:** `verify-frontend` — format/lint + typecheck; success is silent
+- **beforeShellExecution:** `deny-dangerous` — blocks migrations, prod deploy, destructive rm (if enabled)
+
+## MCP policy
+
+{{MCP_POLICY}}
+
+Prefer CLI for git/GitHub when possible. Enable design/browser MCP only for tasks that need them; disable after to save context.
+
+## When harness grows
+
+Add one fix per repeatable failure: a rule line, skill section, or hook—not bulk MCP installs.
