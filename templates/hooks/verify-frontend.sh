@@ -2,7 +2,11 @@
 # Frontend verify hook — silent on success; stderr + exit 2 on failure (re-engage agent).
 set -euo pipefail
 
-cd "${CURSOR_PROJECT_DIR:-.}"
+cd "${AGENT_PROJECT_ROOT:-${CURSOR_PROJECT_DIR:-${CODEX_PROJECT_DIR:-.}}}"
+
+# {{MONOREPO_CD_BLOCK_START}}
+# Monorepo: bootstrap removes this block when monorepo=no; when yes, replace with: cd "{{APP_PACKAGE_PATH}}"
+# {{MONOREPO_CD_BLOCK_END}}
 
 LINT_CMD="{{LINT_CMD}}"
 TYPECHECK_CMD="{{TYPECHECK_CMD}}"

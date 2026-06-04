@@ -1,0 +1,11 @@
+# {{PROJECT_NAME}} — Gemini CLI
+
+Project agent guide: **[AGENTS.md](./AGENTS.md)** (shared across tools on this repo).
+
+## Gemini-specific paths
+
+- Skills: `.agents/skills/` (preferred) or `.gemini/skills/`
+- Project settings (optional): `.gemini/settings.json`
+- Orchestration: `agents/ORCHESTRATION.md`
+
+Use the `frontend-verify` skill or the fast verification commands in `AGENTS.md` before claiming work is complete.

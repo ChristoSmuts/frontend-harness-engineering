@@ -1,0 +1,11 @@
+# {{PROJECT_NAME}} — Claude Code
+
+Project agent guide: **[AGENTS.md](./AGENTS.md)** (shared across tools on this repo).
+
+## Claude-specific paths
+
+- Skills: `.claude/skills/` (same `SKILL.md` files as `.agents/skills/` when present)
+- Rules: `.claude/rules/`
+- Orchestration: `.claude/ORCHESTRATION.md` or `agents/ORCHESTRATION.md`
+
+Run `/frontend-verify` or the lint/typecheck commands in `AGENTS.md` before finishing a task.

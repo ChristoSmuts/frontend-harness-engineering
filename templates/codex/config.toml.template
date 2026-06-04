@@ -1,0 +1,7 @@
+# Codex CLI project config (optional — generate when features.codex_hooks is true)
+# See https://developers.openai.com/codex/concepts/customization
+# Trust this repo in Codex before enabling hooks.
+
+{{CODEX_HOOKS_BLOCK}}
+
+# Prefer thin AGENTS.md + .agents/skills/ — see docs/MULTI_TOOL.md in Frontend Harness Engineering toolkit.

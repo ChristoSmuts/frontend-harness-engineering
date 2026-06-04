@@ -6,19 +6,46 @@ Copy or generate these into a **target frontend project**. Replace every `{{TOKE
 
 See [../docs/PLACEHOLDERS.md](../docs/PLACEHOLDERS.md).
 
-## Hooks on Windows
+## Hooks and platform
 
-- Use `verify-frontend.ps1` in `hooks.json` if the team is Windows-only, or register both scripts.
-- Ensure scripts are executable on Unix: `chmod +x .cursor/hooks/*.sh`
-- For `hooks.json` on Windows-only, point `stop` at `.cursor/hooks/verify-frontend.ps1`
+| `platform_primary` | `hooks.json` source | Stop verify |
+|--------------------|---------------------|-------------|
+| `unix` (default) | `hooks.json.template` | `verify-frontend.sh` |
+| `windows` | `hooks.windows.json.template` | `verify-frontend.ps1` |
+
+- Ensure Unix scripts are executable: `chmod +x .cursor/hooks/*.sh`
+- `deny-dangerous.sh` (unix) / `deny-dangerous.ps1` (windows) block dangerous shell when `features.shell_guard` is true
+- `hooks.no-shell-guard.json.template` / `hooks.windows.no-shell-guard.json.template` — verify-only hooks when shell guard is off
+- See [../docs/CROSS_PLATFORM.md](../docs/CROSS_PLATFORM.md) for validate/sync on each OS
+
+## Monorepo verify hooks
+
+`verify-frontend.sh` / `.ps1` contain `{{MONOREPO_CD_BLOCK_START}}` … `{{MONOREPO_CD_BLOCK_END}}`. On bootstrap:
+
+- **Monorepo no:** remove the entire block (including markers).
+- **Monorepo yes:** replace with `cd "{{APP_PACKAGE_PATH}}"` (bash) or `Set-Location "{{APP_PACKAGE_PATH}}"` (PowerShell).
+
+## Orchestration (preferred split)
+
+1. `ORCHESTRATION.shared.md.template` → `agents/ORCHESTRATION.md` (and `.claude/ORCHESTRATION.md`)
+2. `ORCHESTRATION.cursor-hooks.md.template` → `.cursor/ORCHESTRATION.cursor-hooks.md` + append to `.cursor/ORCHESTRATION.md`
+
+Legacy monolithic: `ORCHESTRATION.md.template`.
+
+## Harness paths fragment
+
+`fragments/HARNESS_PATHS.example.md` — bullets for `{{HARNESS_PATHS}}` in `AGENTS.md`.
 
 ## Minimal set (P0 + P1)
 
-1. `AGENTS.md.template` → `/AGENTS.md`
-2. `ORCHESTRATION.md.template` → `.cursor/ORCHESTRATION.md`
-3. `rules/*.mdc.template` → `.cursor/rules/*.mdc` (drop `.template`)
-4. `hooks/*` → `.cursor/hooks/`
-5. `hooks.json.template` → `.cursor/hooks.json`
-6. `skills/frontend-verify/` → `.cursor/skills/frontend-verify/`
+1. `AGENTS.md.template` → `/AGENTS.md` (always)
+2. Orchestration shared + cursor-hooks → per [../manifest/TOOL_LAYOUT.md](../manifest/TOOL_LAYOUT.md)
+3. `rules/*.mdc.template` → `.cursor/rules/*.mdc` (Cursor only; drop `.template`)
+4. `hooks/*` → `.cursor/hooks/` (Cursor only)
+5. `hooks.json.template` or `hooks.windows.json.template` → `.cursor/hooks.json`
+6. Copy four scripts to target `scripts/` (bash + PowerShell validate and sync)
+8. `skills/*/` → **canonical** `.agents/skills/` first; mirror with sync scripts
+9. Optional: `CLAUDE.md.template`, `GEMINI.md.template`, `HARNESS_CHANGELOG.md.template`, `codex/config.toml.template`, `github/workflows/harness-validate.yml.template`
+10. Deterministic emit: [../docs/EMIT_FROM_INTAKE.md](../docs/EMIT_FROM_INTAKE.md) + `scripts/emit-from-intake.sh`
 
-Add other skills per [../manifest/ARTIFACT_MANIFEST.md](../manifest/ARTIFACT_MANIFEST.md).
+Add other skills per [../manifest/ARTIFACT_MANIFEST.md](../manifest/ARTIFACT_MANIFEST.md). Guides: [../docs/MULTI_TOOL.md](../docs/MULTI_TOOL.md), [../docs/EMIT_STRATEGIES.md](../docs/EMIT_STRATEGIES.md), [../docs/HARNESS_GROWTH.md](../docs/HARNESS_GROWTH.md).

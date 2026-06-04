@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Commands
 
-Run from project root (or `{{APP_PACKAGE_PATH}}` in monorepos):
+Run from project root{{MONOREPO_SKILL_NOTE}}:
 
 ```bash
 {{LINT_CMD}}

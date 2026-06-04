@@ -1,14 +1,3 @@
-# Legacy orchestration template
-
-Prefer the split templates for new bootstraps:
-
-- **Portable / Claude / Codex / Gemini:** [ORCHESTRATION.shared.md.template](ORCHESTRATION.shared.md.template) → `agents/ORCHESTRATION.md`
-- **Cursor-only hooks section:** [ORCHESTRATION.cursor-hooks.md.template](ORCHESTRATION.cursor-hooks.md.template) → append to `.cursor/ORCHESTRATION.md` and save copy as `.cursor/ORCHESTRATION.cursor-hooks.md` for `scripts/sync-skills.sh --orchestration`
-
-The monolithic content below matches the old combined file (hooks included). Use only if you cannot use the split.
-
----
-
 # Orchestration — {{PROJECT_NAME}}
 
 How coding agents should work in this frontend repo.
@@ -43,6 +32,8 @@ Parent agent: trust the summary; open **Sources** only when implementing.
 
 ## Skills index
 
+Canonical skill files: `{{CANONICAL_SKILLS_DIR}}/`. After editing, run `scripts/sync-skills.sh` when this repo uses mirrored tool paths.
+
 | Skill | When to use |
 |-------|-------------|
 | `frontend-verify` | Before claiming done; lint + typecheck |
@@ -56,11 +47,6 @@ Parent agent: trust the summary; open **Sources** only when implementing.
 
 Remove rows for skills not installed in this project.
 
-## Hooks (Cursor)
-
-- **stop:** `verify-frontend` — format/lint + typecheck; success is silent
-- **beforeShellExecution:** `deny-dangerous` — blocks migrations, prod deploy, destructive rm (if enabled)
-
 ## MCP policy
 
 {{MCP_POLICY}}
@@ -69,4 +55,4 @@ Prefer CLI for git/GitHub when possible. Enable design/browser MCP only for task
 
 ## When harness grows
 
-Add one fix per repeatable failure: a rule line, skill section, or hook—not bulk MCP installs.
+Add one fix per repeatable failure: a rule line, skill section, or hook—not bulk MCP installs. Log team-visible changes in `HARNESS_CHANGELOG.md` when used. See your toolkit `docs/HARNESS_GROWTH.md`.
