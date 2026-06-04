@@ -133,7 +133,7 @@ rm -f "$PAT_TMP"
 echo ""
 echo "=== scan-secrets hook blocks changed file ==="
 SCAN_REPO="$(mktemp -d)"
-(
+if (
   set -euo pipefail
   cd "$SCAN_REPO"
   git init -q
@@ -149,14 +149,21 @@ SCAN_REPO="$(mktemp -d)"
   printf '%s\n' 'api_key = "harness-test-fake-secret-not-real";' >> src/app.ts
   code=0
   out=$(bash .cursor/hooks/scan-secrets.sh 2>&1) || code=$?
-  [[ "$code" -eq 2 ]] && [[ "$out" == *Blocked* ]] || exit 1
-) && pass "scan-secrets hook blocks changed file" || fail "scan-secrets hook blocks changed file"
+  if [[ "$code" -eq 2 ]] && [[ "$out" == *Blocked* ]]; then
+    exit 0
+  fi
+  exit 1
+); then
+  pass "scan-secrets hook blocks changed file"
+else
+  fail "scan-secrets hook blocks changed file"
+fi
 rm -rf "$SCAN_REPO"
 
 echo ""
 echo "=== scan-secrets hook allows clean diff ==="
 SCAN_CLEAN="$(mktemp -d)"
-(
+if (
   set -euo pipefail
   cd "$SCAN_CLEAN"
   git init -q
@@ -171,7 +178,11 @@ SCAN_CLEAN="$(mktemp -d)"
   git commit -q -m "init"
   printf '%s\n' 'export const alsoOk = 2;' >> src/app.ts
   bash .cursor/hooks/scan-secrets.sh
-) && pass "scan-secrets hook allows clean diff" || fail "scan-secrets hook allows clean diff"
+); then
+  pass "scan-secrets hook allows clean diff"
+else
+  fail "scan-secrets hook allows clean diff"
+fi
 rm -rf "$SCAN_CLEAN"
 
 echo ""
@@ -187,12 +198,16 @@ echo "=== Sync smoke ==="
 SMOKE="$(mktemp -d)"
 cp -a fixtures/minimal-full-emit/. "$SMOKE/"
 echo "# smoke" >> "$SMOKE/.agents/skills/frontend-verify/SKILL.md"
-(
+if (
   cd "$SMOKE"
   bash scripts/sync-skills.sh --all-mirrors
   cmp -s .agents/skills/frontend-verify/SKILL.md .cursor/skills/frontend-verify/SKILL.md
   bash scripts/validate-target-harness.sh .
-) && pass "Sync smoke" || fail "Sync smoke"
+); then
+  pass "Sync smoke"
+else
+  fail "Sync smoke"
+fi
 rm -rf "$SMOKE"
 
 emit_roundtrip() {

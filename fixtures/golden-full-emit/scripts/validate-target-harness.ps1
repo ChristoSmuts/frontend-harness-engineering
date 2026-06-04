@@ -8,6 +8,27 @@ param(
 $ErrorActionPreference = "Stop"
 Set-Location $TargetRoot
 
+# Unix PowerShell: Test-Path finds dot-directories; Get-Item/Get-ChildItem need -Force (hidden items).
+function Get-HarnessItem([string]$Path) {
+    Get-Item -LiteralPath $Path -Force
+}
+
+function Get-HarnessChildItem {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [switch]$Recurse,
+        [switch]$File,
+        [string]$Filter,
+        [string[]]$Include
+    )
+    $params = @{ LiteralPath = $Path; Force = $true; ErrorAction = "SilentlyContinue" }
+    if ($Recurse) { $params.Recurse = $true }
+    if ($File) { $params.File = $true }
+    if ($Filter) { $params.Filter = $Filter }
+    if ($Include) { $params.Include = $Include }
+    Get-ChildItem @params
+}
+
 $ValidateScriptDir = Split-Path -Parent $PSCommandPath
 $SecretPatternsLib = Join-Path $ValidateScriptDir "lib/secret-patterns.ps1"
 if (Test-Path $SecretPatternsLib) { . $SecretPatternsLib }
@@ -78,12 +99,12 @@ $HarnessPaths = @("AGENTS.md", "agents", ".agents", ".cursor", ".claude")
 foreach ($base in $HarnessPaths) {
     if (-not (Test-Path -LiteralPath $base)) { continue }
 
-    if ((Get-Item -LiteralPath $base).PSIsContainer -eq $false) {
+    if ((Get-HarnessItem $base).PSIsContainer -eq $false) {
         Test-Placeholders $base
         continue
     }
 
-    Get-ChildItem -LiteralPath $base -Recurse -File -Include "*.md", "*.mdc", "*.sh", "*.ps1", "hooks.json" -ErrorAction SilentlyContinue |
+    Get-HarnessChildItem -Path $base -Recurse -File -Include "*.md", "*.mdc", "*.sh", "*.ps1", "hooks.json" |
         Where-Object { $_.FullName -notmatch "frontend-harness-bootstrap" } |
         ForEach-Object { Test-Placeholders $_.FullName }
 }
@@ -142,11 +163,11 @@ if (Get-Command Test-SecretScanFile -ErrorAction SilentlyContinue) {
     foreach ($base in $HarnessPaths) {
         if (-not (Test-Path -LiteralPath $base)) { continue }
         $files = @()
-        if ((Get-Item -LiteralPath $base).PSIsContainer) {
-            $files = Get-ChildItem -LiteralPath $base -Recurse -Include "*.md", "*.mdc" -File -ErrorAction SilentlyContinue |
+        if ((Get-HarnessItem $base).PSIsContainer) {
+            $files = Get-HarnessChildItem -Path $base -Recurse -Include "*.md", "*.mdc" -File |
                 Where-Object { $_.FullName -notmatch 'frontend-harness-bootstrap' }
         } else {
-            $files = @(Get-Item -LiteralPath $base)
+            $files = @(Get-HarnessItem $base)
         }
         foreach ($f in $files) {
             if (Test-SecretScanFile $f.FullName) {
@@ -186,7 +207,7 @@ function Test-MirrorDir([string]$MirrorBase) {
     if (-not (Test-Path -LiteralPath ".agents/skills")) { return }
     if (-not (Test-Path -LiteralPath $MirrorBase)) { return }
 
-    Get-ChildItem -LiteralPath ".agents/skills" -Filter "SKILL.md" -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object {
+    Get-HarnessChildItem -Path ".agents/skills" -Filter "SKILL.md" -Recurse -File | ForEach-Object {
         $name = $_.Directory.Name
         $mirror = Join-Path $MirrorBase "$name/SKILL.md"
         if ((Test-Path -LiteralPath $mirror) -and -not ((Get-FileHash $_.FullName).Hash -eq (Get-FileHash $mirror).Hash)) {
