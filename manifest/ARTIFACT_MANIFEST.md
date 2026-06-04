@@ -2,44 +2,65 @@
 
 Generate into the **target frontend project** (not into this toolkit unless maintaining templates).
 
+Apply **emit_strategy** from [docs/EMIT_STRATEGIES.md](../docs/EMIT_STRATEGIES.md). Paths below use **canonical** (`.agents/skills/`, `agents/ORCHESTRATION.md`) for `full` / `portable-only`; **cursor-only** uses `.cursor/skills/` as canonical per [TOOL_LAYOUT.md](TOOL_LAYOUT.md).
+
 ## Priority legend
 
-- **P0** — create on every bootstrap
+- **P0** — create on every bootstrap (respect emit strategy skips)
 - **P1** — create unless user opts out
 - **P2** — create when intake matches
 - **P3** — optional / failure-driven later
 
 ## P0 — Always
 
-| Artifact | Target path | Template |
-|----------|-------------|----------|
-| Agent entry | `AGENTS.md` | `templates/AGENTS.md.template` |
-| Core rule | `.cursor/rules/frontend-core.mdc` | `templates/rules/frontend-core.mdc.template` |
-| Orchestration | `.cursor/ORCHESTRATION.md` | `templates/ORCHESTRATION.md.template` |
+| Artifact | Cursor | Claude | Portable hub | Template |
+|----------|--------|--------|--------------|----------|
+| Agent entry | `AGENTS.md` | `AGENTS.md` | `AGENTS.md` | `templates/AGENTS.md.template` |
+| Orchestration (shared) | — | `.claude/ORCHESTRATION.md` | `agents/ORCHESTRATION.md` | `templates/ORCHESTRATION.shared.md.template` |
+| Orchestration (Cursor) | `.cursor/ORCHESTRATION.md` | — | — | shared + `templates/ORCHESTRATION.cursor-hooks.md.template` |
+| Cursor hooks fragment | `.cursor/ORCHESTRATION.cursor-hooks.md` | — | — | `templates/ORCHESTRATION.cursor-hooks.md.template` (for sync) |
+| Core rule | `.cursor/rules/frontend-core.mdc` | `.claude/rules/frontend-core.md` | — | `templates/rules/frontend-core.mdc.template` |
+| Claude entry (optional) | — | `CLAUDE.md` | — | `templates/CLAUDE.md.template` |
+| Gemini entry (optional) | — | — | `GEMINI.md` | `templates/GEMINI.md.template` |
 
 ## P1 — Default on
 
-| Artifact | Target path | Template |
-|----------|-------------|----------|
-| TS/React rule | `.cursor/rules/typescript-react.mdc` | `templates/rules/typescript-react.mdc.template` |
-| UI rule | `.cursor/rules/ui-components.mdc` | `templates/rules/ui-components.mdc.template` |
-| Hooks config | `.cursor/hooks.json` | `templates/hooks/hooks.json.template` |
-| Verify script (Unix) | `.cursor/hooks/verify-frontend.sh` | `templates/hooks/verify-frontend.sh` |
-| Verify script (Windows) | `.cursor/hooks/verify-frontend.ps1` | `templates/hooks/verify-frontend.ps1` |
-| Shell guard | `.cursor/hooks/deny-dangerous.sh` | `templates/hooks/deny-dangerous.sh` |
-| Verify skill | `.cursor/skills/frontend-verify/SKILL.md` | `templates/skills/frontend-verify/SKILL.md` |
+| Artifact | Cursor | Claude | Portable hub | Template |
+|----------|--------|--------|--------------|----------|
+| TS/React rule | `.cursor/rules/typescript-react.mdc` | `.claude/rules/typescript-react.md` | — | `templates/rules/typescript-react.mdc.template` |
+| UI rule | `.cursor/rules/ui-components.mdc` | `.claude/rules/ui-components.md` | — | `templates/rules/ui-components.mdc.template` |
+| Hooks config | `.cursor/hooks.json` | — | — | `hooks.json.template` (unix) or `hooks.windows.json.template` |
+| Verify scripts | `.cursor/hooks/verify-frontend.sh` / `.ps1` | — | — | `templates/hooks/*` |
+| Shell guard | `.cursor/hooks/deny-dangerous.sh` | — | — | `templates/hooks/deny-dangerous.sh` |
+| Verify skill | mirror | mirror | **canonical** `.agents/skills/frontend-verify/` | `templates/skills/frontend-verify/SKILL.md` |
+| Harness changelog (teams) | — | — | `HARNESS_CHANGELOG.md` | `templates/HARNESS_CHANGELOG.md.template` |
+| Maintenance scripts | `scripts/sync-skills.sh` + `.ps1` | — | — | toolkit `scripts/` (**every** emit) |
+| Validate scripts | `scripts/validate-target-harness.sh` + `.ps1` | — | — | toolkit `scripts/` (**every** emit) |
+| Harness CI workflow (teams) | — | — | `.github/workflows/harness-validate.yml` | `templates/github/workflows/harness-validate.yml.template` |
+| Codex config (opt-in) | — | — | `.codex/config.toml` | `templates/codex/config.toml.template` |
 
-## P2 — Conditional
+## P2 — Conditional skills
 
-| Condition | Artifact | Template |
-|-----------|----------|----------|
-| shadcn/ui | `.cursor/skills/shadcn-components/SKILL.md` | `templates/skills/shadcn-components/SKILL.md` |
-| Next.js App Router | `.cursor/skills/next-app-router/SKILL.md` | `templates/skills/next-app-router/SKILL.md` |
-| Vite + React (no Next) | `.cursor/skills/vite-react/SKILL.md` | `templates/skills/vite-react/SKILL.md` |
-| TanStack Query / fetch patterns | `.cursor/skills/data-fetching/SKILL.md` | `templates/skills/data-fetching/SKILL.md` |
-| Zod / RHF / forms | `.cursor/skills/forms-validation/SKILL.md` | `templates/skills/forms-validation/SKILL.md` |
-| Playwright | `.cursor/skills/playwright-e2e/SKILL.md` | `templates/skills/playwright-e2e/SKILL.md` |
-| a11y in PR checklist | `.cursor/skills/accessibility/SKILL.md` | `templates/skills/accessibility/SKILL.md` |
+Write to **canonical** skills dir first; mirror on `full` emit.
+
+| Condition | Skill name | Template |
+|-----------|------------|----------|
+| shadcn/ui | `shadcn-components` | `templates/skills/shadcn-components/SKILL.md` |
+| Next.js App Router | `next-app-router` | `templates/skills/next-app-router/SKILL.md` |
+| Vite + React (no Next) | `vite-react` | `templates/skills/vite-react/SKILL.md` |
+| Remix | `remix` | `templates/skills/remix/SKILL.md` |
+| Nuxt | `nuxt` | `templates/skills/nuxt/SKILL.md` |
+| SvelteKit | `sveltekit` | `templates/skills/sveltekit/SKILL.md` |
+| Astro | `astro` | `templates/skills/astro/SKILL.md` |
+| Vue + Vite | `vue-vite` | `templates/skills/vue-vite/SKILL.md` |
+| Angular | `angular` | `templates/skills/angular/SKILL.md` |
+| React Native / Expo | `react-native-expo` | `templates/skills/react-native-expo/SKILL.md` |
+| other / custom | `custom-framework` | `templates/skills/custom-framework/SKILL.md` |
+| TanStack Query / fetch | `data-fetching` | `templates/skills/data-fetching/SKILL.md` |
+| Zod / RHF / forms | `forms-validation` | `templates/skills/forms-validation/SKILL.md` |
+| Playwright | `playwright-e2e` | `templates/skills/playwright-e2e/SKILL.md` |
+| a11y in PR checklist | `accessibility` | `templates/skills/accessibility/SKILL.md` |
+| Parallel agents (opt-in) | — | `templates/rules/harness-immutable.mdc.template` |
 
 ## P3 — Do not generate by default
 
@@ -49,11 +70,17 @@ Generate into the **target frontend project** (not into this toolkit unless main
 - Full E2E output on every agent stop
 - Duplicate instructions in `AGENTS.md` and `alwaysApply` rules
 
+## Legacy template
+
+`templates/ORCHESTRATION.md.template` — monolithic; prefer **shared + cursor-hooks** split for new bootstraps.
+
 ## Post-generation checklist
 
 - [ ] Target `AGENTS.md` ≤ ~60 lines
+- [ ] No unreplaced `{{` tokens (validate script: bash or `pwsh -File scripts/validate-target-harness.ps1`)
 - [ ] Each rule ≤ ~50 lines, one concern
 - [ ] Every skill `description` includes WHAT + WHEN
 - [ ] Verify hook runs; only failures surface
-- [ ] `ORCHESTRATION.md` describes sub-agents as context firewalls
+- [ ] `agents/ORCHESTRATION.md` describes sub-agents as context firewalls
+- [ ] Mirrors match canonical after `scripts/sync-skills.sh` (`full` emit)
 - [ ] Commands match real `package.json` scripts (brownfield)

@@ -2,6 +2,19 @@
 
 The bootstrap agent collects these fields before generating artifacts. Infer from the repo when possible.
 
+Optional machine-readable export: [answers.schema.json](answers.schema.json) and [answers.example.json](answers.example.json). Use with `scripts/emit-from-intake.sh` for reproducible P0+P1+P2 emit (see [docs/EMIT_FROM_INTAKE.md](../docs/EMIT_FROM_INTAKE.md)).
+
+## Required before Phase C
+
+| Field | Example | Notes |
+|-------|---------|-------|
+| **toolkit_path** | `tools/frontend-harness/` or submodule path | Must contain `templates/` before Phase C |
+| **emit_strategy** | `full` / `portable-only` / `cursor-only` | See [docs/EMIT_STRATEGIES.md](../docs/EMIT_STRATEGIES.md) |
+| **primary_tool** | Cursor, Claude Code, Codex CLI, Gemini CLI | Most-used agent product |
+| **harness_owner** | `@handle` or `solo` | Who approves harness PRs |
+| **canonical_skills_dir** | `.agents/skills/` | Default; `.cursor/skills/` only for `cursor-only` without CLI tools |
+| **platform_primary** | `unix` / `windows` | Drives `hooks.json` template ([docs/CROSS_PLATFORM.md](../docs/CROSS_PLATFORM.md)) |
+
 ## A. Project identity
 
 | Field | Example |
@@ -71,7 +84,7 @@ The bootstrap agent collects these fields before generating artifacts. Infer fro
 | CLI preferred over MCP | gh, linear custom CLI, etc. |
 | Hooks on stop | format + typecheck yes/no |
 | Shell guards | deny migrations, deploy, `rm -rf` yes/no |
-| Product in-app AI (BAML) | yes / no — separate from Cursor harness |
+| Product in-app AI (BAML) | yes / no — separate from coding-agent harness |
 
 ## H. Team workflow
 
@@ -80,6 +93,16 @@ The bootstrap agent collects these fields before generating artifacts. Infer fro
 | Issue tracker | Linear, GitHub Issues, Jira |
 | PR checklist | screenshots, a11y, Storybook |
 | CI commands agent must not dump | full E2E, full test suite |
+
+## I. AI coding tools
+
+| Field | Example |
+|-------|---------|
+| Tools in use (multi) | Cursor, Claude Code, Codex CLI, Gemini CLI, GitHub Copilot, other |
+| Primary tool | (also in Required table) where the developer spends most agent time |
+| Emit strategy | `full` / `portable-only` / `cursor-only` — see [docs/EMIT_STRATEGIES.md](../docs/EMIT_STRATEGIES.md) |
+
+If the user does not specify tools, ask once. Default for a solo dev is often **Cursor only** with `cursor-only` emit; teams mixing CLI and IDE should select every tool they use and prefer **`full`** with canonical `.agents/skills/` (see `manifest/TOOL_LAYOUT.md`).
 
 ---
 

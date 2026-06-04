@@ -11,7 +11,7 @@ Bootstrap frontend harness for this repo. Use skill frontend-harness-bootstrap (
 ## Existing project
 
 ```text
-Bootstrap frontend harness. Inspect package.json and .cursor first. Ask only missing intake fields. Merge with existing AGENTS.md/rules if present. Templates from: C:\_Projects\Local\Frontend Harness Engineering\templates
+Bootstrap frontend harness. AI tools: Cursor + Codex CLI. Inspect package.json and existing .cursor/, .agents/ first. Ask only missing intake fields. Merge with existing AGENTS.md/rules if present. Templates from: <path-to-toolkit>/templates — paths per manifest/TOOL_LAYOUT.md
 ```
 
 ## Fast path (defaults)
@@ -23,5 +23,5 @@ Bootstrap frontend harness with defaults: Next 15 App Router + pnpm + shadcn + T
 ## Copy bootstrap skill only
 
 ```text
-Copy .cursor/skills/frontend-harness-bootstrap from Frontend Harness Engineering into this repo, then run bootstrap Phase A–E.
+Copy frontend-harness-bootstrap skill from Frontend Harness Engineering (.cursor/skills/ or agents/skills/) into this repo, then run bootstrap Phase A–E. Say which AI tools you use in intake.
 ```
