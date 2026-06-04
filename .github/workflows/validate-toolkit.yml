@@ -44,6 +44,15 @@ jobs:
       - name: Validate minimal fixture (bash)
         run: bash scripts/validate-target-harness.sh fixtures/minimal-full-emit
 
+      - name: Golden full-emit mirror sync-check
+        run: |
+          cd fixtures/golden-full-emit
+          bash scripts/sync-skills.sh --all-mirrors
+          git diff --exit-code -- .cursor/skills .claude/skills || {
+            echo "Mirror drift in golden-full-emit: run sync-skills locally and commit SKILL.md mirrors"
+            exit 1
+          }
+
       - name: Validate golden fixture (bash strict)
         run: bash scripts/validate-target-harness.sh --strict fixtures/golden-full-emit
 
