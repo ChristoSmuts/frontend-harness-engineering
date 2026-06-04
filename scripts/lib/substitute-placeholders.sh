@@ -8,6 +8,7 @@ substitute_from_map_file() {
   local multiline_file="${4:-}"
   local content
   content=$(<"$src")
+  content="${content//$'\r'/}"
   while IFS= read -r line || [[ -n "$line" ]]; do
     [[ -z "$line" || "$line" =~ ^# ]] && continue
     local key="${line%%=*}"
@@ -19,6 +20,9 @@ substitute_from_map_file() {
     content="${content//\{\{${key}\}\}/${val}}"
   done < "$map_file"
   mkdir -p "$(dirname "$dst")"
+  if [[ -n "$content" && "$content" != *$'\n' ]]; then
+    content+=$'\n'
+  fi
   printf '%s' "$content" > "$dst"
 }
 

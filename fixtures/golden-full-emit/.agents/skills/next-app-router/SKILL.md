@@ -26,4 +26,4 @@ disable-model-invocation: true
 
 ## Files to avoid editing
 
-``.next`, `dist`, `node_modules`` (e.g. `.next`, build output)
+``.next`, `dist`, `node_modules`` (e.g. `.next`, build output)

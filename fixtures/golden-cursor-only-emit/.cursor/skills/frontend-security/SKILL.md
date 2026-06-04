@@ -42,4 +42,4 @@ disable-model-invocation: true
 ## Related skills
 
 - `data-fetching` — API clients, cookies, privileged calls
-- `forms-validation` — login/signup forms (no passwords in logs or client debug output)
+- `forms-validation` — login/signup forms (no passwords in logs or client debug output)

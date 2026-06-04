@@ -30,12 +30,11 @@ for hook in verify-frontend.sh deny-dangerous.sh scan-secrets.sh; do
   cp "$REFRESH_ROOT/.cursor/hooks/$hook" "$FIXTURE/.cursor/hooks/$hook"
 done
 
-find "$FIXTURE/.agents/skills" "$FIXTURE/.cursor/skills" "$FIXTURE/.claude/skills" \
-  -name SKILL.md -exec sed -i 's/\r$//' {} + 2>/dev/null || true
-
 (
   cd "$FIXTURE"
   bash scripts/sync-skills.sh --all-mirrors
 )
+
+bash "$TOOLKIT/scripts/normalize-harness-text-lf.sh" "$FIXTURE"
 
 echo "Refreshed skills and mirrors under $FIXTURE"

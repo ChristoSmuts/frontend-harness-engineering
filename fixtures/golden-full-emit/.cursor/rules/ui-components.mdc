@@ -13,4 +13,4 @@ alwaysApply: false
 - Use existing primitives before adding new UI patterns.
 
 - Reuse existing primitives before adding new base components.
-- Keep accessibility: labels, focus, keyboard for interactive elements (Radix/shadcn patterns if applicable).
+- Keep accessibility: labels, focus, keyboard for interactive elements (Radix/shadcn patterns if applicable).

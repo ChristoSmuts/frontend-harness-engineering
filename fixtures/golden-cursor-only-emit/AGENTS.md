@@ -43,4 +43,4 @@ Use these for agent self-check—not full CI.
 
 ## Sub-agents
 
-For broad search or flow tracing, delegate to an explore sub-agent. Require replies with **Sources** as `path:startLine-endLine`. Parent opens only cited files.
+For broad search or flow tracing, delegate to an explore sub-agent. Require replies with **Sources** as `path:startLine-endLine`. Parent opens only cited files.

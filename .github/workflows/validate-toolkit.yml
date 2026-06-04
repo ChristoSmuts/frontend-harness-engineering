@@ -77,11 +77,13 @@ jobs:
 
       - name: Emitter round-trip vs golden
         run: |
+          bash scripts/normalize-harness-text-lf.sh fixtures/golden-full-emit
           rm -rf /tmp/emit-out
           bash scripts/emit-from-intake.sh \
             --answers fixtures/golden-full-emit/intake.answers.json \
             --target /tmp/emit-out \
             --toolkit .
+          bash scripts/normalize-harness-text-lf.sh /tmp/emit-out
           diff -ru fixtures/golden-full-emit /tmp/emit-out \
             --exclude=intake.answers.json \
             --exclude=HARNESS_CHANGELOG.md || {
@@ -92,22 +94,26 @@ jobs:
 
       - name: Emitter round-trip portable-only
         run: |
+          bash scripts/normalize-harness-text-lf.sh fixtures/golden-portable-only-emit
           rm -rf /tmp/emit-portable
           bash scripts/emit-from-intake.sh \
             --answers fixtures/golden-portable-only-emit/intake.answers.json \
             --target /tmp/emit-portable \
             --toolkit .
+          bash scripts/normalize-harness-text-lf.sh /tmp/emit-portable
           diff -ru fixtures/golden-portable-only-emit /tmp/emit-portable \
             --exclude=intake.answers.json \
             --exclude=HARNESS_CHANGELOG.md
 
       - name: Emitter round-trip cursor-only
         run: |
+          bash scripts/normalize-harness-text-lf.sh fixtures/golden-cursor-only-emit
           rm -rf /tmp/emit-cursor
           bash scripts/emit-from-intake.sh \
             --answers fixtures/golden-cursor-only-emit/intake.answers.json \
             --target /tmp/emit-cursor \
             --toolkit .
+          bash scripts/normalize-harness-text-lf.sh /tmp/emit-cursor
           diff -ru fixtures/golden-cursor-only-emit /tmp/emit-cursor \
             --exclude=intake.answers.json \
             --exclude=HARNESS_CHANGELOG.md

@@ -27,4 +27,4 @@ pnpm exec tsc --noEmit
 pnpm vitest run path/to/file.test.tsx
 ```
 
-Replace file path when testing one module.
+Replace file path when testing one module.

@@ -56,4 +56,4 @@ Prefer CLI for git/GitHub when possible. Enable design/browser MCP only for task
 
 ## When harness grows
 
-Add one fix per repeatable failure: a rule line, skill section, or hook—not bulk MCP installs. Log team-visible changes in `HARNESS_CHANGELOG.md` when used. See your toolkit `docs/HARNESS_GROWTH.md`.
+Add one fix per repeatable failure: a rule line, skill section, or hook—not bulk MCP installs. Log team-visible changes in `HARNESS_CHANGELOG.md` when used. See your toolkit `docs/HARNESS_GROWTH.md`.

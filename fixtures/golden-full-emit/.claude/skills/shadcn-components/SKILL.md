@@ -33,4 +33,4 @@ Do not hand-copy large primitive files if the CLI is the team standard.
 ## Accessibility
 
 - Prefer Radix-based shadcn components for focus traps, labels, and keyboard behavior.
-- Wire `aria-*` when extending custom interactive elements.
+- Wire `aria-*` when extending custom interactive elements.

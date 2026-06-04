@@ -12,6 +12,8 @@ source "$SCRIPT_DIR/lib/substitute-placeholders.sh"
 source "$SCRIPT_DIR/lib/mdc-to-claude-md.sh"
 # shellcheck source=lib/build-answers-map.sh
 source "$SCRIPT_DIR/lib/build-answers-map.sh"
+# shellcheck source=lib/normalize-text-lf.sh
+source "$SCRIPT_DIR/lib/normalize-text-lf.sh"
 
 ANSWERS=""
 TARGET=""
@@ -115,7 +117,7 @@ fi
 
 if tool_selected "$ANSWERS" "Cursor" && [[ "$emit_strategy" != "portable-only" ]]; then
   emit_substitute "$TOOLKIT/templates/ORCHESTRATION.cursor-hooks.md.template" ".cursor/ORCHESTRATION.cursor-hooks.md"
-  mkdir -p .curso
+  mkdir -p .cursor
   if [[ "$emit_strategy" == "cursor-only" ]]; then
     orch_tmp=$(mktemp)
     substitute_from_map_file "$TOOLKIT/templates/ORCHESTRATION.shared.md.template" "$orch_tmp" "$map_tmp" "$HARNESS_PATHS_FILE"
@@ -265,6 +267,9 @@ fi
 if [[ -f .cursor/ORCHESTRATION.md && "$emit_strategy" == "cursor-only" ]]; then
   substitute_inplace_file .cursor/ORCHESTRATION.md "$map_tmp" "$HARNESS_PATHS_FILE"
 fi
+
+# LF-only text (avoid CRLF drift vs golden fixtures and Linux CI)
+normalize_text_lf_tree .
 
 # Sync mirrors for full emit
 if [[ "$emit_strategy" == "full" ]]; then

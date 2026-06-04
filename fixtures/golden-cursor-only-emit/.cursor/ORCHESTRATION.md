@@ -56,7 +56,8 @@ Prefer CLI for git/GitHub when possible. Enable design/browser MCP only for task
 
 ## When harness grows
 
-Add one fix per repeatable failure: a rule line, skill section, or hook—not bulk MCP installs. Log team-visible changes in `HARNESS_CHANGELOG.md` when used. See your toolkit `docs/HARNESS_GROWTH.md`.## Hooks (Cursor)
+Add one fix per repeatable failure: a rule line, skill section, or hook—not bulk MCP installs. Log team-visible changes in `HARNESS_CHANGELOG.md` when used. See your toolkit `docs/HARNESS_GROWTH.md`.
+## Hooks (Cursor)
 
 Configured in `.cursor/hooks.json`:
 
@@ -64,4 +65,4 @@ Configured in `.cursor/hooks.json`:
 - **stop:** `scan-secrets` — scans git-changed files for high-confidence secret literals (if enabled)
 - **beforeShellExecution:** `deny-dangerous` — blocks migrations, prod deploy, destructive git/shell (if enabled)
 
-Other tools: use skill `frontend-verify` or commands in `AGENTS.md` before claiming done.
+Other tools: use skill `frontend-verify` or commands in `AGENTS.md` before claiming done.

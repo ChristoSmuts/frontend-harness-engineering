@@ -56,4 +56,4 @@ jobs:
           git diff --exit-code -- .cursor/skills .claude/skills || {
             echo "Mirror drift: run sync-skills locally and commit"
             exit 1
-          }
+          }

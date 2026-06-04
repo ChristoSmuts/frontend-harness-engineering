@@ -13,4 +13,4 @@ alwaysApply: true
 - Do not use `dangerouslySetInnerHTML` without the project's established sanitizer; do not weaken TLS, CORS, or CSP without explicit user approval.
 - Do not log secrets, tokens, or unnecessary PII; never paste `.env` contents into chat.
 - Do not edit: `.next`, `dist`, `node_modules` (include `.env` and `.env.local` in team policy).
-- For auth, env, API keys, or security-sensitive UI/API work, load skill **`frontend-security`** from `.agents/skills/`.
+- For auth, env, API keys, or security-sensitive UI/API work, load skill **`frontend-security`** from `.agents/skills/`.

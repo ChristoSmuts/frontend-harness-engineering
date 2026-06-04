@@ -9,4 +9,4 @@ alwaysApply: true
 - Do not edit: `.next`, `dist`, `node_modules`.
 - Prefer fast verification from AGENTS.md over full CI (E2E, entire test suite).
 - For large codebase search, use explore sub-agents; require `path:line` citations in handoff.
-- Load skills from `.cursor/skills/` when the task matches (see ORCHESTRATION.md)—do not duplicate skill content inline.
+- Load skills from `.cursor/skills/` when the task matches (see ORCHESTRATION.md)—do not duplicate skill content inline.

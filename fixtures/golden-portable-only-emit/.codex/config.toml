@@ -5,4 +5,4 @@
 [hooks]
 stop = ["bash", ".cursor/hooks/verify-frontend.sh"]
 
-# Prefer thin AGENTS.md + .agents/skills/ — see docs/MULTI_TOOL.md in Frontend Harness Engineering toolkit.
+# Prefer thin AGENTS.md + .agents/skills/ — see docs/MULTI_TOOL.md in Frontend Harness Engineering toolkit.
