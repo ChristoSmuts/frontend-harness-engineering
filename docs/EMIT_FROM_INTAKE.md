@@ -10,26 +10,29 @@ Reproducible bootstrap for P0+P1+P2 artifacts using [intake/answers.schema.json]
 ## Quick start
 
 ```bash
-# From toolkit root (macOS/Linux target)
+# From toolkit root — answers JSON outside the toolkit (required for real projects)
 bash scripts/emit-from-intake.sh \
-  --answers intake/answers.example.json \
-  --target /Users/you/dev/acme-web \
+  --answers "$HOME/frontend-harness-intake/acme-web.answers.json" \
   --toolkit .
 
-# --target optional when answers JSON includes target_path
-bash scripts/emit-from-intake.sh --answers my-app.answers.json --toolkit .
+# --target optional when answers JSON includes target_path (preferred on Windows)
+bash scripts/emit-from-intake.sh --answers /path/to/answers.json --toolkit .
 ```
 
 ```powershell
 pwsh -File scripts/emit-from-intake.ps1 `
-  -Answers intake/answers.example.json `
-  -Target 'C:\dev\acme-web' `
+  -Answers "$env:TEMP\acme-web.answers.json" `
   -Toolkit .
+# -Target optional when target_path is in the JSON; wrapper normalizes paths before bash
 ```
 
-Paths are normalized by [`scripts/lib/normalize-target-path.sh`](../scripts/lib/normalize-target-path.sh). Emit is rejected if the target is the toolkit meta-repo.
+Paths are normalized by [`scripts/lib/normalize-target-path.sh`](../scripts/lib/normalize-target-path.sh). Emit is rejected if the target is the toolkit meta-repo or a non-app directory inside the toolkit checkout.
 
-PowerShell wrapper delegates to bash when Git Bash is available.
+PowerShell wrapper normalizes with [`normalize-target-path.ps1`](../scripts/lib/normalize-target-path.ps1), then delegates to bash when Git Bash is available.
+
+**Do not** store per-project `*.answers.json` under toolkit `intake/` (gitignored). Use [intake/answers.example.json](../intake/answers.example.json) as the template only.
+
+**If emit fails or files appear under toolkit `C*` / nested `C:/...` folders:** remove those stray directories, fix `target_path` in answers JSON (`C:/path` or `/c/path` for Git Bash), and re-run—emit does not create missing target directories.
 
 ## Flags
 
@@ -44,7 +47,7 @@ Default: runs `validate-target-harness.sh --strict` on the target after sync.
 
 ## Answers file
 
-Copy [intake/answers.example.json](../intake/answers.example.json) or [fixtures/golden-full-emit/intake.answers.json](../fixtures/golden-full-emit/intake.answers.json). Required fields match the schema; `features` toggles P2 skills and optional artifacts.
+Copy [intake/answers.example.json](../intake/answers.example.json) to a path **outside** the toolkit. Fixture copies under `fixtures/*/intake.answers.json` are for CI only. Required fields match the schema; `features` toggles P2 skills and optional artifacts. `unit_test_single_cmd` is optional—emit defaults to `N/A — no unit test runner configured` when omitted.
 
 | Feature | Effect |
 |---------|--------|

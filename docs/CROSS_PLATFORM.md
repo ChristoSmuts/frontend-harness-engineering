@@ -21,20 +21,30 @@ When the open workspace is **Frontend Harness Engineering**, intake records **`t
 |----|------------------------|
 | macOS | `/Users/you/dev/acme-web` |
 | Linux | `/home/you/projects/acme-web` |
-| Windows | `C:\dev\acme-web` or `C:/dev/acme-web` |
+| Windows | `C:\dev\acme-web`, `C:/dev/acme-web`, or Git Bash `/c/dev/acme-web` |
 
-Prefer **absolute** paths. `scripts/emit-from-intake.sh` normalizes paths via [`scripts/lib/normalize-target-path.sh`](../scripts/lib/normalize-target-path.sh) and refuses to emit into the toolkit meta-repo.
+Prefer **absolute** paths. `scripts/emit-from-intake.sh` normalizes paths via [`scripts/lib/normalize-target-path.sh`](../scripts/lib/normalize-target-path.sh) (Windows drive letters → `/c/...` when using Git Bash) and refuses to emit into the toolkit meta-repo or mistaken nested folders under the toolkit.
+
+### Windows paths and Git Bash
+
+| Form | Notes |
+|------|--------|
+| `C:\dev\acme web` | OK in answers JSON; use `emit-from-intake.ps1` or bash with `target_path` in JSON only |
+| `C:/dev/acme web` | Preferred in JSON for Git Bash emit |
+| `/c/dev/acme web` | Git Bash absolute form |
+| Paths with spaces | Quote in shell; **do not** pass `--target` from PowerShell as separate unquoted argv tokens |
+
+Emit never creates a missing target directory. Invalid Windows paths must not produce `C:/...` trees inside the toolkit checkout.
 
 Emit from toolkit root:
 
 ```bash
 bash scripts/emit-from-intake.sh \
-  --answers intake/answers.json \
-  --target "/Users/you/dev/acme-web" \
+  --answers "$HOME/frontend-harness-intake/acme-web.answers.json" \
   --toolkit .
 ```
 
-(`--target` optional when `target_path` is in the answers JSON.)
+(`--target` optional when `target_path` is in the answers JSON—preferred on Windows so paths with spaces stay in JSON.)
 
 Validate before target `scripts/` exist:
 

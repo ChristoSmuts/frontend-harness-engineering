@@ -62,12 +62,15 @@ if [[ -z "$TARGET" ]]; then
 fi
 [[ -n "$TARGET" ]] || { echo "Missing --target or target_path in answers JSON" >&2; usage; }
 
-mkdir -p "$TARGET" 2>/dev/null || true
 TARGET=$(normalize_target_path "$TARGET") || exit 1
 
 if is_toolkit_meta_repo "$TARGET"; then
   echo "ERROR: target_path must not be the Frontend Harness Engineering toolkit root ($TARGET)" >&2
   echo "Provide the frontend app repo path, not this meta-repo." >&2
+  exit 1
+fi
+
+if ! reject_emit_target_under_toolkit "$TARGET" "$TOOLKIT"; then
   exit 1
 fi
 
@@ -114,7 +117,7 @@ for s in validate-target-harness.sh validate-target-harness.ps1 sync-skills.sh s
   chmod +x "$dest" 2>/dev/null || true
 done
 mkdir -p scripts/lib
-for s in secret-patterns.sh secret-patterns.ps1; do
+for s in secret-patterns.sh secret-patterns.ps1 normalize-target-path.sh normalize-target-path.ps1; do
   dest="scripts/lib/$s"
   if should_skip "$dest"; then continue; fi
   cp "$TOOLKIT/scripts/lib/$s" "$dest"

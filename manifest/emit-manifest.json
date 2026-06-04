@@ -30,7 +30,9 @@
         "scripts/sync-skills.sh",
         "scripts/sync-skills.ps1",
         "scripts/lib/secret-patterns.sh",
-        "scripts/lib/secret-patterns.ps1"
+        "scripts/lib/secret-patterns.ps1",
+        "scripts/lib/normalize-target-path.sh",
+        "scripts/lib/normalize-target-path.ps1"
       ]
     },
     "portable-only": {
@@ -45,7 +47,9 @@
         "scripts/sync-skills.sh",
         "scripts/sync-skills.ps1",
         "scripts/lib/secret-patterns.sh",
-        "scripts/lib/secret-patterns.ps1"
+        "scripts/lib/secret-patterns.ps1",
+        "scripts/lib/normalize-target-path.sh",
+        "scripts/lib/normalize-target-path.ps1"
       ]
     },
     "cursor-only": {
@@ -63,7 +67,9 @@
         "scripts/sync-skills.sh",
         "scripts/sync-skills.ps1",
         "scripts/lib/secret-patterns.sh",
-        "scripts/lib/secret-patterns.ps1"
+        "scripts/lib/secret-patterns.ps1",
+        "scripts/lib/normalize-target-path.sh",
+        "scripts/lib/normalize-target-path.ps1"
       ]
     }
   },
@@ -81,7 +87,9 @@
     { "template": "scripts/sync-skills.sh", "target": "scripts/sync-skills.sh", "substitute": false },
     { "template": "scripts/sync-skills.ps1", "target": "scripts/sync-skills.ps1", "substitute": false },
     { "template": "scripts/lib/secret-patterns.sh", "target": "scripts/lib/secret-patterns.sh", "substitute": false },
-    { "template": "scripts/lib/secret-patterns.ps1", "target": "scripts/lib/secret-patterns.ps1", "substitute": false }
+    { "template": "scripts/lib/secret-patterns.ps1", "target": "scripts/lib/secret-patterns.ps1", "substitute": false },
+    { "template": "scripts/lib/normalize-target-path.sh", "target": "scripts/lib/normalize-target-path.sh", "substitute": false },
+    { "template": "scripts/lib/normalize-target-path.ps1", "target": "scripts/lib/normalize-target-path.ps1", "substitute": false }
   ],
   "artifacts": [
     { "id": "agents-md", "template": "templates/AGENTS.md.template", "target": "AGENTS.md", "emit_strategies": ["full", "portable-only", "cursor-only"], "substitute": true },

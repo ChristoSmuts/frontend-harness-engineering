@@ -21,9 +21,15 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-cd "$ROOT"
-
 VALIDATE_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/normalize-target-path.sh
+source "$VALIDATE_SCRIPT_DIR/lib/normalize-target-path.sh"
+
+if [[ "$ROOT" != "." ]]; then
+  ROOT=$(normalize_target_path "$ROOT") || exit 1
+fi
+
+cd "$ROOT"
 # shellcheck source=lib/secret-patterns.sh
 if [[ -f "$VALIDATE_SCRIPT_DIR/lib/secret-patterns.sh" ]]; then
   # shellcheck disable=SC1091

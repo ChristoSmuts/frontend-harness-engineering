@@ -213,6 +213,7 @@ rm -rf "$SMOKE"
 emit_roundtrip() {
   local name="$1" answers="$2" golden="$3" out="$4"
   rm -rf "$out"
+  mkdir -p "$out"
   bash scripts/emit-from-intake.sh --answers "$answers" --target "$out" --toolkit .
   if diff -ru "$golden" "$out" \
     --exclude=intake.answers.json \
@@ -227,6 +228,43 @@ emit_roundtrip() {
   fi
   rm -rf "$out"
 }
+
+echo ""
+echo "=== normalize-target-path ==="
+# shellcheck source=lib/normalize-target-path.sh
+source scripts/lib/normalize-target-path.sh
+
+SPACE_DIR=$(mktemp -d "${TMPDIR:-/tmp}/harness path test.XXXXXX")
+if normalize_target_path "$SPACE_DIR" >/dev/null; then
+  pass "normalize path with spaces"
+else
+  fail "normalize path with spaces"
+fi
+rm -rf "$SPACE_DIR"
+
+BEFORE_DIRS=$(find . -maxdepth 2 -type d 2>/dev/null | wc -l)
+if ! normalize_target_path "C:/nonexistent-harness-test-path-$$" >/dev/null 2>&1; then
+  pass "normalize rejects missing Windows-style path"
+else
+  fail "normalize rejects missing Windows-style path"
+fi
+AFTER_DIRS=$(find . -maxdepth 2 -type d 2>/dev/null | wc -l)
+if [[ "$BEFORE_DIRS" -eq "$AFTER_DIRS" ]]; then
+  pass "normalize missing path does not mkdir under toolkit"
+else
+  fail "normalize missing path does not mkdir under toolkit"
+fi
+
+if [[ -d "/c" ]] && command -v cygpath >/dev/null 2>&1; then
+  WIN_TMP=$(mktemp -d "${TMPDIR:-/tmp}/harness-win.XXXXXX")
+  WIN_NATIVE=$(cygpath -w "$WIN_TMP")
+  if normalize_target_path "$WIN_NATIVE" >/dev/null; then
+    pass "normalize Windows native path via cygpath"
+  else
+    fail "normalize Windows native path via cygpath"
+  fi
+  rm -rf "$WIN_TMP"
+fi
 
 echo ""
 echo "=== Emitter round-trips ==="

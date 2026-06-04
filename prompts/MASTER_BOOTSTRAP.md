@@ -40,14 +40,19 @@ Reference toolkit paths (if this repo is available): `intake/QUESTIONNAIRE.md`, 
 
 
 
-Use the AskQuestion tool when available. Otherwise ask conversationally. Collect every item in `intake/QUESTIONNAIRE.md`, including **Required before Phase C**: `target_path`, `toolkit_path`, `emit_strategy`, `primary_tool`, `harness_owner`, `canonical_skills_dir` (default `.agents/skills/`), and `platform_primary` (`unix` | `windows`). Infer from the repo when possible; only ask for gaps.
+Use the AskQuestion tool when available (see **Phase A — AskQuestion bundle** in `intake/QUESTIONNAIRE.md`). Otherwise ask conversationally. Collect every item in `intake/QUESTIONNAIRE.md`, including **Required before Phase C**: `target_path`, `toolkit_path`, `emit_strategy`, `primary_tool`, `harness_owner`, `canonical_skills_dir` (default `.agents/skills/`), and `platform_primary` (`unix` | `windows`). Infer from the repo when possible; only ask for gaps.
+
+**AskQuestion order:** `workspace_context` → tools/emit/platform/hooks → `repo_type`. Then resolve **target_path** in the **same reply**:
+
+- `target_repo_open` → `target_path` = `.`
+- `toolkit_open` → user **must** paste absolute **target_path** before Phase B (spaces OK)
 
 **Workspace roles:**
 
-- **Toolkit workspace** — `manifest/ARTIFACT_MANIFEST.md` and `prompts/MASTER_BOOTSTRAP.md` at repo root: **must** ask for **`target_path`** (absolute path to the frontend app). Default **`toolkit_path`** to `.` (this repo). Do not default `target_path` to `.` (that would mean the toolkit).
+- **Toolkit workspace** — `manifest/ARTIFACT_MANIFEST.md` and `prompts/MASTER_BOOTSTRAP.md` at repo root: **must** collect **`target_path`** (absolute path to the frontend app). Default **`toolkit_path`** to `.` (this repo). Do not default `target_path` to `.` (that would mean the toolkit).
 - **Target workspace** — the open folder is the app: default **`target_path`** to `.`; set **`toolkit_path`** from submodule, `tools/frontend-harness/`, multi-root, or user-provided path.
 
-**`target_path` (cross-platform):** macOS `/Users/you/dev/acme-web`, Linux `/home/you/projects/acme-web`, Windows `C:\dev\acme-web` or `C:/dev/acme-web`. Prefer absolute paths; normalize before Phase C (see `docs/CROSS_PLATFORM.md`). Quote paths in shell commands. Avoid storing raw `~/...` in answers JSON—expand to absolute.
+**`target_path` (cross-platform):** macOS `/Users/you/dev/acme-web`, Linux `/home/you/projects/acme-web`, Windows `C:\dev\acme-web`, `C:/dev/acme-web`, or Git Bash `/c/dev/acme-web`. Prefer absolute paths; emit normalizes via `scripts/lib/normalize-target-path.sh` (see `docs/CROSS_PLATFORM.md`). Quote paths in shell commands. Avoid storing raw `~/...` in answers JSON—expand to absolute. **Never** pass unquoted Windows paths with spaces to bash from PowerShell—use `emit-from-intake.ps1` or JSON-only `--answers` (no broken `--target` argv).
 
 **Toolkit:** Do not start Phase C until `templates/` is reachable at `toolkit_path`. See `docs/TOOLKIT_CONSUMPTION.md`.
 
@@ -71,7 +76,9 @@ Use the AskQuestion tool when available. Otherwise ask conversationally. Collect
 
 
 
-Optional: export intake as JSON matching `intake/answers.schema.json` for reproducibility.
+Optional: export intake as JSON matching `intake/answers.schema.json` for reproducibility. Write answers **outside** this toolkit repo (target `.harness-intake/answers.json`, `%TEMP%`, or `~/frontend-harness-intake/`)—not under `intake/` except `answers.example.json`.
+
+**Brownfield `AGENTS.md`:** if merging existing content (e.g. Next.js agent-rules blocks), preserve UTF-8 (no BOM). Prefer emit-then-append fragments over PowerShell `Set-Content` without `-Encoding utf8NoBOM`.
 
 
 
@@ -113,7 +120,7 @@ Apply **emit_strategy** from `docs/EMIT_STRATEGIES.md` (default paths in `manife
 
   - `sync-skills.sh`, `sync-skills.ps1`
 
-  - `lib/secret-patterns.sh`, `lib/secret-patterns.ps1`
+  - `lib/secret-patterns.sh`, `lib/secret-patterns.ps1`, `lib/normalize-target-path.sh`, `lib/normalize-target-path.ps1`
 
 - `HARNESS_CHANGELOG.md` from `templates/HARNESS_CHANGELOG.md.template` — include **Toolkit SHA** (git rev of toolkit at bootstrap) in the initial row or a `Toolkit SHA:` line under the table
 

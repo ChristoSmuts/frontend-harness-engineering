@@ -14,6 +14,8 @@ MAINT=(
 LIB_MAINT=(
   secret-patterns.sh
   secret-patterns.ps1
+  normalize-target-path.sh
+  normalize-target-path.ps1
 )
 
 ERRORS=0

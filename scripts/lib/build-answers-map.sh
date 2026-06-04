@@ -62,6 +62,10 @@ build_answers_map_file() {
     (.key | ascii_upcase) + "=" + (.value | tostring)
   ' "$answers_json" >> "$out_map"
 
+  if ! grep -q '^UNIT_TEST_SINGLE_CMD=' "$out_map" 2>/dev/null; then
+    echo "UNIT_TEST_SINGLE_CMD=N/A — no unit test runner configured" >> "$out_map"
+  fi
+
   {
     echo "EMIT_STRATEGY=$emit_strategy"
     echo "CANONICAL_SKILLS_DIR=$canonical"

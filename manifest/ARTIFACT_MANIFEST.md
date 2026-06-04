@@ -37,6 +37,7 @@ Apply **emit_strategy** from [docs/EMIT_STRATEGIES.md](../docs/EMIT_STRATEGIES.m
 | Security skill | mirror | mirror | **canonical** `.agents/skills/frontend-security/` | `templates/skills/frontend-security/SKILL.md` |
 | Secret scan hook | `.cursor/hooks/scan-secrets.*` | — | — | `templates/hooks/scan-secrets.sh` / `.ps1` (opt-out: `features.secret_scan_hook`) |
 | Secret patterns lib | — | — | `scripts/lib/secret-patterns.*` | toolkit `scripts/lib/` (copied on emit) |
+| Target path normalize lib | — | — | `scripts/lib/normalize-target-path.*` | toolkit `scripts/lib/` (copied on emit; used by validate scripts) |
 | Harness changelog (teams) | — | — | `HARNESS_CHANGELOG.md` | `templates/HARNESS_CHANGELOG.md.template` |
 | Maintenance scripts | `scripts/sync-skills.sh` + `.ps1` | — | — | toolkit `scripts/` (**every** emit) |
 | Validate scripts | `scripts/validate-target-harness.sh` + `.ps1` | — | — | toolkit `scripts/` (**every** emit) |

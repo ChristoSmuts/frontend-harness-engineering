@@ -38,13 +38,17 @@ Bootstrap **coding-agent harness + orchestration** at **`target_path`** (see `pr
 
 
 
-- Use `intake/QUESTIONNAIRE.md` (AskQuestion when available); optional `intake/answers.schema.json`.
+- Use `intake/QUESTIONNAIRE.md` — **AskQuestion bundle** when available (`workspace_context` first, then tools/emit/platform/hooks, then `repo_type`); optional `intake/answers.schema.json`.
 
 - Collect **Required before Phase C**: `target_path`, `toolkit_path`, `emit_strategy`, `primary_tool`, `harness_owner`, `canonical_skills_dir`, `platform_primary` (`unix` | `windows`).
 
+- **target_path in same turn:** `target_repo_open` → `.`; `toolkit_open` → user pastes absolute path before Phase B (spaces OK).
+
+- **Answers JSON:** write outside toolkit (`~/frontend-harness-intake/`, target `.harness-intake/`, or `%TEMP%`)—not `intake/*.answers.json` in the toolkit repo.
+
 - **Workspace:** toolkit root has `manifest/ARTIFACT_MANIFEST.md` + `prompts/MASTER_BOOTSTRAP.md` → require **`target_path`**; default **`toolkit_path`** to `.`. App workspace → **`target_path`** `.`, user supplies **`toolkit_path`**.
 
-- **`target_path` examples:** macOS `/Users/.../app`, Linux `/home/.../app`, Windows `C:\...\app` or `C:/.../app` — absolute preferred (`docs/CROSS_PLATFORM.md`).
+- **`target_path` examples:** macOS `/Users/.../app`, Linux `/home/.../app`, Windows `C:\...\app`, `C:/.../app`, or `/c/.../app` — absolute preferred (`docs/CROSS_PLATFORM.md`). Prefer `emit-from-intake` with `target_path` in JSON on Windows (spaces).
 
 - **Emit guardrails:** Cursor + Codex/Gemini → `full` (not `cursor-only`). Never emit into toolkit root.
 
@@ -78,7 +82,7 @@ Bootstrap **coding-agent harness + orchestration** at **`target_path`** (see `pr
 
 - Branch on **emit_strategy** per `docs/EMIT_STRATEGIES.md` and `MASTER_BOOTSTRAP` Phase C.
 
-- **Always copy maintenance scripts** to target `scripts/`: validate, sync, and `lib/secret-patterns.sh` / `lib/secret-patterns.ps1`.
+- **Always copy maintenance scripts** to target `scripts/`: validate, sync, `lib/secret-patterns.*`, and `lib/normalize-target-path.*`.
 
 - **HARNESS_CHANGELOG.md** with `{{TOOLKIT_SHA}}` from toolkit git rev.
 
@@ -87,7 +91,7 @@ Bootstrap **coding-agent harness + orchestration** at **`target_path`** (see `pr
 - **P1 security:** `frontend-security` rule + skill always (`docs/FRONTEND_SECURITY.md`).
 - **Hooks:** select template from `platform_primary`, `features.shell_guard`, and `features.secret_scan_hook` (default true); copy `scan-secrets` when enabled.
 
-- **Optional deterministic emit:** `bash scripts/emit-from-intake.sh --answers <json> --target "<target_path>" --toolkit <toolkit_path>` — see `docs/EMIT_FROM_INTAKE.md` (`--target` optional if JSON has `target_path`).
+- **Optional deterministic emit:** `bash scripts/emit-from-intake.sh --answers <json-outside-toolkit> --toolkit <toolkit_path>` — see `docs/EMIT_FROM_INTAKE.md` (`--target` optional if JSON has `target_path`; use `emit-from-intake.ps1` on Windows).
 
 - Templates: `AGENTS.md.template`, orchestration shared + cursor-hooks, `CLAUDE.md.template`, `GEMINI.md.template`, `fragments/HARNESS_PATHS.example.md`, `rules/*`, `skills/*`, `hooks/*`; optional `templates/codex/config.toml.template`; optional `templates/github/workflows/harness-validate.yml.template`.
 

@@ -4,6 +4,30 @@ The bootstrap agent collects these fields before generating artifacts. Infer fro
 
 Optional machine-readable export: [answers.schema.json](answers.schema.json) and [answers.example.json](answers.example.json). Use with `scripts/emit-from-intake.sh` for reproducible P0+P1+P2 emit (see [docs/EMIT_FROM_INTAKE.md](../docs/EMIT_FROM_INTAKE.md)).
 
+**Do not commit per-project answers JSON into this toolkit repo.** Export to the target app (e.g. `.harness-intake/answers.json`, gitignored), OS temp, or `~/frontend-harness-intake/`. Only `answers.example.json` and `answers.schema.json` belong under `intake/` here.
+
+## Phase A — AskQuestion bundle (agent)
+
+When using AskQuestion, run **one form** in this order (then collect free-text gaps in the same turn):
+
+| # | Question id | Options / notes |
+|---|-------------|-----------------|
+| 1 | **workspace_context** | `target_repo_open` — app repo is the open workspace · `toolkit_open` — Frontend Harness Engineering toolkit is open |
+| 2 | **emit_strategy** | `full` · `portable-only` · `cursor-only` |
+| 3 | **primary_tool** | Cursor · Claude Code · Codex CLI · Gemini CLI · other |
+| 4 | **tools_in_use** | multi-select: same list + other |
+| 5 | **platform_primary** | `unix` · `windows` |
+| 6 | **harness_owner** | `solo` · team (get `@handle` in chat) |
+| 7 | **hooks_prefs** | full hooks · no secret scan · verify only · no hooks |
+| 8 | **repo_type** | `brownfield` · `greenfield` |
+
+**target_path rules (same reply, before Phase B):**
+
+- `target_repo_open` → `target_path` = `.`; ask for **toolkit_path** if not obvious.
+- `toolkit_open` → **must** ask user to paste absolute **target_path** (spaces OK; quote in shell). Do **not** start Phase B without it. Default `toolkit_path` = `.`.
+
+Windows paths for emit JSON: prefer `C:/dev/app` or `/c/dev/app` (see [docs/CROSS_PLATFORM.md](../docs/CROSS_PLATFORM.md)).
+
 ## Required before Phase C
 
 | Field | Example | Notes |

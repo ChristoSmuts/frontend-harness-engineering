@@ -6,7 +6,13 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-Set-Location $TargetRoot
+$ValidateScriptDir = Split-Path -Parent $PSCommandPath
+. (Join-Path $ValidateScriptDir "lib/normalize-target-path.ps1")
+
+if ($TargetRoot -ne ".") {
+    $TargetRoot = Normalize-TargetPath -Path $TargetRoot
+}
+Set-Location -LiteralPath $TargetRoot
 
 # Unix PowerShell: Test-Path finds dot-directories; Get-Item/Get-ChildItem need -Force (hidden items).
 function Get-HarnessItem([string]$Path) {
@@ -29,7 +35,6 @@ function Get-HarnessChildItem {
     Get-ChildItem @params
 }
 
-$ValidateScriptDir = Split-Path -Parent $PSCommandPath
 $SecretPatternsLib = Join-Path $ValidateScriptDir "lib/secret-patterns.ps1"
 if (Test-Path $SecretPatternsLib) { . $SecretPatternsLib }
 
