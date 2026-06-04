@@ -20,7 +20,7 @@ if [[ -z "$LIB" ]]; then
   echo "scan-secrets: secret-patterns.sh not found; skipping" >&2
   exit 0
 fi
-# shellcheck source=../../scripts/lib/secret-patterns.sh
+# shellcheck disable=SC1091
 source "$LIB"
 
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then

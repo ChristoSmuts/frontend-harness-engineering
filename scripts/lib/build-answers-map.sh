@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# Build placeholder map file from intake answers JSON. Sets MAP_FILE in caller scope.
+# Build placeholder map file from intake answers JSON (writes to out_map path).
 
 build_answers_map_file() {
   local answers_json="$1"
@@ -107,8 +107,6 @@ build_answers_map_file() {
     echo "PUBLIC_ENV_PREFIX=$public_prefix"
     echo "AUTH_STACK=$auth_stack"
   } >> "$out_map"
-
-  MAP_FILE="$out_map"
 }
 
 build_harness_paths_block() {

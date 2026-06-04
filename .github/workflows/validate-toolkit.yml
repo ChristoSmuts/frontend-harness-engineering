@@ -39,7 +39,7 @@ jobs:
       - name: Shellcheck scripts and hook templates
         run: |
           sudo apt-get install -y -qq shellcheck
-          shellcheck scripts/*.sh scripts/lib/*.sh templates/hooks/*.sh
+          shellcheck -a -P "scripts:templates/hooks" scripts/*.sh scripts/lib/*.sh templates/hooks/*.sh
 
       - name: Validate minimal fixture (bash)
         run: bash scripts/validate-target-harness.sh fixtures/minimal-full-emit

@@ -19,6 +19,7 @@ deny_patterns=(
   'deploy --prod'
   'vercel --prod'
   'rm -rf /'
+  # shellcheck disable=SC1003
   'rm -rf \\'
   'git push --force'
   'git push -f'

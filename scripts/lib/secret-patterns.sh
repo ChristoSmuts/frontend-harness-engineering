@@ -16,7 +16,7 @@ secret_should_skip_path() {
   local rel="$1"
   case "$rel" in
     node_modules/*|*/node_modules/*|.next/*|*/.next/*|dist/*|*/dist/*) return 0 ;;
-    *.lock|package-lock.json|pnpm-lock.yaml|yarn.lock|bun.lockb) return 0 ;;
+    package-lock.json|pnpm-lock.yaml|bun.lockb|*.lock) return 0 ;;
     *.min.js|*.min.css|*.map|*.png|*.jpg|*.jpeg|*.gif|*.webp|*.ico|*.woff|*.woff2) return 0 ;;
   esac
   return 1

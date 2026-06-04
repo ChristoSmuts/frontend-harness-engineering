@@ -57,7 +57,6 @@ if [[ "$TARGET" != /* ]]; then
 fi
 cd "$TARGET"
 
-MAP_FILE=""
 map_tmp=$(mktemp)
 build_answers_map_file "$ANSWERS" "$map_tmp" "$TOOLKIT"
 HARNESS_PATHS_FILE=$(mktemp)

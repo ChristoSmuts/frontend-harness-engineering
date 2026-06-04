@@ -233,7 +233,7 @@ check_mirror_dir() {
   [[ -d "$mirror_base" ]] || return 0
   for skill in .agents/skills/*/SKILL.md; do
     [[ -f "$skill" ]] || continue
-    local name mirro
+    local name mirror
     name=$(basename "$(dirname "$skill")")
     mirror="$mirror_base/$name/SKILL.md"
     if [[ -f "$mirror" ]] && ! cmp -s "$skill" "$mirror"; then
