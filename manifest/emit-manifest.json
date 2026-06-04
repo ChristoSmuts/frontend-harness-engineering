@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "profiles": {
+    "full": {
+      "description": "Multi-tool parity with canonical .agents/skills",
+      "required_paths": [
+        "AGENTS.md",
+        "HARNESS_CHANGELOG.md",
+        "agents/ORCHESTRATION.md",
+        ".cursor/ORCHESTRATION.md",
+        ".cursor/ORCHESTRATION.cursor-hooks.md",
+        ".cursor/rules/frontend-core.mdc",
+        ".cursor/rules/typescript-react.mdc",
+        ".cursor/rules/ui-components.mdc",
+        ".cursor/hooks.json",
+        ".cursor/hooks/verify-frontend.sh",
+        ".cursor/hooks/verify-frontend.ps1",
+        ".agents/skills/frontend-verify/SKILL.md",
+        ".agents/skills/next-app-router/SKILL.md",
+        ".agents/skills/shadcn-components/SKILL.md",
+        ".cursor/skills/frontend-verify/SKILL.md",
+        ".cursor/skills/next-app-router/SKILL.md",
+        ".cursor/skills/shadcn-components/SKILL.md",
+        ".github/workflows/harness-validate.yml",
+        "scripts/validate-target-harness.sh",
+        "scripts/validate-target-harness.ps1",
+        "scripts/sync-skills.sh",
+        "scripts/sync-skills.ps1"
+      ]
+    },
+    "portable-only": {
+      "required_paths": [
+        "AGENTS.md",
+        "HARNESS_CHANGELOG.md",
+        "agents/ORCHESTRATION.md",
+        ".agents/skills/frontend-verify/SKILL.md",
+        "scripts/validate-target-harness.sh",
+        "scripts/validate-target-harness.ps1",
+        "scripts/sync-skills.sh",
+        "scripts/sync-skills.ps1"
+      ]
+    },
+    "cursor-only": {
+      "required_paths": [
+        "AGENTS.md",
+        "HARNESS_CHANGELOG.md",
+        ".cursor/ORCHESTRATION.md",
+        ".cursor/rules/frontend-core.mdc",
+        ".cursor/hooks.json",
+        ".cursor/skills/frontend-verify/SKILL.md",
+        "scripts/validate-target-harness.sh",
+        "scripts/validate-target-harness.ps1",
+        "scripts/sync-skills.sh",
+        "scripts/sync-skills.ps1"
+      ]
+    }
+  },
+  "conditional_paths": [
+    { "path": ".cursor/hooks/deny-dangerous.sh", "profiles": ["full", "cursor-only"], "feature": "shell_guard" },
+    { "path": ".cursor/hooks/deny-dangerous.ps1", "profiles": ["full", "cursor-only"], "feature": "shell_guard" },
+    { "path": ".codex/config.toml", "profiles": ["full", "portable-only"], "feature": "codex_hooks" },
+    { "path": ".github/workflows/harness-validate.yml", "profiles": ["full", "portable-only", "cursor-only"], "feature": "harness_ci_workflow" }
+  ],
+  "maintenance_scripts": [
+    { "template": "scripts/validate-target-harness.sh", "target": "scripts/validate-target-harness.sh", "substitute": false },
+    { "template": "scripts/validate-target-harness.ps1", "target": "scripts/validate-target-harness.ps1", "substitute": false },
+    { "template": "scripts/sync-skills.sh", "target": "scripts/sync-skills.sh", "substitute": false },
+    { "template": "scripts/sync-skills.ps1", "target": "scripts/sync-skills.ps1", "substitute": false }
+  ],
+  "artifacts": [
+    { "id": "agents-md", "template": "templates/AGENTS.md.template", "target": "AGENTS.md", "emit_strategies": ["full", "portable-only", "cursor-only"], "substitute": true },
+    { "id": "harness-changelog", "template": "templates/HARNESS_CHANGELOG.md.template", "target": "HARNESS_CHANGELOG.md", "emit_strategies": ["full", "portable-only", "cursor-only"], "substitute": true },
+    { "id": "orchestration-shared", "template": "templates/ORCHESTRATION.shared.md.template", "target": "agents/ORCHESTRATION.md", "emit_strategies": ["full", "portable-only"], "substitute": true },
+    { "id": "orchestration-cursor-hooks", "template": "templates/ORCHESTRATION.cursor-hooks.md.template", "target": ".cursor/ORCHESTRATION.cursor-hooks.md", "emit_strategies": ["full", "cursor-only"], "tools": ["Cursor"], "substitute": true },
+    { "id": "claude-md", "template": "templates/CLAUDE.md.template", "target": "CLAUDE.md", "emit_strategies": ["full", "portable-only"], "tools": ["Claude Code"], "substitute": true },
+    { "id": "gemini-md", "template": "templates/GEMINI.md.template", "target": "GEMINI.md", "emit_strategies": ["full", "portable-only"], "tools": ["Gemini CLI"], "substitute": true },
+    { "id": "codex-config", "template": "templates/codex/config.toml.template", "target": ".codex/config.toml", "emit_strategies": ["full", "portable-only"], "tools": ["Codex CLI"], "feature": "codex_hooks", "substitute": true },
+    { "id": "harness-ci-workflow", "template": "templates/github/workflows/harness-validate.yml.template", "target": ".github/workflows/harness-validate.yml", "emit_strategies": ["full", "portable-only", "cursor-only"], "feature": "harness_ci_workflow", "substitute": true }
+  ],
+  "cursor_rules": [
+    { "template": "templates/rules/frontend-core.mdc.template", "target": ".cursor/rules/frontend-core.mdc", "emit_strategies": ["full", "cursor-only"], "tools": ["Cursor"] },
+    { "template": "templates/rules/typescript-react.mdc.template", "target": ".cursor/rules/typescript-react.mdc", "emit_strategies": ["full", "cursor-only"], "tools": ["Cursor"] },
+    { "template": "templates/rules/ui-components.mdc.template", "target": ".cursor/rules/ui-components.mdc", "emit_strategies": ["full", "cursor-only"], "tools": ["Cursor"] }
+  ],
+  "claude_rules": [
+    { "template": "templates/rules/frontend-core.mdc.template", "target": ".claude/rules/frontend-core.md", "emit_strategies": ["full", "portable-only"], "tools": ["Claude Code"] },
+    { "template": "templates/rules/typescript-react.mdc.template", "target": ".claude/rules/typescript-react.md", "emit_strategies": ["full", "portable-only"], "tools": ["Claude Code"] },
+    { "template": "templates/rules/ui-components.mdc.template", "target": ".claude/rules/ui-components.md", "emit_strategies": ["full", "portable-only"], "tools": ["Claude Code"] }
+  ],
+  "hooks": {
+    "unix": {
+      "template": "templates/hooks/hooks.json.template",
+      "target": ".cursor/hooks.json",
+      "scripts": [
+        { "template": "templates/hooks/verify-frontend.sh", "target": ".cursor/hooks/verify-frontend.sh" },
+        { "template": "templates/hooks/verify-frontend.ps1", "target": ".cursor/hooks/verify-frontend.ps1" },
+        { "template": "templates/hooks/deny-dangerous.sh", "target": ".cursor/hooks/deny-dangerous.sh", "feature": "shell_guard" },
+        { "template": "templates/hooks/deny-dangerous.ps1", "target": ".cursor/hooks/deny-dangerous.ps1" }
+      ]
+    },
+    "windows": {
+      "template": "templates/hooks/hooks.windows.json.template",
+      "target": ".cursor/hooks.json",
+      "scripts": [
+        { "template": "templates/hooks/verify-frontend.sh", "target": ".cursor/hooks/verify-frontend.sh" },
+        { "template": "templates/hooks/verify-frontend.ps1", "target": ".cursor/hooks/verify-frontend.ps1" },
+        { "template": "templates/hooks/deny-dangerous.sh", "target": ".cursor/hooks/deny-dangerous.sh" },
+        { "template": "templates/hooks/deny-dangerous.ps1", "target": ".cursor/hooks/deny-dangerous.ps1", "feature": "shell_guard" }
+      ]
+    }
+  },
+  "skills": [
+    { "name": "frontend-verify", "template": "templates/skills/frontend-verify/SKILL.md", "priority": "P1", "always": true },
+    { "name": "shadcn-components", "template": "templates/skills/shadcn-components/SKILL.md", "feature": "shadcn" },
+    { "name": "next-app-router", "template": "templates/skills/next-app-router/SKILL.md", "framework_match": "Next" },
+    { "name": "vite-react", "template": "templates/skills/vite-react/SKILL.md", "framework_match": "Vite" },
+    { "name": "remix", "template": "templates/skills/remix/SKILL.md", "framework_match": "Remix" },
+    { "name": "nuxt", "template": "templates/skills/nuxt/SKILL.md", "framework_match": "Nuxt" },
+    { "name": "sveltekit", "template": "templates/skills/sveltekit/SKILL.md", "framework_match": "SvelteKit" },
+    { "name": "astro", "template": "templates/skills/astro/SKILL.md", "framework_match": "Astro" },
+    { "name": "vue-vite", "template": "templates/skills/vue-vite/SKILL.md", "framework_match": "Vue" },
+    { "name": "angular", "template": "templates/skills/angular/SKILL.md", "framework_match": "Angular" },
+    { "name": "react-native-expo", "template": "templates/skills/react-native-expo/SKILL.md", "framework_match": "React Native|Expo" },
+    { "name": "custom-framework", "template": "templates/skills/custom-framework/SKILL.md", "framework_match": "other" },
+    { "name": "data-fetching", "template": "templates/skills/data-fetching/SKILL.md", "feature": "data_fetching" },
+    { "name": "forms-validation", "template": "templates/skills/forms-validation/SKILL.md", "feature": "forms_validation" },
+    { "name": "playwright-e2e", "template": "templates/skills/playwright-e2e/SKILL.md", "feature": "playwright" },
+    { "name": "accessibility", "template": "templates/skills/accessibility/SKILL.md", "feature": "accessibility" }
+  ]
+}
