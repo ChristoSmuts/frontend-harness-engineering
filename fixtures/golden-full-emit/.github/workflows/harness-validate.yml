@@ -34,14 +34,14 @@ jobs:
   validate-unix:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Validate harness (strict)
         run: bash scripts/validate-target-harness.sh --strict .
 
   sync-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Sync mirrors and fail on drift
         run: |
           if [[ ! -d .agents/skills ]]; then
@@ -57,4 +57,4 @@ jobs:
           git diff --exit-code -- .cursor/skills .claude/skills || {
             echo "Mirror drift: run sync-skills locally and commit"
             exit 1
-          }
+          }

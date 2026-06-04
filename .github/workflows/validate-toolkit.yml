@@ -9,7 +9,7 @@ jobs:
   validate-linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install jq
         run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
@@ -113,9 +113,9 @@ jobs:
             --exclude=HARNESS_CHANGELOG.md
 
   validate-windows:
-    runs-on: windows-latest
+    runs-on: windows-2025
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Validate minimal fixture (PowerShell)
         shell: pwsh
@@ -148,10 +148,10 @@ jobs:
   validate-macos:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Install jq
-        run: brew install jq
+      - name: Ensure jq
+        run: command -v jq >/dev/null 2>&1 || brew install jq
 
       - name: Validate golden fixture (PowerShell on macOS)
         shell: pwsh
