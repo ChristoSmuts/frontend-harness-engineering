@@ -111,6 +111,7 @@ Windows paths for emit JSON: prefer `C:/dev/app` or `/c/dev/app` (see [docs/CROS
 | Hooks on stop | format + typecheck yes/no |
 | Shell guards | deny migrations, deploy, `rm -rf` yes/no |
 | Secret scan hook (Cursor stop) | scan git-changed files for secret literals yes/no (default yes) |
+| Self-improvement loop | auto-grow harness on repeat failures yes/no (default yes) |
 | Product in-app AI (BAML) | yes / no — separate from coding-agent harness |
 
 ## H. Team workflow

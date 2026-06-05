@@ -10,3 +10,4 @@ alwaysApply: true
 - Prefer fast verification from AGENTS.md over full CI (E2E, entire test suite).
 - For large codebase search, use explore sub-agents; require `path:line` citations in handoff.
 - Load skills from `{{SKILLS_DIR}}` when the task matches (see ORCHESTRATION.md)—do not duplicate skill content inline.
+- When the user corrects a repeatable mistake, log it to the failure ledger (`.agents/harness/failure-ledger.json` or `.cursor/harness/failure-ledger.json`). On the second occurrence (same fingerprint), load skill `harness-self-improve` and apply a minimal harness fix before continuing feature work.

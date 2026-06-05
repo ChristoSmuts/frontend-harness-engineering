@@ -7,6 +7,10 @@
         "timeout": 300
       },
       {
+        "command": ".cursor/hooks/harness-growth-stop.ps1",
+        "timeout": 30
+      },
+      {
         "command": ".cursor/hooks/scan-secrets.ps1",
         "timeout": 60
       }

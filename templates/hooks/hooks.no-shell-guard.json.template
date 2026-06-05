@@ -7,6 +7,10 @@
         "timeout": 300
       },
       {
+        "command": ".cursor/hooks/harness-growth-stop.sh",
+        "timeout": 30
+      },
+      {
         "command": ".cursor/hooks/scan-secrets.sh",
         "timeout": 60
       }

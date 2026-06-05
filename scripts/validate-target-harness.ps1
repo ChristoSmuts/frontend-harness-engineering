@@ -191,7 +191,9 @@ if (Test-Path -LiteralPath ".cursor/hooks.json") {
             ".cursor/hooks/deny-dangerous.sh",
             ".cursor/hooks/deny-dangerous.ps1",
             ".cursor/hooks/scan-secrets.sh",
-            ".cursor/hooks/scan-secrets.ps1"
+            ".cursor/hooks/scan-secrets.ps1",
+            ".cursor/hooks/harness-growth-stop.sh",
+            ".cursor/hooks/harness-growth-stop.ps1"
         )) {
         $base = Split-Path -Leaf $script
         if ($hooksJson -match [regex]::Escape($base) -and -not (Test-Path -LiteralPath $script)) {
@@ -205,6 +207,28 @@ if ((Test-Path "agents/ORCHESTRATION.md") -and (Test-Path -LiteralPath ".claude/
     $hClaude = Get-FileHashHex ".claude/ORCHESTRATION.md"
     if ($hAgents -ne $hClaude) {
         Warn "ORCHESTRATION.md differs between agents/ and .claude/ (run sync-skills.ps1 -Orchestration)"
+    }
+}
+
+# Self-improvement loop integrity checks
+if (Test-Path -LiteralPath ".agents/skills/harness-self-improve/SKILL.md" -or Test-Path -LiteralPath ".cursor/skills/harness-self-improve/SKILL.md") {
+    $ledgerCandidates = @(".agents/harness/failure-ledger.json", ".cursor/harness/failure-ledger.json")
+    foreach ($ledger in $ledgerCandidates) {
+        if (Test-Path -LiteralPath $ledger) {
+            try {
+                $null = Get-Content -LiteralPath $ledger -Raw | ConvertFrom-Json
+            } catch {
+                Fail "Invalid JSON in $ledger"
+            }
+        }
+    }
+    if (Test-Path -LiteralPath ".agents/skills/harness-self-improve/SKILL.md" -and -not (Test-Path -LiteralPath ".agents/harness/failure-ledger.json")) {
+        Fail "harness-self-improve skill present but missing .agents/harness/failure-ledger.json"
+    }
+    if (-not (Test-Path -LiteralPath ".agents/skills/harness-self-improve/SKILL.md") -and
+        (Test-Path -LiteralPath ".cursor/skills/harness-self-improve/SKILL.md") -and
+        -not (Test-Path -LiteralPath ".cursor/harness/failure-ledger.json")) {
+        Fail "harness-self-improve skill present but missing .cursor/harness/failure-ledger.json"
     }
 }
 

@@ -181,7 +181,13 @@ tool_selected() {
 feature_enabled() {
   local answers_json="$1"
   local key="$2"
-  [[ "$(jq -r --arg k "$key" '.features[$k] // false' "$answers_json")" == "true" ]]
+  # Most features default to off when the key is missing.
+  # For harness self-improvement we default on so older fixtures/answers still benefit.
+  if [[ "$key" == "harness_self_improve" ]]; then
+    [[ "$(jq -r --arg k "$key" '.features[$k] // true' "$answers_json")" == "true" ]]
+  else
+    [[ "$(jq -r --arg k "$key" '.features[$k] // false' "$answers_json")" == "true" ]]
+  fi
 }
 
 framework_skill_matches() {

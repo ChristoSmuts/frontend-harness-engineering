@@ -32,6 +32,19 @@ When the agent fails the **same way twice**:
 4. Log in `HARNESS_CHANGELOG.md` (teams).
 5. Do **not** add many MCP servers “just in case.”
 
+## Self-improvement loop (optional automation)
+
+If enabled at bootstrap, the harness can “learn” from repeat failures in a structured, auditable way:
+
+1. Corrections and verify failures are logged into `failure-ledger.json` (in `.agents/harness/` for `full` / `portable-only`, or `.cursor/harness/` for `cursor-only`).
+2. The **twice rule** applies: first occurrence updates the ledger only; the second occurrence triggers harness growth.
+3. The agent applies one minimal canonical harness change (rule line, skill section, hook pattern, or orchestration note), then runs:
+   - `scripts/sync-skills.sh --all-mirrors --orchestration` (when using mirrors)
+   - `scripts/validate-target-harness.sh --strict` in CI (or locally without `--strict`)
+4. The team-visible change is recorded in `HARNESS_CHANGELOG.md`, with the ledger fingerprint in the trigger column.
+
+Even with automation, harness edits still stay reviewable: changes are made to the target repo’s canonical harness files, and the human (you) decides whether to commit/merge.
+
 ## When to re-bootstrap vs patch
 
 | Situation | Action |

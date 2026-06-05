@@ -107,6 +107,7 @@
         "shell_guard": { "type": "boolean", "default": true },
         "secret_scan_hook": { "type": "boolean", "default": true },
         "codex_hooks": { "type": "boolean", "default": false },
+        "harness_self_improve": { "type": "boolean", "default": true },
         "harness_ci_workflow": { "type": "boolean", "default": true }
       },
       "additionalProperties": true

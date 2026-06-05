@@ -45,6 +45,7 @@ Canonical skill files: `.agents/skills//`. After editing, run `scripts/sync-skil
 | `forms-validation` | N/A — skill not installed |
 | `playwright-e2e` | N/A — skill not installed |
 | `accessibility` | N/A — skill not installed |
+| `harness-self-improve` | Repeat failure in ledger (count >= 2), user asks to stop repeating a mistake, or stop hook requests harness growth |
 
 Remove rows for skills not installed in this project.
 
@@ -54,6 +55,13 @@ Prefer CLI for git/GitHub. Enable design MCP only for design-to-code tasks.
 
 Prefer CLI for git/GitHub when possible. Enable design/browser MCP only for tasks that need them; disable after to save context.
 
-## When harness grows
+## When harness grows (self-improvement loop)
 
-Add one fix per repeatable failure: a rule line, skill section, or hook—not bulk MCP installs. Log team-visible changes in `HARNESS_CHANGELOG.md` when used. See your toolkit `docs/HARNESS_GROWTH.md`.
+1. **Log** user corrections and verify failures to the failure ledger (`.agents/harness/failure-ledger.json` for `full` / `portable-only`; `.cursor/harness/` for `cursor-only`).
+2. **Twice rule:** first occurrence = ledger only; second = load skill `harness-self-improve`.
+3. **Apply** one minimal fix (rule line, skill section, hook pattern, or orchestration note)—not bulk MCP installs.
+4. **Sync** canonical skills: `scripts/sync-skills.sh --all-mirrors --orchestration` (or `.ps1`).
+5. **Validate:** `scripts/validate-target-harness.sh` (or `.ps1`).
+6. **Log** team-visible changes in `HARNESS_CHANGELOG.md` with ledger fingerprint in the trigger column.
+
+See toolkit `docs/HARNESS_GROWTH.md`.

@@ -156,6 +156,7 @@
     { "name": "data-fetching", "template": "templates/skills/data-fetching/SKILL.md", "feature": "data_fetching" },
     { "name": "forms-validation", "template": "templates/skills/forms-validation/SKILL.md", "feature": "forms_validation" },
     { "name": "playwright-e2e", "template": "templates/skills/playwright-e2e/SKILL.md", "feature": "playwright" },
-    { "name": "accessibility", "template": "templates/skills/accessibility/SKILL.md", "feature": "accessibility" }
+    { "name": "accessibility", "template": "templates/skills/accessibility/SKILL.md", "feature": "accessibility" },
+    { "name": "harness-self-improve", "template": "templates/skills/harness-self-improve/SKILL.md", "feature": "harness_self_improve" }
   ]
 }

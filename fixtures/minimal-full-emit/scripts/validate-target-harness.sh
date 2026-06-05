@@ -207,7 +207,7 @@ fi
 
 if [[ -f .cursor/hooks.json ]]; then
   hooks_json=$(cat .cursor/hooks.json)
-  for script in .cursor/hooks/verify-frontend.sh .cursor/hooks/verify-frontend.ps1 .cursor/hooks/deny-dangerous.sh .cursor/hooks/deny-dangerous.ps1 .cursor/hooks/scan-secrets.sh .cursor/hooks/scan-secrets.ps1; do
+  for script in .cursor/hooks/verify-frontend.sh .cursor/hooks/verify-frontend.ps1 .cursor/hooks/deny-dangerous.sh .cursor/hooks/deny-dangerous.ps1 .cursor/hooks/scan-secrets.sh .cursor/hooks/scan-secrets.ps1 .cursor/hooks/harness-growth-stop.sh .cursor/hooks/harness-growth-stop.ps1; do
     base=$(basename "$script")
     if echo "$hooks_json" | grep -q "$base" && [[ ! -f "$script" ]]; then
       fail "hooks.json references missing $script"
@@ -223,6 +223,22 @@ has_security=false
 [[ -f .cursor/skills/frontend-security/SKILL.md ]] && has_security=true
 if $has_verify && ! $has_security; then
   fail "frontend-security skill missing (required P1 with frontend-verify)"
+fi
+
+# Self-improvement loop integrity checks
+if [[ -f .agents/skills/harness-self-improve/SKILL.md ]]; then
+  ledger=".agents/harness/failure-ledger.json"
+  [[ -f "$ledger" ]] || fail "harness-self-improve skill present but missing $ledger"
+  if [[ -f "$ledger" ]] && command -v jq >/dev/null 2>&1; then
+    jq -e '.' "$ledger" >/dev/null 2>&1 || fail "Invalid JSON in $ledger"
+  fi
+fi
+if [[ ! -f .agents/skills/harness-self-improve/SKILL.md && -f .cursor/skills/harness-self-improve/SKILL.md ]]; then
+  ledger=".cursor/harness/failure-ledger.json"
+  [[ -f "$ledger" ]] || fail "harness-self-improve skill present but missing $ledger"
+  if [[ -f "$ledger" ]] && command -v jq >/dev/null 2>&1; then
+    jq -e '.' "$ledger" >/dev/null 2>&1 || fail "Invalid JSON in $ledger"
+  fi
 fi
 
 if [[ -f agents/ORCHESTRATION.md ]] && [[ -f .claude/ORCHESTRATION.md ]]; then

@@ -109,7 +109,7 @@ emit_substitute() {
 }
 
 # Maintenance scripts (no substitution)
-for s in validate-target-harness.sh validate-target-harness.ps1 sync-skills.sh sync-skills.ps1; do
+for s in validate-target-harness.sh validate-target-harness.ps1 sync-skills.sh sync-skills.ps1 register-harness-growth.sh register-harness-growth.ps1; do
   dest="scripts/$s"
   if should_skip "$dest"; then continue; fi
   mkdir -p scripts
@@ -130,6 +130,13 @@ emit_substitute "$TOOLKIT/templates/HARNESS_CHANGELOG.md.template" "HARNESS_CHAN
 
 if [[ "$emit_strategy" != "cursor-only" ]]; then
   emit_substitute "$TOOLKIT/templates/ORCHESTRATION.shared.md.template" "agents/ORCHESTRATION.md"
+fi
+
+# Failure ledger + stop-hook back-pressure (self-improvement loop)
+if feature_enabled "$ANSWERS" "harness_self_improve"; then
+  ledger_dest=".agents/harness/failure-ledger.json"
+  [[ "$emit_strategy" == "cursor-only" ]] && ledger_dest=".cursor/harness/failure-ledger.json"
+  emit_substitute "$TOOLKIT/templates/harness/failure-ledger.json.template" "$ledger_dest"
 fi
 
 if tool_selected "$ANSWERS" "Cursor" && [[ "$emit_strategy" != "portable-only" ]]; then
@@ -205,7 +212,7 @@ if tool_selected "$ANSWERS" "Cursor" && [[ "$emit_strategy" != "portable-only" ]
   hooks_tpl="$TOOLKIT/templates/hooks/$hooks_name"
   cp "$hooks_tpl" .cursor/hooks.json
   mkdir -p .cursor/hooks
-  for hook_script in verify-frontend.sh verify-frontend.ps1; do
+  for hook_script in verify-frontend.sh verify-frontend.ps1 harness-growth-stop.sh harness-growth-stop.ps1; do
     cp "$TOOLKIT/templates/hooks/$hook_script" ".cursor/hooks/$hook_script" 2>/dev/null || true
     chmod +x ".cursor/hooks/$hook_script" 2>/dev/null || true
   done
