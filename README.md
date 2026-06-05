@@ -55,31 +55,36 @@ You keep owning the target repo; this toolkit only supplies templates, prompts, 
 | [.cursor/skills/frontend-harness-bootstrap/](.cursor/skills/frontend-harness-bootstrap/) | Cursor skill |
 | [agents/skills/frontend-harness-bootstrap/](agents/skills/frontend-harness-bootstrap/) | Portable skill (Codex, Gemini, others) |
 
-## Quick start
+## Getting Started
 
-### A — Target frontend repo open
+Two paths — pick the one that fits how you work.
 
-1. Scaffold your app (Next, Vite, etc.) and open it in your agent.
-2. Run `frontend-harness-bootstrap` or paste [prompts/MASTER_BOOTSTRAP.md](prompts/MASTER_BOOTSTRAP.md). **`target_path`** is `.` (this repo).
-3. Approve the plan; harness files are written here.
+### Option A — Your app repo is already open
 
-### B — Toolkit repo open (multiple projects)
+**Best for:** setting up one project at a time
 
-1. Open **Frontend Harness Engineering** in Cursor (or your agent).
-2. Run the bootstrap skill or MASTER_BOOTSTRAP. At intake, set **`target_path`** to the app repo, for example:
+1. Open your frontend project in your coding agent.
+2. Make this toolkit reachable (as a submodule, a sibling folder, or a multi-root workspace) — see [docs/TOOLKIT_CONSUMPTION.md](docs/TOOLKIT_CONSUMPTION.md).
+3. Run the `frontend-harness-bootstrap` skill, or paste [prompts/MASTER_BOOTSTRAP.md](prompts/MASTER_BOOTSTRAP.md).
+4. At intake, **`target_path`** defaults to `.` (the current repo).
+5. Review and approve the plan — harness files are written here.
 
-   - macOS: `/Users/you/dev/acme-web`
-   - Linux: `/home/you/projects/acme-web`
-   - Windows: `C:\dev\acme-web` or `C:/dev/acme-web`
+### Option B — This toolkit repo is open
 
-3. **`toolkit_path`** is usually `.` here. Emit: `bash scripts/emit-from-intake.sh --answers answers.json --target "<path>" --toolkit .`
-4. Open **`target_path`** for daily agent work; repeat with a new path for the next app.
+**Best for:** bootstrapping multiple apps from one place
+
+1. Open this toolkit repo in your agent.
+2. Run the bootstrap — at intake, provide the full path to your app:
+   - macOS/Linux: `/Users/you/dev/acme-web`
+   - Windows: `C:\dev\acme-web`
+3. The toolkit writes harness files directly into that app repo.
+4. Open the app repo for day-to-day work; repeat with a new path for the next app.
+
+### Already have an existing project?
+
+Same flow as A or B — the agent inspects your existing `package.json` and folder layout before generating anything, so it adapts to what's already there.
 
 Details: [docs/START_HERE.md](docs/START_HERE.md), [docs/CROSS_PLATFORM.md](docs/CROSS_PLATFORM.md).
-
-### Existing project
-
-Same as A or B. The agent **inspects** `package.json`, layout, and harness dirs under **`target_path`** before generating.
 
 ### Using templates manually
 
