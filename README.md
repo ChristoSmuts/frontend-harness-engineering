@@ -16,7 +16,7 @@ Typical flow:
 2. **Plan** — Agent proposes which artifacts to create (rules, skills, hooks, CI) from [manifest/ARTIFACT_MANIFEST.md](manifest/ARTIFACT_MANIFEST.md).
 3. **Emit** — Files land at **`target_path`** from [templates/](templates/) (or via [scripts/emit-from-intake.sh](scripts/emit-from-intake.sh) with `--target` / JSON `target_path`).
 4. **Verify** — `validate-target-harness` checks placeholders, emit strategy consistency, skill mirrors, and hook references; target repos can add [harness CI](docs/HARNESS_CI.md).
-5. **Maintain** — Edit canonical skills, run `sync-skills`, grow the harness when agents fail the same way twice ([docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md)).
+5. **Maintain** — Edit canonical skills, run `sync-skills`, grow the harness when agents fail the same way twice. With self-improvement enabled (default), repeat failures are logged to a failure ledger and the agent can auto-apply minimal canonical fixes — review harness diffs in git. See [docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md).
 
 Emit modes (`full`, `portable-only`, `cursor-only`) control how much is generated — from Cursor-only rules and hooks to multi-tool parity with `.agents/skills/` as the canonical hub. Details: [docs/EMIT_STRATEGIES.md](docs/EMIT_STRATEGIES.md).
 
@@ -29,7 +29,7 @@ Emit modes (`full`, `portable-only`, `cursor-only`) control how much is generate
 | **Multi-tool without drift** | On `full` emit, write skills once under `.agents/skills/`, mirror to Cursor/Claude with `sync-skills`, and validate parity in CI. |
 | **Automatic quality gates** | Optional Cursor stop hooks run lint/typecheck; validate scripts catch unreplaced `{{placeholders}}` and broken hook paths before merge. |
 | **Cross-platform maintenance** | Bash and PowerShell scripts for validate/sync on Linux, macOS, and Windows — same harness on every OS your team uses. |
-| **Failure-driven growth** | Start minimal; add rules, skills, or hooks when agents repeat the same mistake — avoids bloated MCP and rule dumps up front. |
+| **Failure-driven growth** | Start minimal; optionally auto-grow via failure ledger + `harness-self-improve` skill when the same mistake repeats (twice rule). Always review harness diffs in git — avoids bloated MCP and rule dumps up front. |
 | **Team-ready defaults** | Orchestration handoffs, security skill pairing, governance docs, and golden fixtures so upgrades and reviews stay predictable. |
 
 You keep owning the target repo; this toolkit only supplies templates, prompts, and maintenance scripts. Deeper walkthrough: [docs/START_HERE.md](docs/START_HERE.md).
@@ -45,7 +45,7 @@ You keep owning the target repo; this toolkit only supplies templates, prompts, 
 | [docs/MULTI_TOOL.md](docs/MULTI_TOOL.md) | How to use the harness with each product |
 | [docs/EMIT_STRATEGIES.md](docs/EMIT_STRATEGIES.md) | `full` / `portable-only` / `cursor-only` emit modes |
 | [docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md) | After bootstrap — scaling multi-tool, team, agents |
-| [scripts/](scripts/) | `sync-skills`, `validate-target-harness`, `emit-from-intake` |
+| [scripts/](scripts/) | `sync-skills`, `validate-target-harness`, `emit-from-intake`, `register-harness-growth` |
 | [docs/EMIT_FROM_INTAKE.md](docs/EMIT_FROM_INTAKE.md) | Deterministic emit from `answers.json` |
 | [docs/HARNESS_CI.md](docs/HARNESS_CI.md) | Target-repo harness CI workflow |
 | [fixtures/golden-full-emit/](fixtures/golden-full-emit/) | Reference `full` emit output for CI |
@@ -92,6 +92,7 @@ Copy from [templates/](templates/) into your target repo and replace `{{PLACEHOL
 - **Re-emit:** `bash scripts/emit-from-intake.sh` with intake JSON — see [docs/EMIT_FROM_INTAKE.md](docs/EMIT_FROM_INTAKE.md).
 - **Another app from toolkit:** same bootstrap flow, new **`target_path`** — [docs/TOOLKIT_CONSUMPTION.md](docs/TOOLKIT_CONSUMPTION.md).
 - **Grow the harness:** [docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md).
+- **Self-improvement (default on):** failure ledger under `.agents/harness/` (or `.cursor/harness/` for cursor-only); Cursor stop hook may re-engage the agent when open ledger entries need a harness fix. Opt out at intake with `features.harness_self_improve: false`.
 
 ## Principles
 
@@ -101,7 +102,7 @@ Aligned with [HumanLayer — Skill Issue: Harness Engineering](https://www.human
 - Skills for progressive disclosure (portable `SKILL.md`)
 - Sub-agents for **context control** (locate/trace), not role personas
 - Hooks for fast lint + typecheck on stop where supported (silent success)
-- Failure-driven: add harness pieces when the agent actually fails
+- Failure-driven: add harness pieces when the agent actually fails; optional structured loop (ledger → twice rule → minimal fix → changelog)
 - Canonical hub: `.agents/skills/` with mirrors for Cursor/Claude on `full` emit
 
 ## License
