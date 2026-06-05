@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Refresh golden-full-emit canonical skills from templates + sync mirrors (maintainer/CI helper).
+# Refresh golden-full-emit skills + mirrors from emit (partial; faster than full tree).
+# For a full fixture sync, use: ./scripts/refresh-golden-fixture-from-emit.sh fixtures/golden-full-emit
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
