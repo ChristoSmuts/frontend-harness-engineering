@@ -211,7 +211,7 @@ if ((Test-Path "agents/ORCHESTRATION.md") -and (Test-Path -LiteralPath ".claude/
 }
 
 # Self-improvement loop integrity checks
-if (Test-Path -LiteralPath ".agents/skills/harness-self-improve/SKILL.md" -or Test-Path -LiteralPath ".cursor/skills/harness-self-improve/SKILL.md") {
+if ((Test-Path -LiteralPath ".agents/skills/harness-self-improve/SKILL.md") -or (Test-Path -LiteralPath ".cursor/skills/harness-self-improve/SKILL.md")) {
     $ledgerCandidates = @(".agents/harness/failure-ledger.json", ".cursor/harness/failure-ledger.json")
     foreach ($ledger in $ledgerCandidates) {
         if (Test-Path -LiteralPath $ledger) {
@@ -222,7 +222,7 @@ if (Test-Path -LiteralPath ".agents/skills/harness-self-improve/SKILL.md" -or Te
             }
         }
     }
-    if (Test-Path -LiteralPath ".agents/skills/harness-self-improve/SKILL.md" -and -not (Test-Path -LiteralPath ".agents/harness/failure-ledger.json")) {
+    if ((Test-Path -LiteralPath ".agents/skills/harness-self-improve/SKILL.md") -and -not (Test-Path -LiteralPath ".agents/harness/failure-ledger.json")) {
         Fail "harness-self-improve skill present but missing .agents/harness/failure-ledger.json"
     }
     if (-not (Test-Path -LiteralPath ".agents/skills/harness-self-improve/SKILL.md") -and
