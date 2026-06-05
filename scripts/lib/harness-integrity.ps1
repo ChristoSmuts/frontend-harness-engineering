@@ -78,16 +78,16 @@ function Get-HarnessIntegrityHookCommands([string]$HooksJsonPath) {
         $commands = [System.Collections.Generic.List[string]]::new()
         function Walk-Object($obj) {
             if ($null -eq $obj) { return }
-            if ($obj -is [System.Collections.IDictionary]) {
-                if ($obj.Contains("command")) { $commands.Add([string]$obj["command"]) }
-            }
+            if ($obj -is [string] -or $obj -is [ValueType]) { return }
             if ($obj.PSObject.Properties.Name -contains "command") {
                 $commands.Add([string]$obj.command)
             }
-            if ($obj -is [System.Array] -or $obj -is [System.Collections.IEnumerable]) {
+            if ($obj -is [System.Array]) {
                 foreach ($item in $obj) { Walk-Object $item }
-            } elseif ($obj.PSObject.Properties) {
-                foreach ($prop in $obj.PSObject.Properties) { Walk-Object $prop.Value }
+                return
+            }
+            foreach ($prop in $obj.PSObject.Properties) {
+                Walk-Object $prop.Value
             }
         }
         Walk-Object $json
