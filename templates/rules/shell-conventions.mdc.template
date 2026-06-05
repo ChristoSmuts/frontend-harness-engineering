@@ -1,0 +1,6 @@
+---
+description: Shell command syntax for agents (platform {{PLATFORM_PRIMARY}})
+alwaysApply: true
+---
+
+{{SHELL_CONVENTIONS_BLOCK}}

@@ -113,6 +113,17 @@ pwsh -File scripts/sync-skills.ps1 -Orchestration
 
 Mixed teams on Windows with `platform_primary: unix` still use the bash deny script (Git Bash required). Prefer `platform_primary: windows` on Windows-primary machines so both stop verify and shell guard use `.ps1`.
 
+## Agent shell syntax
+
+Emitted targets include a **`shell-conventions`** rule (`.cursor/rules/shell-conventions.mdc` on Cursor; `.claude/rules/shell-conventions.md` on Claude) driven by intake **`platform_primary`**:
+
+| `platform_primary` | Agent Shell-tool syntax |
+|--------------------|-------------------------|
+| `windows` | PowerShell 7 only — no bash `&&`, heredocs, or `export` |
+| `unix` (default) | bash/sh |
+
+`AGENTS.md` includes a **Shell conventions** line; skill `frontend-verify` uses platform-appropriate command fences. The toolkit meta-repo has `.cursor/rules/shell-conventions.mdc` for maintainers on Windows.
+
 ## Monorepo
 
 When the app package is not the repo root, bootstrap sets `{{APP_PACKAGE_PATH}}` in verify hooks (see [MONOREPO_HARNESS.md](MONOREPO_HARNESS.md)). Both `.sh` and `.ps1` verify scripts `cd` into that path before lint/typecheck.

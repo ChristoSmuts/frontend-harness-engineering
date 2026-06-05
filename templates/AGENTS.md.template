@@ -36,6 +36,7 @@ Use these for agent self-check—not full CI.
 - **Validate harness:** `bash scripts/validate-target-harness.sh` (Linux/macOS) or `pwsh -File scripts/validate-target-harness.ps1` (Windows/macOS with pwsh); use `--strict` in CI
 {{CURSOR_HARNESS_LINE}}
 - **Other tools:** run skill `frontend-verify` or the lint/typecheck commands in this file before claiming done
+- **Shell conventions:** {{SHELL_AGENTS_LINE}}
 
 ## Sub-agents
 

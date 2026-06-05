@@ -40,6 +40,7 @@ Use these for agent self-check—not full CI.
 - **Validate harness:** `bash scripts/validate-target-harness.sh` (Linux/macOS) or `pwsh -File scripts/validate-target-harness.ps1` (Windows/macOS with pwsh); use `--strict` in CI
 - **Cursor:** on stop, hooks run verify scripts; fix all reported errors before finishing
 - **Other tools:** run skill `frontend-verify` or the lint/typecheck commands in this file before claiming done
+- **Shell conventions:** use bash/sh syntax for Shell commands — see Cursor rule `shell-conventions`
 
 ## Sub-agents
 

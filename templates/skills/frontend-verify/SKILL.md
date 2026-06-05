@@ -10,10 +10,7 @@ disable-model-invocation: true
 
 Run from project root{{MONOREPO_SKILL_NOTE}}:
 
-```bash
-{{LINT_CMD}}
-{{TYPECHECK_CMD}}
-```
+{{VERIFY_CMDS_BLOCK}}
 
 ## Policy
 
@@ -23,8 +20,6 @@ Run from project root{{MONOREPO_SKILL_NOTE}}:
 
 ## Optional single-file unit test
 
-```bash
-{{UNIT_TEST_SINGLE_CMD}}
-```
+{{UNIT_VERIFY_CMDS_BLOCK}}
 
 Replace file path when testing one module.

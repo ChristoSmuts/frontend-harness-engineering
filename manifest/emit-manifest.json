@@ -11,6 +11,7 @@
         ".cursor/ORCHESTRATION.cursor-hooks.md",
         ".cursor/rules/frontend-core.mdc",
         ".cursor/rules/frontend-security.mdc",
+        ".cursor/rules/shell-conventions.mdc",
         ".cursor/rules/typescript-react.mdc",
         ".cursor/rules/ui-components.mdc",
         ".cursor/hooks.json",
@@ -59,6 +60,7 @@
         ".cursor/ORCHESTRATION.md",
         ".cursor/rules/frontend-core.mdc",
         ".cursor/rules/frontend-security.mdc",
+        ".cursor/rules/shell-conventions.mdc",
         ".cursor/hooks.json",
         ".cursor/skills/frontend-verify/SKILL.md",
         ".cursor/skills/frontend-security/SKILL.md",
@@ -117,13 +119,15 @@
     { "template": "templates/rules/frontend-core.mdc.template", "target": ".cursor/rules/frontend-core.mdc", "emit_strategies": ["full", "cursor-only"], "tools": ["Cursor"] },
     { "template": "templates/rules/typescript-react.mdc.template", "target": ".cursor/rules/typescript-react.mdc", "emit_strategies": ["full", "cursor-only"], "tools": ["Cursor"] },
     { "template": "templates/rules/ui-components.mdc.template", "target": ".cursor/rules/ui-components.mdc", "emit_strategies": ["full", "cursor-only"], "tools": ["Cursor"] },
-    { "template": "templates/rules/frontend-security.mdc.template", "target": ".cursor/rules/frontend-security.mdc", "emit_strategies": ["full", "cursor-only"], "tools": ["Cursor"] }
+    { "template": "templates/rules/frontend-security.mdc.template", "target": ".cursor/rules/frontend-security.mdc", "emit_strategies": ["full", "cursor-only"], "tools": ["Cursor"] },
+    { "template": "templates/rules/shell-conventions.mdc.template", "target": ".cursor/rules/shell-conventions.mdc", "emit_strategies": ["full", "cursor-only"], "tools": ["Cursor"] }
   ],
   "claude_rules": [
     { "template": "templates/rules/frontend-core.mdc.template", "target": ".claude/rules/frontend-core.md", "emit_strategies": ["full", "portable-only"], "tools": ["Claude Code"] },
     { "template": "templates/rules/typescript-react.mdc.template", "target": ".claude/rules/typescript-react.md", "emit_strategies": ["full", "portable-only"], "tools": ["Claude Code"] },
     { "template": "templates/rules/ui-components.mdc.template", "target": ".claude/rules/ui-components.md", "emit_strategies": ["full", "portable-only"], "tools": ["Claude Code"] },
-    { "template": "templates/rules/frontend-security.mdc.template", "target": ".claude/rules/frontend-security.md", "emit_strategies": ["full", "portable-only"], "tools": ["Claude Code"] }
+    { "template": "templates/rules/frontend-security.mdc.template", "target": ".claude/rules/frontend-security.md", "emit_strategies": ["full", "portable-only"], "tools": ["Claude Code"] },
+    { "template": "templates/rules/shell-conventions.mdc.template", "target": ".claude/rules/shell-conventions.md", "emit_strategies": ["full", "portable-only"], "tools": ["Claude Code"] }
   ],
   "hooks": {
     "unix": {

@@ -45,7 +45,7 @@ read_manifest_paths() {
       printf '%s\n' \
         AGENTS.md HARNESS_CHANGELOG.md agents/ORCHESTRATION.md \
         .cursor/ORCHESTRATION.md .cursor/ORCHESTRATION.cursor-hooks.md \
-        .cursor/rules/frontend-core.mdc .cursor/rules/typescript-react.mdc .cursor/rules/ui-components.mdc \
+        .cursor/rules/frontend-core.mdc .cursor/rules/shell-conventions.mdc .cursor/rules/typescript-react.mdc .cursor/rules/ui-components.mdc \
         .cursor/hooks.json .cursor/hooks/verify-frontend.sh .cursor/hooks/verify-frontend.ps1 \
         .agents/skills/frontend-verify/SKILL.md \
         .cursor/skills/frontend-verify/SKILL.md \

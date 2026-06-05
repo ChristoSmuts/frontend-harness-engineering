@@ -110,7 +110,73 @@ build_answers_map_file() {
   {
     echo "PUBLIC_ENV_PREFIX=$public_prefix"
     echo "AUTH_STACK=$auth_stack"
+    echo "SHELL_AGENTS_LINE=$(build_shell_agents_line "$answers_json")"
+    echo "VERIFY_CMDS_BLOCK=$(build_verify_cmds_block "$answers_json" main)"
+    echo "UNIT_VERIFY_CMDS_BLOCK=$(build_verify_cmds_block "$answers_json" unit)"
   } >> "$out_map"
+}
+
+build_shell_conventions_block() {
+  local answers_json="$1"
+  local toolkit_root="$2"
+  local platform fragment
+  platform=$(jq -r '.platform_primary // "unix"' "$answers_json")
+  fragment="$toolkit_root/templates/fragments/SHELL_CONVENTIONS.${platform}.md"
+  [[ -f "$fragment" ]] || fragment="$toolkit_root/templates/fragments/SHELL_CONVENTIONS.unix.md"
+  cat "$fragment"
+}
+
+build_shell_agents_line() {
+  local answers_json="$1"
+  local platform emit_strategy
+  platform=$(jq -r '.platform_primary // "unix"' "$answers_json")
+  emit_strategy=$(jq -r '.emit_strategy' "$answers_json")
+
+  if tool_selected "$answers_json" "Cursor" && [[ "$emit_strategy" != "portable-only" ]]; then
+    if [[ "$platform" == "windows" ]]; then
+      printf '%s' 'use PowerShell 7 syntax for Shell commands — see Cursor rule `shell-conventions`'
+    else
+      printf '%s' 'use bash/sh syntax for Shell commands — see Cursor rule `shell-conventions`'
+    fi
+  elif tool_selected "$answers_json" "Claude" && [[ "$emit_strategy" == "full" || "$emit_strategy" == "portable-only" ]]; then
+    if [[ "$platform" == "windows" ]]; then
+      printf '%s' 'use PowerShell 7 syntax for Shell commands — see Claude rule `shell-conventions`'
+    else
+      printf '%s' 'use bash/sh syntax for Shell commands — see Claude rule `shell-conventions`'
+    fi
+  else
+    if [[ "$platform" == "windows" ]]; then
+      printf '%s' 'use PowerShell 7 syntax for Shell commands'
+    else
+      printf '%s' 'use bash/sh syntax for Shell commands'
+    fi
+  fi
+}
+
+build_verify_cmds_block() {
+  local answers_json="$1"
+  local kind="$2"
+  local platform lint typecheck unit cmd block
+  platform=$(jq -r '.platform_primary // "unix"' "$answers_json")
+
+  if [[ "$kind" == "unit" ]]; then
+    unit=$(jq -r '.unit_test_single_cmd // "N/A — no unit test runner configured"' "$answers_json")
+    if [[ "$platform" == "windows" ]]; then
+      block=$'```\n'"${unit}"$'\n```'
+    else
+      block=$'```bash\n'"${unit}"$'\n```'
+    fi
+  else
+    lint=$(jq -r '.lint_cmd' "$answers_json")
+    typecheck=$(jq -r '.typecheck_cmd' "$answers_json")
+    if [[ "$platform" == "windows" ]]; then
+      block=$'```\n'"${lint}"$'\n'"${typecheck}"$'\n```'
+    else
+      block=$'```bash\n'"${lint}"$'\n'"${typecheck}"$'\n```'
+    fi
+  fi
+  block="${block//$'\n'/\\n}"
+  printf '%s' "$block"
 }
 
 build_harness_paths_block() {

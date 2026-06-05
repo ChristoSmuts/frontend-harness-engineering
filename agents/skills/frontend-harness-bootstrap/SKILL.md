@@ -89,6 +89,7 @@ Bootstrap **coding-agent harness + orchestration** at **`target_path`** (see `pr
 - **Canonical skills:** `.agents/skills/` for `full` / `portable-only`; `.cursor/skills/` for `cursor-only` only.
 
 - **P1 security:** `frontend-security` rule + skill always (`docs/FRONTEND_SECURITY.md`).
+- **Shell conventions:** `shell-conventions` rule (platform-aware from `platform_primary`; see `docs/CROSS_PLATFORM.md`).
 - **Hooks:** select template from `platform_primary`, `features.shell_guard`, and `features.secret_scan_hook` (default true); copy `scan-secrets` when enabled; when `features.agent_security_hardening`, emit allowlists and `deny-unapproved-mcp` (`beforeMCPExecution`).
 
 - **Optional deterministic emit:** `bash scripts/emit-from-intake.sh --answers <json-outside-toolkit> --toolkit <toolkit_path>` — see `docs/EMIT_FROM_INTAKE.md` (`--target` optional if JSON has `target_path`; use `emit-from-intake.ps1` on Windows).

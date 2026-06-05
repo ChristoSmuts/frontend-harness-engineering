@@ -25,7 +25,8 @@ find scripts -name '*.sh' -exec sed -i 's/\r$//' {} + 2>/dev/null || true
 
 echo "=== Template placeholders ==="
 if test "$(find templates/skills -name SKILL.md | wc -l)" -gt 0 \
-  && grep -q '{{LINT_CMD}}' templates/skills/frontend-verify/SKILL.md; then
+  && grep -q '{{VERIFY_CMDS_BLOCK}}' templates/skills/frontend-verify/SKILL.md \
+  && [[ -f templates/rules/shell-conventions.mdc.template ]]; then
   pass "Template placeholders"
 else
   fail "Template placeholders"
@@ -105,6 +106,22 @@ if $CURSOR_SEC_OK && grep -q 'scan-secrets.sh' fixtures/golden-cursor-only-emit/
   pass "Golden cursor-only security layout"
 else
   fail "Golden cursor-only security layout"
+fi
+
+echo ""
+echo "=== Shell conventions rule ==="
+SHELL_RULE_OK=true
+for f in \
+  fixtures/golden-full-emit/.cursor/rules/shell-conventions.mdc \
+  fixtures/golden-cursor-only-emit/.cursor/rules/shell-conventions.mdc; do
+  [[ -f "$f" ]] || { echo "Missing: $f"; SHELL_RULE_OK=false; }
+done
+if $SHELL_RULE_OK \
+  && grep -q 'bash/sh' fixtures/golden-full-emit/.cursor/rules/shell-conventions.mdc \
+  && grep -q 'Shell conventions' fixtures/golden-full-emit/AGENTS.md; then
+  pass "Shell conventions rule"
+else
+  fail "Shell conventions rule"
 fi
 
 echo ""

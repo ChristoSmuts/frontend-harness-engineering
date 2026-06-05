@@ -79,8 +79,11 @@ cd "$TARGET"
 map_tmp=$(mktemp)
 build_answers_map_file "$ANSWERS" "$map_tmp" "$TOOLKIT"
 HARNESS_PATHS_FILE=$(mktemp)
+SHELL_CONVENTIONS_FILE=$(mktemp)
 build_harness_paths_block "$ANSWERS" > "$HARNESS_PATHS_FILE"
+build_shell_conventions_block "$ANSWERS" "$TOOLKIT" > "$SHELL_CONVENTIONS_FILE"
 echo "HARNESS_PATHS=__MULTILINE_FILE__" >> "$map_tmp"
+echo "SHELL_CONVENTIONS_BLOCK=__MULTILINE_SHELL__" >> "$map_tmp"
 
 emit_strategy=$(jq -r '.emit_strategy' "$ANSWERS")
 platform=$(jq -r '.platform_primary // "unix"' "$ANSWERS")
@@ -104,7 +107,7 @@ emit_substitute() {
     echo "skip $rel_dest (merge_policy)"
     return 0
   fi
-  substitute_from_map_file "$template" "$dest" "$map_tmp" "$HARNESS_PATHS_FILE"
+  substitute_from_map_file "$template" "$dest" "$map_tmp" "$HARNESS_PATHS_FILE" "$SHELL_CONVENTIONS_FILE"
   echo "emit $rel_dest"
 }
 
@@ -200,15 +203,15 @@ fi
 
 # Cursor rules
 if tool_selected "$ANSWERS" "Cursor" && [[ "$emit_strategy" != "portable-only" ]]; then
-  for rule in frontend-core frontend-security typescript-react ui-components; do
+  for rule in frontend-core frontend-security shell-conventions typescript-react ui-components; do
     emit_substitute "$TOOLKIT/templates/rules/${rule}.mdc.template" ".cursor/rules/${rule}.mdc"
   done
 fi
 
 # Claude rules
 if tool_selected "$ANSWERS" "Claude" && [[ "$emit_strategy" == "full" || "$emit_strategy" == "portable-only" ]]; then
-  for rule in frontend-core frontend-security typescript-react ui-components; do
-    mdc_template_to_claude_md "$TOOLKIT/templates/rules/${rule}.mdc.template" ".claude/rules/${rule}.md" "$map_tmp"
+  for rule in frontend-core frontend-security shell-conventions typescript-react ui-components; do
+    mdc_template_to_claude_md "$TOOLKIT/templates/rules/${rule}.mdc.template" ".claude/rules/${rule}.md" "$map_tmp" "$HARNESS_PATHS_FILE" "$SHELL_CONVENTIONS_FILE"
     echo "emit .claude/rules/${rule}.md"
   done
   if [[ -f agents/ORCHESTRATION.md ]]; then
@@ -359,5 +362,5 @@ elif [[ -f "$TOOLKIT/scripts/validate-target-harness.sh" ]]; then
   bash "$TOOLKIT/scripts/validate-target-harness.sh" "${validate_args[@]}" .
 fi
 
-rm -f "$map_tmp" "$HARNESS_PATHS_FILE"
+rm -f "$map_tmp" "$HARNESS_PATHS_FILE" "$SHELL_CONVENTIONS_FILE"
 echo "Emit complete -> $TARGET (emit_strategy=$emit_strategy)"

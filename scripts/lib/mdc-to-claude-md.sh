@@ -13,7 +13,7 @@ mdc_template_to_claude_md() {
   ' "$src" > "$tmp"
   mkdir -p "$(dirname "$dst")"
   if [[ -n "$map_file" && -f "$map_file" ]]; then
-    substitute_from_map_file "$tmp" "$dst" "$map_file"
+    substitute_from_map_file "$tmp" "$dst" "$map_file" "${4:-}" "${5:-}"
     rm -f "$tmp"
   else
     mv "$tmp" "$dst"

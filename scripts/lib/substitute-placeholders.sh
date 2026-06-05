@@ -6,6 +6,7 @@ substitute_from_map_file() {
   local dst="$2"
   local map_file="$3"
   local multiline_file="${4:-}"
+  local multiline_shell_file="${5:-}"
   local content
   content=$(<"$src")
   content="${content//$'\r'/}"
@@ -15,8 +16,12 @@ substitute_from_map_file() {
     local val="${line#*=}"
     if [[ "$val" == "__MULTILINE_FILE__" && -n "$multiline_file" && -f "$multiline_file" ]]; then
       val=$(<"$multiline_file")
+    elif [[ "$val" == "__MULTILINE_SHELL__" && -n "$multiline_shell_file" && -f "$multiline_shell_file" ]]; then
+      val=$(<"$multiline_shell_file")
     fi
     val="${val//\\n/$'\n'}"
+    # Bash treats & in the replacement as "matched text" — escape for literals (e.g. && in shell docs).
+    val="${val//&/\\&}"
     content="${content//\{\{${key}\}\}/${val}}"
   done < "$map_file"
   mkdir -p "$(dirname "$dst")"
@@ -30,9 +35,10 @@ substitute_inplace_file() {
   local file="$1"
   local map_file="$2"
   local multiline_file="${3:-}"
+  local multiline_shell_file="${4:-}"
   local tmp
   tmp=$(mktemp)
-  substitute_from_map_file "$file" "$tmp" "$map_file" "$multiline_file"
+  substitute_from_map_file "$file" "$tmp" "$map_file" "$multiline_file" "$multiline_shell_file"
   mv "$tmp" "$file"
 }
 

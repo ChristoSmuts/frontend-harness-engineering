@@ -80,4 +80,8 @@ pwsh -File scripts/validate-target-harness.ps1 -TargetRoot fixtures/minimal-full
 
 CI: `.github/workflows/validate-toolkit.yml` on push/PR (Linux, Windows, macOS).
 
+## Shell conventions
+
+On Windows, Shell-tool commands must use **PowerShell 7** syntax — not bash (`&&`, heredocs, `export`, etc.). See Cursor rule **`.cursor/rules/shell-conventions.mdc`**. Harness maintenance scripts have bash (CI) and `pwsh -File` (Windows) pairs — do not mix syntax in one command.
+
 
