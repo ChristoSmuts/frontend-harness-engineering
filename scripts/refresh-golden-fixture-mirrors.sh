@@ -35,6 +35,11 @@ done
   bash scripts/sync-skills.sh --all-mirrors
 )
 
+if [[ -f "$FIXTURE/agents/ORCHESTRATION.md" && -f "$FIXTURE/.cursor/ORCHESTRATION.cursor-hooks.md" ]]; then
+  cat "$FIXTURE/agents/ORCHESTRATION.md" "$FIXTURE/.cursor/ORCHESTRATION.cursor-hooks.md" \
+    > "$FIXTURE/.cursor/ORCHESTRATION.md"
+fi
+
 bash "$TOOLKIT/scripts/normalize-harness-text-lf.sh" "$FIXTURE"
 
 echo "Refreshed skills and mirrors under $FIXTURE"
