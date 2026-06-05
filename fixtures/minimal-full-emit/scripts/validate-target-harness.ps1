@@ -13,6 +13,7 @@ if ($TargetRoot -ne ".") {
     $TargetRoot = Normalize-TargetPath -Path $TargetRoot
 }
 Set-Location -LiteralPath $TargetRoot
+Write-Host "Validating harness at $(Get-Location)"
 
 # Unix PowerShell: Test-Path finds dot-directories; Get-Item/Get-ChildItem need -Force (hidden items).
 function Get-HarnessItem([string]$Path) {
@@ -31,8 +32,21 @@ function Get-HarnessChildItem {
     if ($Recurse) { $params.Recurse = $true }
     if ($File) { $params.File = $true }
     if ($Filter) { $params.Filter = $Filter }
-    if ($Include) { $params.Include = $Include }
-    Get-ChildItem @params
+    $items = Get-ChildItem @params
+    if ($Include) {
+        return $items | Where-Object {
+            $name = $_.Name
+            foreach ($inc in $Include) {
+                if ($inc -match '^\*') {
+                    if ($name -like $inc) { return $true }
+                } elseif ($name -eq $inc) {
+                    return $true
+                }
+            }
+            $false
+        }
+    }
+    return $items
 }
 
 $SecretPatternsLib = Join-Path $ValidateScriptDir "lib/secret-patterns.ps1"
@@ -159,15 +173,22 @@ if (Test-Path "AGENTS.md") {
     }
 }
 
+$prevNativeErrPref = $PSNativeCommandUseErrorActionPreference
+$PSNativeCommandUseErrorActionPreference = $false
 try {
     git rev-parse --is-inside-work-tree 2>$null | Out-Null
-    foreach ($envf in @(".env", ".env.local", ".env.production", ".env.development")) {
-        $tracked = git ls-files --error-unmatch $envf 2>$null
-        if ($LASTEXITCODE -eq 0) {
-            Fail "Tracked env file must not be committed: $envf"
+    if ($LASTEXITCODE -eq 0) {
+        foreach ($envf in @(".env", ".env.local", ".env.production", ".env.development")) {
+            git ls-files --error-unmatch $envf 2>$null | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                Fail "Tracked env file must not be committed: $envf"
+            }
         }
     }
 } catch { }
+finally {
+    $PSNativeCommandUseErrorActionPreference = $prevNativeErrPref
+}
 
 if (Get-Command Test-SecretScanFile -ErrorAction SilentlyContinue) {
     foreach ($base in $HarnessPaths) {
