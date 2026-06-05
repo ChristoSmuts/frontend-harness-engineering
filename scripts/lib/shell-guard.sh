@@ -56,7 +56,7 @@ shell_guard_host_allowed() {
   local host="$1"
   shift
   local allowed=("$@")
-  local a h lower_host lower_a
+  local a lower_host lower_a
   lower_host=$(printf '%s' "$host" | tr '[:upper:]' '[:lower:]')
   for a in "${allowed[@]}"; do
     lower_a=$(printf '%s' "$a" | tr '[:upper:]' '[:lower:]')
