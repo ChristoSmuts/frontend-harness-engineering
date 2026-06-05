@@ -37,6 +37,12 @@ Apply **emit_strategy** from [docs/EMIT_STRATEGIES.md](../docs/EMIT_STRATEGIES.m
 | Security skill | mirror | mirror | **canonical** `.agents/skills/frontend-security/` | `templates/skills/frontend-security/SKILL.md` |
 | Secret scan hook | `.cursor/hooks/scan-secrets.*` | — | — | `templates/hooks/scan-secrets.sh` / `.ps1` (opt-out: `features.secret_scan_hook`) |
 | Secret patterns lib | — | — | `scripts/lib/secret-patterns.*` | toolkit `scripts/lib/` (copied on emit) |
+| Shell guard lib | — | — | `scripts/lib/shell-guard.*` | toolkit `scripts/lib/` (copied on emit) |
+| Harness integrity lib | — | — | `scripts/lib/harness-integrity.*` | toolkit `scripts/lib/` (copied on emit) |
+| MCP guard hook | `.cursor/hooks/deny-unapproved-mcp.*` | — | — | `templates/hooks/deny-unapproved-mcp.*` (opt-in: `features.agent_security_hardening`) |
+| Allowed domains | — | — | `.agents/harness/allowed-domains.txt` | `templates/harness/allowed-domains.txt.template` |
+| MCP allowlist | — | — | `.agents/harness/mcp-allowlist.json` | intake `mcp_allowlist` or template |
+| Gitleaks CI | — | — | `.github/workflows/secret-scan.yml` | `templates/github/workflows/secret-scan.yml.template` (`features.gitleaks_ci`) |
 | Target path normalize lib | — | — | `scripts/lib/normalize-target-path.*` | toolkit `scripts/lib/` (copied on emit; used by validate scripts) |
 | Harness changelog (teams) | — | — | `HARNESS_CHANGELOG.md` | `templates/HARNESS_CHANGELOG.md.template` |
 | Maintenance scripts | `scripts/sync-skills.sh` + `.ps1` | — | — | toolkit `scripts/` (**every** emit) |

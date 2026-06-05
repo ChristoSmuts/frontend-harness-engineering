@@ -44,12 +44,22 @@ When `.agents/skills/**` changes in a PR:
 1. Run `bash scripts/sync-skills.sh --all-mirrors` locally and commit mirrors, **or**
 2. Rely on the `sync-check` job in [HARNESS_CI.md](HARNESS_CI.md) (`harness-validate.yml`) to fail the PR if mirrors drift.
 
+## Security-sensitive harness changes
+
+Treat PRs that touch **`.cursor/hooks.json`**, **`.cursor/hooks/*`**, **`.cursor/rules/*`**, or **`mcp-allowlist.json`** as security-sensitive:
+
+1. Require **harness owner** review (intake field `harness_owner`).
+2. Run `validate-target-harness.sh --strict` locally before merge.
+3. Document new MCP servers or allowed domains in `HARNESS_CHANGELOG.md`.
+4. Do not add hook scripts that call `curl`, `wget`, or external URLs outside the project's allowlist pattern.
+
 ## Review checklist (human)
 
 - [ ] `scripts/validate-target-harness.sh` passes (use `--strict` for harness-only PRs)
 - [ ] Lint/typecheck commands still match `package.json`
 - [ ] Mirrors synced if multi-tool
 - [ ] No new MCP servers without justification in changelog
+- [ ] Hook path changes stay under `.cursor/hooks/` or `scripts/`
 
 ## See also
 

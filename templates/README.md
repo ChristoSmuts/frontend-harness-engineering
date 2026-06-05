@@ -14,11 +14,12 @@ See [../docs/PLACEHOLDERS.md](../docs/PLACEHOLDERS.md).
 | `windows` | `hooks.windows.json.template` | `verify-frontend.ps1` |
 
 - Ensure Unix scripts are executable: `chmod +x .cursor/hooks/*.sh`
-- `deny-dangerous.sh` (unix) / `deny-dangerous.ps1` (windows) block dangerous shell when `features.shell_guard` is true
+- `deny-dangerous.sh` (unix) / `deny-dangerous.ps1` (windows) block dangerous shell, `.env` reads, and unallowlisted outbound requests when `features.shell_guard` is true
 - `scan-secrets.sh` / `scan-secrets.ps1` scan git-changed files when `features.secret_scan_hook` is true (default)
+- `deny-unapproved-mcp.sh` / `.ps1` gate MCP calls when `features.agent_security_hardening` is true (`beforeMCPExecution`)
 - Hook JSON variants: `hooks.json.template` (shell + scan), `hooks.no-secret-scan.json.template`, `hooks.no-shell-guard.json.template`, `hooks.verify-only.json.template` (+ `hooks.windows.*`)
 - P1 `rules/frontend-security.mdc.template` and `skills/frontend-security/` — see [../docs/FRONTEND_SECURITY.md](../docs/FRONTEND_SECURITY.md)
-- Copy `scripts/lib/secret-patterns.*` to target with maintenance scripts
+- Copy `scripts/lib/secret-patterns.*`, `shell-guard.*`, and `harness-integrity.*` to target with maintenance scripts
 - See [../docs/CROSS_PLATFORM.md](../docs/CROSS_PLATFORM.md) for validate/sync on each OS
 
 ## Monorepo verify hooks

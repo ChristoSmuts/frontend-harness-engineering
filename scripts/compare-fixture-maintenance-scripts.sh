@@ -16,6 +16,10 @@ LIB_MAINT=(
   secret-patterns.ps1
   normalize-target-path.sh
   normalize-target-path.ps1
+  harness-integrity.sh
+  harness-integrity.ps1
+  shell-guard.sh
+  shell-guard.ps1
 )
 
 ERRORS=0

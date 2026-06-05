@@ -15,7 +15,7 @@ Typical flow:
 1. **Intake** — Stack, tools, emit strategy, platform, **`target_path`** (where the app repo lives), and **`toolkit_path`**. When this toolkit repo is open, the agent asks for an absolute **`target_path`** to each app. See [intake/QUESTIONNAIRE.md](intake/QUESTIONNAIRE.md).
 2. **Plan** — Agent proposes which artifacts to create (rules, skills, hooks, CI) from [manifest/ARTIFACT_MANIFEST.md](manifest/ARTIFACT_MANIFEST.md).
 3. **Emit** — Files land at **`target_path`** from [templates/](templates/) (or via [scripts/emit-from-intake.sh](scripts/emit-from-intake.sh) with `--target` / JSON `target_path`).
-4. **Verify** — `validate-target-harness` checks placeholders, emit strategy consistency, skill mirrors, and hook references; target repos can add [harness CI](docs/HARNESS_CI.md).
+4. **Verify** — `validate-target-harness` checks placeholders, emit strategy consistency, skill mirrors, hook references, and harness integrity; target repos can add [harness CI](docs/HARNESS_CI.md).
 5. **Maintain** — Edit canonical skills, run `sync-skills`, grow the harness when agents fail the same way twice. With self-improvement enabled (default), repeat failures are logged to a failure ledger and the agent can auto-apply minimal canonical fixes — review harness diffs in git. See [docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md).
 
 Emit modes (`full`, `portable-only`, `cursor-only`) control how much is generated — from Cursor-only rules and hooks to multi-tool parity with `.agents/skills/` as the canonical hub. Details: [docs/EMIT_STRATEGIES.md](docs/EMIT_STRATEGIES.md).
@@ -27,7 +27,8 @@ Emit modes (`full`, `portable-only`, `cursor-only`) control how much is generate
 | **Faster, consistent setup** | One questionnaire and manifest instead of ad-hoc `AGENTS.md` per repo; bootstrap many apps from one toolkit checkout via **`target_path`**. |
 | **Less context noise** | Thin `AGENTS.md` (~60 lines); depth lives in skills loaded only when relevant — agents stay focused on your code. |
 | **Multi-tool without drift** | On `full` emit, write skills once under `.agents/skills/`, mirror to Cursor/Claude with `sync-skills`, and validate parity in CI. |
-| **Automatic quality gates** | Optional Cursor stop hooks run lint/typecheck; validate scripts catch unreplaced `{{placeholders}}` and broken hook paths before merge. |
+| **Automatic quality gates** | Cursor hooks run lint/typecheck on stop; `scan-secrets` and `deny-dangerous` guard secrets and shell; validate scripts catch placeholders and hook drift before merge. |
+| **Agent security harness** | P1 `frontend-security` rule/skill plus optional hardening (MCP allowlist hook, outbound domain allowlist, Gitleaks CI) — see [docs/FRONTEND_SECURITY.md](docs/FRONTEND_SECURITY.md). |
 | **Cross-platform maintenance** | Bash and PowerShell scripts for validate/sync on Linux, macOS, and Windows — same harness on every OS your team uses. |
 | **Failure-driven growth** | Start minimal; optionally auto-grow via failure ledger + `harness-self-improve` skill when the same mistake repeats (twice rule). Always review harness diffs in git — avoids bloated MCP and rule dumps up front. |
 | **Team-ready defaults** | Orchestration handoffs, security skill pairing, governance docs, and golden fixtures so upgrades and reviews stay predictable. |
@@ -48,6 +49,7 @@ You keep owning the target repo; this toolkit only supplies templates, prompts, 
 | [scripts/](scripts/) | `sync-skills`, `validate-target-harness`, `emit-from-intake`, `register-harness-growth` |
 | [docs/EMIT_FROM_INTAKE.md](docs/EMIT_FROM_INTAKE.md) | Deterministic emit from `answers.json` |
 | [docs/HARNESS_CI.md](docs/HARNESS_CI.md) | Target-repo harness CI workflow |
+| [docs/FRONTEND_SECURITY.md](docs/FRONTEND_SECURITY.md) | Security harness: hooks, threat model, `agent_security_hardening`, `gitleaks_ci` |
 | [fixtures/golden-full-emit/](fixtures/golden-full-emit/) | Reference `full` emit output for CI |
 | [fixtures/golden-portable-only-emit/](fixtures/golden-portable-only-emit/) | Reference `portable-only` emit for CI |
 | [fixtures/golden-cursor-only-emit/](fixtures/golden-cursor-only-emit/) | Reference `cursor-only` emit for CI |
@@ -98,6 +100,7 @@ Copy from [templates/](templates/) into your target repo and replace `{{PLACEHOL
 - **Another app from toolkit:** same bootstrap flow, new **`target_path`** — [docs/TOOLKIT_CONSUMPTION.md](docs/TOOLKIT_CONSUMPTION.md).
 - **Grow the harness:** [docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md).
 - **Self-improvement (default on):** failure ledger under `.agents/harness/` (or `.cursor/harness/` for cursor-only); Cursor stop hook may re-engage the agent when open ledger entries need a harness fix. Opt out at intake with `features.harness_self_improve: false`.
+- **Security hardening (opt-in):** at intake, set `features.agent_security_hardening` for MCP/shell allowlists and `features.gitleaks_ci` for CI secret scanning — [docs/FRONTEND_SECURITY.md](docs/FRONTEND_SECURITY.md).
 
 ## Principles
 
@@ -106,7 +109,7 @@ Aligned with [HumanLayer — Skill Issue: Harness Engineering](https://www.human
 - Thin always-on context (`AGENTS.md`, core rules)
 - Skills for progressive disclosure (portable `SKILL.md`)
 - Sub-agents for **context control** (locate/trace), not role personas
-- Hooks for fast lint + typecheck on stop where supported (silent success)
+- Hooks for fast lint + typecheck on stop, plus security guards (`scan-secrets`, `deny-dangerous`) where supported (silent success)
 - Failure-driven: add harness pieces when the agent actually fails; optional structured loop (ledger → twice rule → minimal fix → changelog)
 - Canonical hub: `.agents/skills/` with mirrors for Cursor/Claude on `full` emit
 

@@ -117,7 +117,8 @@ for s in validate-target-harness.sh validate-target-harness.ps1 sync-skills.sh s
   chmod +x "$dest" 2>/dev/null || true
 done
 mkdir -p scripts/lib
-for s in secret-patterns.sh secret-patterns.ps1 normalize-target-path.sh normalize-target-path.ps1; do
+for s in secret-patterns.sh secret-patterns.ps1 normalize-target-path.sh normalize-target-path.ps1 \
+  harness-integrity.sh harness-integrity.ps1 shell-guard.sh shell-guard.ps1; do
   dest="scripts/lib/$s"
   if should_skip "$dest"; then continue; fi
   cp "$TOOLKIT/scripts/lib/$s" "$dest"
@@ -167,6 +168,34 @@ fi
 
 if feature_enabled "$ANSWERS" "harness_ci_workflow"; then
   emit_substitute "$TOOLKIT/templates/github/workflows/harness-validate.yml.template" ".github/workflows/harness-validate.yml"
+fi
+
+if feature_enabled "$ANSWERS" "gitleaks_ci"; then
+  emit_substitute "$TOOLKIT/templates/github/workflows/secret-scan.yml.template" ".github/workflows/secret-scan.yml"
+fi
+
+# Agent security hardening — allowlists + MCP hook
+if feature_enabled "$ANSWERS" "agent_security_hardening"; then
+  harness_dir=".agents/harness"
+  [[ "$emit_strategy" == "cursor-only" ]] && harness_dir=".cursor/harness"
+  mkdir -p "$harness_dir"
+  if should_skip "$harness_dir/allowed-domains.txt"; then
+    :
+  else
+    cp "$TOOLKIT/templates/harness/allowed-domains.txt.template" "$harness_dir/allowed-domains.txt"
+    echo "emit $harness_dir/allowed-domains.txt"
+  fi
+  if should_skip "$harness_dir/mcp-allowlist.json"; then
+    :
+  else
+    mcp_list=$(jq -c '.mcp_allowlist // empty' "$ANSWERS")
+    if [[ -n "$mcp_list" && "$mcp_list" != "null" && "$mcp_list" != "[]" ]]; then
+      printf '%s\n' "$mcp_list" > "$harness_dir/mcp-allowlist.json"
+    else
+      cp "$TOOLKIT/templates/harness/mcp-allowlist.json.template" "$harness_dir/mcp-allowlist.json"
+    fi
+    echo "emit $harness_dir/mcp-allowlist.json"
+  fi
 fi
 
 # Cursor rules
@@ -227,6 +256,27 @@ if tool_selected "$ANSWERS" "Cursor" && [[ "$emit_strategy" != "portable-only" ]
       cp "$TOOLKIT/templates/hooks/$hook_script" ".cursor/hooks/$hook_script" 2>/dev/null || true
       chmod +x ".cursor/hooks/$hook_script" 2>/dev/null || true
     done
+  fi
+  if feature_enabled "$ANSWERS" "agent_security_hardening"; then
+    for hook_script in deny-unapproved-mcp.sh deny-unapproved-mcp.ps1; do
+      cp "$TOOLKIT/templates/hooks/$hook_script" ".cursor/hooks/$hook_script" 2>/dev/null || true
+      chmod +x ".cursor/hooks/$hook_script" 2>/dev/null || true
+    done
+    mcp_hook_cmd=".cursor/hooks/deny-unapproved-mcp.sh"
+    [[ "$platform" == "windows" ]] && mcp_hook_cmd=".cursor/hooks/deny-unapproved-mcp.ps1"
+    if command -v jq >/dev/null 2>&1; then
+      tmp_hooks=$(mktemp)
+      jq --arg cmd "$mcp_hook_cmd" '
+        .hooks.beforeMCPExecution = (
+          (.hooks.beforeMCPExecution // []) + [{
+            "command": $cmd,
+            "timeout": 10,
+            "failClosed": true
+          }]
+        )
+      ' .cursor/hooks.json > "$tmp_hooks"
+      mv "$tmp_hooks" .cursor/hooks.json
+    fi
   fi
   for hook_script in verify-frontend.sh verify-frontend.ps1; do
     [[ -f ".cursor/hooks/$hook_script" ]] || continue

@@ -176,6 +176,12 @@ Apply **emit_strategy** from `docs/EMIT_STRATEGIES.md` (default paths in `manife
 
 - Copy `scan-secrets.sh` / `.ps1` when `secret_scan_hook` is enabled
 
+- When `features.agent_security_hardening`: emit `.agents/harness/allowed-domains.txt` and `mcp-allowlist.json` (from intake `mcp_allowlist` if set), copy `deny-unapproved-mcp.*`, patch `hooks.json` with `beforeMCPExecution`
+
+- Copy `scripts/lib/shell-guard.*` and `scripts/lib/harness-integrity.*` with maintenance scripts
+
+- When `features.gitleaks_ci`: emit `.github/workflows/secret-scan.yml`
+
 
 
 Replace all `{{PLACEHOLDER}}` values. Remove unused skill folders.

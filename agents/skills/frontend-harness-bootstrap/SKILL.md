@@ -82,18 +82,18 @@ Bootstrap **coding-agent harness + orchestration** at **`target_path`** (see `pr
 
 - Branch on **emit_strategy** per `docs/EMIT_STRATEGIES.md` and `MASTER_BOOTSTRAP` Phase C.
 
-- **Always copy maintenance scripts** to target `scripts/`: validate, sync, `lib/secret-patterns.*`, and `lib/normalize-target-path.*`.
+- **Always copy maintenance scripts** to target `scripts/`: validate, sync, `lib/secret-patterns.*`, `lib/shell-guard.*`, `lib/harness-integrity.*`, and `lib/normalize-target-path.*`.
 
 - **HARNESS_CHANGELOG.md** with `{{TOOLKIT_SHA}}` from toolkit git rev.
 
 - **Canonical skills:** `.agents/skills/` for `full` / `portable-only`; `.cursor/skills/` for `cursor-only` only.
 
 - **P1 security:** `frontend-security` rule + skill always (`docs/FRONTEND_SECURITY.md`).
-- **Hooks:** select template from `platform_primary`, `features.shell_guard`, and `features.secret_scan_hook` (default true); copy `scan-secrets` when enabled.
+- **Hooks:** select template from `platform_primary`, `features.shell_guard`, and `features.secret_scan_hook` (default true); copy `scan-secrets` when enabled; when `features.agent_security_hardening`, emit allowlists and `deny-unapproved-mcp` (`beforeMCPExecution`).
 
 - **Optional deterministic emit:** `bash scripts/emit-from-intake.sh --answers <json-outside-toolkit> --toolkit <toolkit_path>` — see `docs/EMIT_FROM_INTAKE.md` (`--target` optional if JSON has `target_path`; use `emit-from-intake.ps1` on Windows).
 
-- Templates: `AGENTS.md.template`, orchestration shared + cursor-hooks, `CLAUDE.md.template`, `GEMINI.md.template`, `fragments/HARNESS_PATHS.example.md`, `rules/*`, `skills/*`, `hooks/*`; optional `templates/codex/config.toml.template`; optional `templates/github/workflows/harness-validate.yml.template`.
+- Templates: `AGENTS.md.template`, orchestration shared + cursor-hooks, `CLAUDE.md.template`, `GEMINI.md.template`, `fragments/HARNESS_PATHS.example.md`, `rules/*`, `skills/*`, `hooks/*`; optional `templates/codex/config.toml.template`; optional `templates/github/workflows/harness-validate.yml.template` and `secret-scan.yml.template` (`features.gitleaks_ci`).
 
 - Claude rules: follow `docs/CLAUDE_RULES_FROM_MDC.md`.
 

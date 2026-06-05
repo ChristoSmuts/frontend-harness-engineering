@@ -35,6 +35,16 @@ if [[ -f "$VALIDATE_SCRIPT_DIR/lib/secret-patterns.sh" ]]; then
   # shellcheck disable=SC1091
   source "$VALIDATE_SCRIPT_DIR/lib/secret-patterns.sh"
 fi
+# shellcheck source=lib/harness-integrity.sh
+if [[ -f "$VALIDATE_SCRIPT_DIR/lib/harness-integrity.sh" ]]; then
+  # shellcheck disable=SC1091
+  source "$VALIDATE_SCRIPT_DIR/lib/harness-integrity.sh"
+fi
+
+AGENT_SECURITY_HARDENING=false
+if [[ -f .agents/harness/mcp-allowlist.json || -f .cursor/harness/mcp-allowlist.json ]]; then
+  AGENT_SECURITY_HARDENING=true
+fi
 
 if [[ -f "manifest/ARTIFACT_MANIFEST.md" && -f "prompts/MASTER_BOOTSTRAP.md" ]]; then
   echo "Toolkit meta-repo detected; skip target harness validation (use CI validate-toolkit workflow)."
@@ -207,11 +217,47 @@ fi
 
 if [[ -f .cursor/hooks.json ]]; then
   hooks_json=$(cat .cursor/hooks.json)
-  for script in .cursor/hooks/verify-frontend.sh .cursor/hooks/verify-frontend.ps1 .cursor/hooks/deny-dangerous.sh .cursor/hooks/deny-dangerous.ps1 .cursor/hooks/scan-secrets.sh .cursor/hooks/scan-secrets.ps1 .cursor/hooks/harness-growth-stop.sh .cursor/hooks/harness-growth-stop.ps1; do
+  for script in .cursor/hooks/verify-frontend.sh .cursor/hooks/verify-frontend.ps1 .cursor/hooks/deny-dangerous.sh .cursor/hooks/deny-dangerous.ps1 .cursor/hooks/scan-secrets.sh .cursor/hooks/scan-secrets.ps1 .cursor/hooks/harness-growth-stop.sh .cursor/hooks/harness-growth-stop.ps1 .cursor/hooks/deny-unapproved-mcp.sh .cursor/hooks/deny-unapproved-mcp.ps1; do
     base=$(basename "$script")
     if echo "$hooks_json" | grep -q "$base" && [[ ! -f "$script" ]]; then
       fail "hooks.json references missing $script"
     fi
+  done
+
+  if declare -f harness_integrity_extract_hook_commands >/dev/null 2>&1; then
+    while IFS= read -r hook_cmd; do
+      [[ -n "$hook_cmd" ]] || continue
+      if ! harness_integrity_hook_path_allowed "$hook_cmd"; then
+        fail "hooks.json command outside allowed paths (.cursor/hooks/ or scripts/): $hook_cmd"
+      fi
+    done < <(harness_integrity_extract_hook_commands ".cursor/hooks.json")
+  fi
+fi
+
+if declare -f harness_integrity_scan_hook_file >/dev/null 2>&1 && [[ -d .cursor/hooks ]]; then
+  while IFS= read -r -d '' hook_file; do
+    if ! harness_integrity_scan_hook_file "$hook_file"; then
+      if $STRICT || $AGENT_SECURITY_HARDENING; then
+        fail "Harness integrity: suspicious content in $hook_file"
+      else
+        warn "Harness integrity: suspicious content in $hook_file"
+      fi
+    fi
+  done < <(find .cursor/hooks -type f \( -name '*.sh' -o -name '*.ps1' \) -print0 2>/dev/null)
+fi
+
+if declare -f harness_integrity_scan_rules_file >/dev/null 2>&1; then
+  for rules_dir in .cursor/rules .claude/rules; do
+    [[ -d "$rules_dir" ]] || continue
+    while IFS= read -r -d '' rule_file; do
+      if ! harness_integrity_scan_rules_file "$rule_file"; then
+        if $STRICT || $AGENT_SECURITY_HARDENING; then
+          fail "Harness integrity: suspicious content in $rule_file"
+        else
+          warn "Harness integrity: suspicious content in $rule_file"
+        fi
+      fi
+    done < <(find "$rules_dir" -type f \( -name '*.mdc' -o -name '*.md' \) -print0 2>/dev/null)
   done
 fi
 

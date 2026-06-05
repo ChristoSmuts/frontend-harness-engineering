@@ -79,7 +79,14 @@
     { "path": ".cursor/hooks/deny-dangerous.sh", "profiles": ["full", "cursor-only"], "feature": "shell_guard" },
     { "path": ".cursor/hooks/deny-dangerous.ps1", "profiles": ["full", "cursor-only"], "feature": "shell_guard" },
     { "path": ".codex/config.toml", "profiles": ["full", "portable-only"], "feature": "codex_hooks" },
-    { "path": ".github/workflows/harness-validate.yml", "profiles": ["full", "portable-only", "cursor-only"], "feature": "harness_ci_workflow" }
+    { "path": ".github/workflows/harness-validate.yml", "profiles": ["full", "portable-only", "cursor-only"], "feature": "harness_ci_workflow" },
+    { "path": ".github/workflows/secret-scan.yml", "profiles": ["full", "portable-only", "cursor-only"], "feature": "gitleaks_ci" },
+    { "path": ".agents/harness/allowed-domains.txt", "profiles": ["full", "portable-only"], "feature": "agent_security_hardening" },
+    { "path": ".agents/harness/mcp-allowlist.json", "profiles": ["full", "portable-only"], "feature": "agent_security_hardening" },
+    { "path": ".cursor/harness/allowed-domains.txt", "profiles": ["cursor-only"], "feature": "agent_security_hardening" },
+    { "path": ".cursor/harness/mcp-allowlist.json", "profiles": ["cursor-only"], "feature": "agent_security_hardening" },
+    { "path": ".cursor/hooks/deny-unapproved-mcp.sh", "profiles": ["full", "cursor-only"], "feature": "agent_security_hardening" },
+    { "path": ".cursor/hooks/deny-unapproved-mcp.ps1", "profiles": ["full", "cursor-only"], "feature": "agent_security_hardening" }
   ],
   "maintenance_scripts": [
     { "template": "scripts/validate-target-harness.sh", "target": "scripts/validate-target-harness.sh", "substitute": false },
@@ -89,7 +96,11 @@
     { "template": "scripts/lib/secret-patterns.sh", "target": "scripts/lib/secret-patterns.sh", "substitute": false },
     { "template": "scripts/lib/secret-patterns.ps1", "target": "scripts/lib/secret-patterns.ps1", "substitute": false },
     { "template": "scripts/lib/normalize-target-path.sh", "target": "scripts/lib/normalize-target-path.sh", "substitute": false },
-    { "template": "scripts/lib/normalize-target-path.ps1", "target": "scripts/lib/normalize-target-path.ps1", "substitute": false }
+    { "template": "scripts/lib/normalize-target-path.ps1", "target": "scripts/lib/normalize-target-path.ps1", "substitute": false },
+    { "template": "scripts/lib/harness-integrity.sh", "target": "scripts/lib/harness-integrity.sh", "substitute": false },
+    { "template": "scripts/lib/harness-integrity.ps1", "target": "scripts/lib/harness-integrity.ps1", "substitute": false },
+    { "template": "scripts/lib/shell-guard.sh", "target": "scripts/lib/shell-guard.sh", "substitute": false },
+    { "template": "scripts/lib/shell-guard.ps1", "target": "scripts/lib/shell-guard.ps1", "substitute": false }
   ],
   "artifacts": [
     { "id": "agents-md", "template": "templates/AGENTS.md.template", "target": "AGENTS.md", "emit_strategies": ["full", "portable-only", "cursor-only"], "substitute": true },
@@ -99,7 +110,8 @@
     { "id": "claude-md", "template": "templates/CLAUDE.md.template", "target": "CLAUDE.md", "emit_strategies": ["full", "portable-only"], "tools": ["Claude Code"], "substitute": true },
     { "id": "gemini-md", "template": "templates/GEMINI.md.template", "target": "GEMINI.md", "emit_strategies": ["full", "portable-only"], "tools": ["Gemini CLI"], "substitute": true },
     { "id": "codex-config", "template": "templates/codex/config.toml.template", "target": ".codex/config.toml", "emit_strategies": ["full", "portable-only"], "tools": ["Codex CLI"], "feature": "codex_hooks", "substitute": true },
-    { "id": "harness-ci-workflow", "template": "templates/github/workflows/harness-validate.yml.template", "target": ".github/workflows/harness-validate.yml", "emit_strategies": ["full", "portable-only", "cursor-only"], "feature": "harness_ci_workflow", "substitute": true }
+    { "id": "harness-ci-workflow", "template": "templates/github/workflows/harness-validate.yml.template", "target": ".github/workflows/harness-validate.yml", "emit_strategies": ["full", "portable-only", "cursor-only"], "feature": "harness_ci_workflow", "substitute": true },
+    { "id": "gitleaks-ci-workflow", "template": "templates/github/workflows/secret-scan.yml.template", "target": ".github/workflows/secret-scan.yml", "emit_strategies": ["full", "portable-only", "cursor-only"], "feature": "gitleaks_ci", "substitute": true }
   ],
   "cursor_rules": [
     { "template": "templates/rules/frontend-core.mdc.template", "target": ".cursor/rules/frontend-core.mdc", "emit_strategies": ["full", "cursor-only"], "tools": ["Cursor"] },

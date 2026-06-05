@@ -57,7 +57,10 @@ for f in \
   templates/hooks/scan-secrets.sh \
   templates/hooks/scan-secrets.ps1 \
   scripts/lib/secret-patterns.sh \
-  scripts/lib/secret-patterns.ps1; do
+  scripts/lib/secret-patterns.ps1 \
+  scripts/lib/shell-guard.sh \
+  scripts/lib/harness-integrity.sh \
+  templates/hooks/deny-unapproved-mcp.sh; do
   if [[ ! -f "$f" ]]; then
     echo "Missing: $f"
     SEC_TPL_OK=false

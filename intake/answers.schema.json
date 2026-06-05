@@ -91,6 +91,11 @@
     "ui_library": { "type": "string" },
     "scope_globs": { "type": "string", "default": "src/**" },
     "mcp_policy": { "type": "string" },
+    "mcp_allowlist": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "MCP server ids allowed when features.agent_security_hardening is true"
+    },
     "public_env_prefix": { "type": "string", "description": "Client-safe env prefix, e.g. NEXT_PUBLIC_ or VITE_" },
     "auth_stack": { "type": "string", "description": "Auth approach: none, NextAuth, Clerk, custom BFF, etc." },
     "skills_dir": { "type": "string" },
@@ -108,7 +113,9 @@
         "secret_scan_hook": { "type": "boolean", "default": true },
         "codex_hooks": { "type": "boolean", "default": false },
         "harness_self_improve": { "type": "boolean", "default": true },
-        "harness_ci_workflow": { "type": "boolean", "default": true }
+        "harness_ci_workflow": { "type": "boolean", "default": true },
+        "agent_security_hardening": { "type": "boolean", "default": false },
+        "gitleaks_ci": { "type": "boolean", "default": false }
       },
       "additionalProperties": true
     },

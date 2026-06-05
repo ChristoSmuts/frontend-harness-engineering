@@ -57,8 +57,12 @@ Copy [intake/answers.example.json](../intake/answers.example.json) to a path **o
 | `codex_hooks` | `.codex/config.toml` with stop hook |
 | `shell_guard` | `deny-dangerous` in hooks (unix: `.sh`, windows: `.ps1`); when `false`, emits verify-only `hooks.json` (no `beforeShellExecution`) |
 | `harness_ci_workflow` | `.github/workflows/harness-validate.yml` |
+| `agent_security_hardening` | `allowed-domains.txt`, `mcp-allowlist.json`, `deny-unapproved-mcp` hook (`beforeMCPExecution`), strict harness integrity in validate |
+| `gitleaks_ci` | `.github/workflows/secret-scan.yml` (Gitleaks on push/PR) |
 
 Framework skills: one framework skill is chosen by matching `framework` (e.g. Next → `next-app-router`, Vue → `vue-vite`, `other` → `custom-framework`).
+
+Optional root field `mcp_allowlist` (string array) overrides the default `mcp-allowlist.json` when `agent_security_hardening` is true.
 
 ## Agent bootstrap integration
 

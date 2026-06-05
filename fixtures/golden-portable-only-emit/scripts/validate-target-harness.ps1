@@ -37,6 +37,11 @@ function Get-HarnessChildItem {
 
 $SecretPatternsLib = Join-Path $ValidateScriptDir "lib/secret-patterns.ps1"
 if (Test-Path $SecretPatternsLib) { . $SecretPatternsLib }
+$HarnessIntegrityLib = Join-Path $ValidateScriptDir "lib/harness-integrity.ps1"
+if (Test-Path $HarnessIntegrityLib) { . $HarnessIntegrityLib }
+
+$script:AgentSecurityHardening = (Test-Path -LiteralPath ".agents/harness/mcp-allowlist.json") -or
+    (Test-Path -LiteralPath ".cursor/harness/mcp-allowlist.json")
 
 if ((Test-Path "manifest/ARTIFACT_MANIFEST.md") -and (Test-Path "prompts/MASTER_BOOTSTRAP.md")) {
     Write-Host "Toolkit meta-repo detected; skip target harness validation (use CI validate-toolkit workflow)."
@@ -193,11 +198,49 @@ if (Test-Path -LiteralPath ".cursor/hooks.json") {
             ".cursor/hooks/scan-secrets.sh",
             ".cursor/hooks/scan-secrets.ps1",
             ".cursor/hooks/harness-growth-stop.sh",
-            ".cursor/hooks/harness-growth-stop.ps1"
+            ".cursor/hooks/harness-growth-stop.ps1",
+            ".cursor/hooks/deny-unapproved-mcp.sh",
+            ".cursor/hooks/deny-unapproved-mcp.ps1"
         )) {
         $base = Split-Path -Leaf $script
         if ($hooksJson -match [regex]::Escape($base) -and -not (Test-Path -LiteralPath $script)) {
             Fail "hooks.json references missing $script"
+        }
+    }
+
+    if (Get-Command Get-HarnessIntegrityHookCommands -ErrorAction SilentlyContinue) {
+        foreach ($hookCmd in (Get-HarnessIntegrityHookCommands ".cursor/hooks.json")) {
+            if ([string]::IsNullOrWhiteSpace($hookCmd)) { continue }
+            if (-not (Test-HarnessIntegrityHookPathAllowed $hookCmd)) {
+                Fail "hooks.json command outside allowed paths (.cursor/hooks/ or scripts/): $hookCmd"
+            }
+        }
+    }
+}
+
+if ((Get-Command Test-HarnessIntegrityHookFile -ErrorAction SilentlyContinue) -and (Test-Path -LiteralPath ".cursor/hooks")) {
+    Get-HarnessChildItem -Path ".cursor/hooks" -File -Include "*.sh", "*.ps1" | ForEach-Object {
+        if (-not (Test-HarnessIntegrityHookFile $_.FullName)) {
+            if ($Strict -or $script:AgentSecurityHardening) {
+                Fail "Harness integrity: suspicious content in $($_.FullName)"
+            } else {
+                Warn "Harness integrity: suspicious content in $($_.FullName)"
+            }
+        }
+    }
+}
+
+if (Get-Command Test-HarnessIntegrityRulesFile -ErrorAction SilentlyContinue) {
+    foreach ($rulesDir in @(".cursor/rules", ".claude/rules")) {
+        if (-not (Test-Path -LiteralPath $rulesDir)) { continue }
+        Get-HarnessChildItem -Path $rulesDir -Recurse -File -Include "*.mdc", "*.md" | ForEach-Object {
+            if (-not (Test-HarnessIntegrityRulesFile $_.FullName)) {
+                if ($Strict -or $script:AgentSecurityHardening) {
+                    Fail "Harness integrity: suspicious content in $($_.FullName)"
+                } else {
+                    Warn "Harness integrity: suspicious content in $($_.FullName)"
+                }
+            }
         }
     }
 }
