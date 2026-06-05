@@ -51,10 +51,10 @@ Categories: `ui-components`, `verify`, `security`, `routing`, `data-fetching`, `
 2. Pick the smallest artifact from the decision tree
 3. Edit **canonical** harness only (`.cursor/skills/` for skills; `.cursor/rules/` for Cursor rules)
 4. Do **not** duplicate guidance into `AGENTS.md` (keep <= 60 lines)
-5. For a new project skill, run `scripts/register-harness-growth.sh --kind skill --name <kebab> --when "<when>" --summary "<what>"` (or `.ps1` on Windows)
-6. For orchestration index rows: `scripts/register-harness-growth.sh --kind orchestration-row --name <skill> --when "<when>"`
-7. Run `scripts/sync-skills.sh --all-mirrors --orchestration` (or `sync-skills.ps1 -AllMirrors -Orchestration`)
-8. Run `scripts/validate-target-harness.sh` (or `.ps1`); fix errors before finishing
+5. For a new project skill, run `.agent-scripts/register-harness-growth.sh --kind skill --name <kebab> --when "<when>" --summary "<what>"` (or `.ps1` on Windows)
+6. For orchestration index rows: `.agent-scripts/register-harness-growth.sh --kind orchestration-row --name <skill> --when "<when>"`
+7. Run `.agent-scripts/sync-skills.sh --all-mirrors --orchestration` (or `sync-skills.ps1 -AllMirrors -Orchestration`)
+8. Run `.agent-scripts/validate-target-harness.sh` (or `.ps1`); fix errors before finishing
 9. Append a row to `HARNESS_CHANGELOG.md` with trigger referencing the ledger `id`
 10. Set ledger entry `fix_status: applied` and `fix_artifact` to what you changed
 

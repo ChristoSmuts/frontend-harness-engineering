@@ -5,7 +5,7 @@
 - **Sequence commands** with `;` or separate Shell invocations — not `&&` (avoids bash/PowerShell mixing).
 - **Environment variables:** `$env:NAME = "value"` — not `export NAME=value`.
 - **Paths:** quote paths with spaces (`'C:\path with spaces\file'`).
-- **Harness scripts:** `pwsh -File scripts\validate-target-harness.ps1` — not `bash scripts/...` unless Git Bash is explicitly the shell.
+- **Harness scripts:** `pwsh -File {{HARNESS_SCRIPTS_DIR}}\validate-target-harness.ps1` — not `bash {{HARNESS_SCRIPTS_DIR}}/...` unless Git Bash is explicitly the shell.
 - **Multi-line strings:** here-strings (`@'...'@` or `@"..."@`) — not bash heredocs.
 - **Git commits:** `git commit -m "title" -m "body"` — not bash heredocs.
 - **App commands** (`pnpm`, `npm`, `yarn`, `bun`) from AGENTS.md are shell-agnostic and fine as-is.

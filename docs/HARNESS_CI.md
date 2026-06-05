@@ -6,7 +6,7 @@ Copy [templates/github/workflows/harness-validate.yml.template](../templates/git
 
 | Job | Purpose |
 |-----|---------|
-| `validate-unix` | `bash scripts/validate-target-harness.sh --strict` |
+| `validate-unix` | `bash .agent-scripts/validate-target-harness.sh --strict` |
 | `sync-check` | Runs `sync-skills.sh --all-mirrors` and fails if mirrors differ from canonical |
 
 ## Strict mode
@@ -14,8 +14,8 @@ Copy [templates/github/workflows/harness-validate.yml.template](../templates/git
 `--strict` turns warnings (line count, mirror drift, platform/hook mismatch) into CI failures. Use on teams that want enforceable harness hygiene.
 
 ```bash
-bash scripts/validate-target-harness.sh --strict
-pwsh -File scripts/validate-target-harness.ps1 -Strict
+bash .agent-scripts/validate-target-harness.sh --strict
+pwsh -File .agent-scripts/validate-target-harness.ps1 -Strict
 ```
 
 ## When to run sync locally vs in CI

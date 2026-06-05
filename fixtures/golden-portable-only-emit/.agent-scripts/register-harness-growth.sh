@@ -6,6 +6,7 @@
 set -euo pipefail
 
 ROOT="${AGENT_PROJECT_ROOT:-.}"
+REGISTER_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 
 KIND=""
@@ -110,14 +111,14 @@ else
 fi
 
 if $SYNC; then
-  if [[ -f scripts/sync-skills.sh ]]; then
-    bash scripts/sync-skills.sh --all-mirrors --orchestration 2>/dev/null || true
+  if [[ -f "$REGISTER_SCRIPT_DIR/sync-skills.sh" ]]; then
+    bash "$REGISTER_SCRIPT_DIR/sync-skills.sh" --all-mirrors --orchestration 2>/dev/null || true
   fi
 fi
 
 if $VALIDATE; then
-  if [[ -f scripts/validate-target-harness.sh ]]; then
-    bash scripts/validate-target-harness.sh . || exit 1
+  if [[ -f "$REGISTER_SCRIPT_DIR/validate-target-harness.sh" ]]; then
+    bash "$REGISTER_SCRIPT_DIR/validate-target-harness.sh" . || exit 1
   fi
 fi
 

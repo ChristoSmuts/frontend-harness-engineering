@@ -2,29 +2,42 @@
 
 The bootstrap agent collects these fields before generating artifacts. Infer from the repo when possible.
 
+**Start here:** [INTAKE_OVERVIEW.md](INTAKE_OVERVIEW.md) — what bootstrap produces and what each answer controls.
+
 Optional machine-readable export: [answers.schema.json](answers.schema.json) and [answers.example.json](answers.example.json). Use with `scripts/emit-from-intake.sh` for reproducible P0+P1+P2 emit (see [docs/EMIT_FROM_INTAKE.md](../docs/EMIT_FROM_INTAKE.md)).
 
 **Do not commit per-project answers JSON into this toolkit repo.** Export to the target app (e.g. `.harness-intake/answers.json`, gitignored), OS temp, or `~/frontend-harness-intake/`. Only `answers.example.json` and `answers.schema.json` belong under `intake/` here.
 
 ## Phase A — AskQuestion bundle (agent)
 
-When using AskQuestion, run **one form** in this order (then collect free-text gaps in the same turn):
+See [INTAKE_OVERVIEW.md](INTAKE_OVERVIEW.md) for the full flow. **Collect `target_path` before** the preference form when the toolkit is open.
 
-| # | Question id | Options / notes |
-|---|-------------|-----------------|
-| 1 | **workspace_context** | `target_repo_open` — app repo is the open workspace · `toolkit_open` — Frontend Harness Engineering toolkit is open |
-| 2 | **emit_strategy** | `full` · `portable-only` · `cursor-only` |
-| 3 | **primary_tool** | Cursor · Claude Code · Codex CLI · Gemini CLI · other |
-| 4 | **tools_in_use** | multi-select: same list + other |
-| 5 | **platform_primary** | `unix` · `windows` |
-| 6 | **harness_owner** | `solo` · team (get `@handle` in chat) |
-| 7 | **hooks_prefs** | full hooks · no secret scan · verify only · no hooks |
-| 8 | **repo_type** | `brownfield` · `greenfield` |
+### Step 1 — Workspace (only when ambiguous)
 
-**target_path rules (same reply, before Phase B):**
+| Question id | Options |
+|-------------|---------|
+| **workspace_context** | `target_repo_open` — app repo is open; harness files go here · `toolkit_open` — toolkit is open; I will paste the app path next |
 
-- `target_repo_open` → `target_path` = `.`; ask for **toolkit_path** if not obvious.
-- `toolkit_open` → **must** ask user to paste absolute **target_path** (spaces OK; quote in shell). Do **not** start Phase B without it. Default `toolkit_path` = `.`.
+When auto-detect is confident, skip this question.
+
+### Step 2 — Harness preferences (after `target_path` resolved)
+
+When using AskQuestion, run **one form** in this order:
+
+| # | Question id | Options (use these labels in AskQuestion) |
+|---|-------------|-------------------------------------------|
+| 1 | **emit_strategy** | `full` — multi-tool: canonical `.agents/skills/` + Cursor/Claude mirrors + hooks · `portable-only` — `AGENTS.md` + `.agents/skills/` only (no Cursor rules/hooks) · `cursor-only` — Cursor rules/skills/hooks only (solo Cursor) |
+| 2 | **primary_tool** | Cursor · Claude Code · Codex CLI · Gemini CLI · other |
+| 3 | **tools_in_use** | multi-select: same list + other |
+| 4 | **platform_primary** | `unix` — hooks use bash/sh templates · `windows` — hooks use PowerShell 7 templates |
+| 5 | **harness_owner** | `solo` — I own harness changes · `team` — team owns harness (get `@handle` in chat) |
+| 6 | **hooks_prefs** | `full` — lint + typecheck + secret scan + shell guard on stop · `no_secret_scan` — verify + shell guard, no secret scan · `verify_only` — lint + typecheck only · `no_hooks` — no Cursor stop hooks |
+| 7 | **repo_type** | `brownfield` — existing codebase (merge/skip existing harness) · `greenfield` — new or minimal project |
+
+**target_path rules (before Step 2):**
+
+- **Target repo open** → `target_path` = `.`; ask for **toolkit_path** if not obvious.
+- **Toolkit open** → user **must** paste absolute **target_path** before Step 2 (spaces OK). Default `toolkit_path` = `.`.
 
 Windows paths for emit JSON: prefer `C:/dev/app` or `/c/dev/app` (see [docs/CROSS_PLATFORM.md](../docs/CROSS_PLATFORM.md)).
 
@@ -38,6 +51,7 @@ Windows paths for emit JSON: prefer `C:/dev/app` or `/c/dev/app` (see [docs/CROS
 | **primary_tool** | Cursor, Claude Code, Codex CLI, Gemini CLI | Most-used agent product |
 | **harness_owner** | `@handle` or `solo` | Who approves harness PRs |
 | **canonical_skills_dir** | `.agents/skills/` | Default; `.cursor/skills/` only for `cursor-only` without CLI tools |
+| **harness_scripts_dir** | `.agent-scripts` | Harness validate/sync in target (not app `scripts/`) |
 | **platform_primary** | `unix` / `windows` | Drives `hooks.json` template ([docs/CROSS_PLATFORM.md](../docs/CROSS_PLATFORM.md)) |
 
 ## A. Project identity

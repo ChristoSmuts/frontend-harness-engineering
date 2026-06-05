@@ -15,6 +15,7 @@ $script:HarnessIntegrityGuardHooks = @(
 
 $script:HarnessIntegrityAllowedHookPrefixes = @(
     ".cursor/hooks/",
+    ".agent-scripts/",
     "scripts/"
 )
 

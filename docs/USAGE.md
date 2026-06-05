@@ -37,7 +37,7 @@ Then run:
 2. Copy templates from [templates/](../templates/).
 3. Replace every `{{PLACEHOLDER}}`.
 4. Pick skills from [manifest/ARTIFACT_MANIFEST.md](../manifest/ARTIFACT_MANIFEST.md).
-5. Run `bash scripts/validate-target-harness.sh` and lint + typecheck; fix hook script commands.
+5. Run `bash .agent-scripts/validate-target-harness.sh` and lint + typecheck; fix hook script commands.
 
 ## New vs existing projects
 
@@ -69,8 +69,8 @@ Avoid installing many MCP servers "just in case."
 
 | Script | Purpose |
 |--------|---------|
-| `scripts/validate-target-harness.sh` / `.ps1` | Placeholders, line counts, hook paths, mirror drift |
-| `scripts/sync-skills.sh` / `.ps1` | Copy canonical skills → `.cursor/` / `.claude/` mirrors |
+| `.agent-scripts/validate-target-harness.sh` / `.ps1` | Placeholders, line counts, hook paths, mirror drift |
+| `.agent-scripts/sync-skills.sh` / `.ps1` | Copy canonical skills → `.cursor/` / `.claude/` mirrors |
 
 See [CROSS_PLATFORM.md](CROSS_PLATFORM.md) for OS-specific commands.
 

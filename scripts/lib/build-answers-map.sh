@@ -11,10 +11,12 @@ build_answers_map_file() {
     return 1
   fi
 
-  local emit_strategy canonical skills_dir framework platform toolkit_sha bootstrap_date
+  local emit_strategy canonical skills_dir harness_scripts_dir framework platform toolkit_sha bootstrap_date
   emit_strategy=$(jq -r '.emit_strategy' "$answers_json")
   canonical=$(jq -r '.canonical_skills_dir // ".agents/skills/"' "$answers_json")
   skills_dir=$(jq -r '.skills_dir // .canonical_skills_dir // ".agents/skills/"' "$answers_json")
+  harness_scripts_dir=$(jq -r '.harness_scripts_dir // ".agent-scripts"' "$answers_json")
+  harness_scripts_dir="${harness_scripts_dir%/}"
   framework=$(jq -r '.framework' "$answers_json")
   platform=$(jq -r '.platform_primary // "unix"' "$answers_json")
 
@@ -70,6 +72,7 @@ build_answers_map_file() {
     echo "EMIT_STRATEGY=$emit_strategy"
     echo "CANONICAL_SKILLS_DIR=$canonical"
     echo "SKILLS_DIR=$skills_dir"
+    echo "HARNESS_SCRIPTS_DIR=$harness_scripts_dir"
     echo "PLATFORM_PRIMARY=$platform"
     echo "TOOLKIT_SHA=$toolkit_sha"
     echo "BOOTSTRAP_DATE=$bootstrap_date"
@@ -119,11 +122,13 @@ build_answers_map_file() {
 build_shell_conventions_block() {
   local answers_json="$1"
   local toolkit_root="$2"
-  local platform fragment
+  local platform fragment harness_scripts_dir
   platform=$(jq -r '.platform_primary // "unix"' "$answers_json")
+  harness_scripts_dir=$(jq -r '.harness_scripts_dir // ".agent-scripts"' "$answers_json")
+  harness_scripts_dir="${harness_scripts_dir%/}"
   fragment="$toolkit_root/templates/fragments/SHELL_CONVENTIONS.${platform}.md"
   [[ -f "$fragment" ]] || fragment="$toolkit_root/templates/fragments/SHELL_CONVENTIONS.unix.md"
-  cat "$fragment"
+  sed "s|{{HARNESS_SCRIPTS_DIR}}|${harness_scripts_dir}|g" "$fragment"
 }
 
 build_shell_agents_line() {
@@ -181,19 +186,22 @@ build_verify_cmds_block() {
 
 build_harness_paths_block() {
   local answers_json="$1"
-  local emit_strategy harness_owner platform canonical
+  local emit_strategy harness_owner platform canonical harness_scripts_dir
   emit_strategy=$(jq -r '.emit_strategy' "$answers_json")
   harness_owner=$(jq -r '.harness_owner' "$answers_json")
   platform=$(jq -r '.platform_primary // "unix"' "$answers_json")
   canonical=$(jq -r '.canonical_skills_dir // ".agents/skills/"' "$answers_json")
+  harness_scripts_dir=$(jq -r '.harness_scripts_dir // ".agent-scripts"' "$answers_json")
+  harness_scripts_dir="${harness_scripts_dir%/}"
 
   local lines=()
   lines+=("- **Emit strategy:** ${emit_strategy} · **Harness owner:** ${harness_owner} · **Platform primary:** ${platform}")
   if [[ "$emit_strategy" == "full" ]]; then
-    lines+=("- **Canonical skills:** \`${canonical}\` — edit here; run \`scripts/sync-skills.sh --all-mirrors\` after changes when using mirrors")
+    lines+=("- **Canonical skills:** \`${canonical}\` — edit here; run \`${harness_scripts_dir}/sync-skills.sh --all-mirrors\` after changes when using mirrors")
   else
-    lines+=("- **Canonical skills:** \`${canonical}\` — edit here; run \`scripts/sync-skills.sh\` after skill edits")
+    lines+=("- **Canonical skills:** \`${canonical}\` — edit here; run \`${harness_scripts_dir}/sync-skills.sh\` after skill edits")
   fi
+  lines+=("- **Harness scripts:** \`${harness_scripts_dir}/\` — validate/sync (not app build scripts)")
   lines+=("- **Shared entry:** \`AGENTS.md\` (this file)")
 
   local tools

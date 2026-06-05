@@ -4,7 +4,7 @@ Replace `{{HARNESS_PATHS}}` in `AGENTS.md.template`. Add Claude or Gemini lines 
 
 ```markdown
 - **Emit strategy:** {{EMIT_STRATEGY}} · **Harness owner:** {{HARNESS_OWNER}} · **Platform primary:** {{PLATFORM_PRIMARY}}
-- **Canonical skills:** `{{CANONICAL_SKILLS_DIR}}/` — edit here; run `scripts/sync-skills.sh` after changes when mirrors exist
+- **Canonical skills:** `{{CANONICAL_SKILLS_DIR}}/` — edit here; run `{{HARNESS_SCRIPTS_DIR}}/sync-skills.sh` after changes when mirrors exist
 - **Shared entry:** `AGENTS.md` (this file)
 - **Orchestration:** `agents/ORCHESTRATION.md`
 - **Codex CLI:** skills `{{CANONICAL_SKILLS_DIR}}/` (canonical)

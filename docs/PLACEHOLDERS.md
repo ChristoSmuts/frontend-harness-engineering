@@ -55,6 +55,7 @@ Replace all `{{TOKEN}}` values when generating into a target project.
 | `{{HARNESS_PATHS}}` | Per-tool harness bullets | Per-strategy fragments under `templates/fragments/HARNESS_PATHS.*.example.md` |
 | `{{CURSOR_HARNESS_LINE}}` | Cursor stop-hook note in `AGENTS.md` | Empty when `portable-only` or Cursor not selected |
 | `{{MONOREPO_SKILL_NOTE}}` | `frontend-verify` cwd hint | Empty or ` (or \`apps/web\` in monorepos)` |
+| `{{HARNESS_SCRIPTS_DIR}}` | Harness validate/sync dir in target | `.agent-scripts` (default; not toolkit `scripts/`) |
 | `{{CANONICAL_SKILLS_DIR}}` | Source of truth for skills | `.agents/skills/` (`full` / `portable-only`); `.cursor/skills/` (`cursor-only`) |
 | `{{EMIT_STRATEGY}}` | Bootstrap emit mode | `full` / `portable-only` / `cursor-only` |
 | `{{PLATFORM_PRIMARY}}` | Primary dev OS for hooks | `unix` / `windows` |

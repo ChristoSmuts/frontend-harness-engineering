@@ -8,15 +8,15 @@ Works with **Cursor**, **Claude Code**, **Codex CLI**, **Gemini CLI**, and other
 
 A **harness** is the agent-facing layer around your app: `AGENTS.md`, skills, rules, hooks, and orchestration notes. It is not your React/Next/Vite code — it is how coding agents learn your stack, verify their work, and stay aligned with your team.
 
-This repo is the **source kit** for that layer. You (or your agent) run a structured bootstrap in a **target frontend repo** and end up with a repeatable layout: thin always-on context, task-shaped skills, optional Cursor hooks for lint/typecheck, and scripts to validate and sync paths across tools.
+This repo is the **source kit** for that layer. You (or your agent) run a structured bootstrap in a **target frontend repo** and end up with a repeatable layout: thin always-on context, task-shaped skills, optional Cursor hooks for lint/typecheck, and `.agent-scripts/` to validate and sync paths across tools (separate from app `scripts/`).
 
 Typical flow:
 
-1. **Intake** — Stack, tools, emit strategy, platform, **`target_path`** (where the app repo lives), and **`toolkit_path`**. When this toolkit repo is open, the agent asks for an absolute **`target_path`** to each app. See [intake/QUESTIONNAIRE.md](intake/QUESTIONNAIRE.md).
+1. **Intake** — Outcome preview, workspace auto-detect, **`target_path`** first when the toolkit is open, then preferences (stack, tools, emit strategy, platform). See [intake/INTAKE_OVERVIEW.md](intake/INTAKE_OVERVIEW.md) and [intake/QUESTIONNAIRE.md](intake/QUESTIONNAIRE.md).
 2. **Plan** — Agent proposes which artifacts to create (rules, skills, hooks, CI) from [manifest/ARTIFACT_MANIFEST.md](manifest/ARTIFACT_MANIFEST.md).
 3. **Emit** — Files land at **`target_path`** from [templates/](templates/) (or via [scripts/emit-from-intake.sh](scripts/emit-from-intake.sh) with `--target` / JSON `target_path`).
 4. **Verify** — `validate-target-harness` checks placeholders, emit strategy consistency, skill mirrors, hook references, and harness integrity; target repos can add [harness CI](docs/HARNESS_CI.md).
-5. **Maintain** — Edit canonical skills, run `sync-skills`, grow the harness when agents fail the same way twice. With self-improvement enabled (default), repeat failures are logged to a failure ledger and the agent can auto-apply minimal canonical fixes — review harness diffs in git. See [docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md).
+5. **Maintain** — Edit canonical skills, run `.agent-scripts/sync-skills`, grow the harness when agents fail the same way twice. With self-improvement enabled (default), repeat failures are logged to a failure ledger and the agent can auto-apply minimal canonical fixes — review harness diffs in git. See [docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md).
 
 Emit modes (`full`, `portable-only`, `cursor-only`) control how much is generated — from Cursor-only rules and hooks to multi-tool parity with `.agents/skills/` as the canonical hub. Details: [docs/EMIT_STRATEGIES.md](docs/EMIT_STRATEGIES.md).
 
@@ -40,6 +40,7 @@ You keep owning the target repo; this toolkit only supplies templates, prompts, 
 | Path | Purpose |
 |------|---------|
 | [prompts/MASTER_BOOTSTRAP.md](prompts/MASTER_BOOTSTRAP.md) | Paste into any coding agent to run the full workflow |
+| [intake/INTAKE_OVERVIEW.md](intake/INTAKE_OVERVIEW.md) | What each intake answer produces (outcome preview) |
 | [intake/QUESTIONNAIRE.md](intake/QUESTIONNAIRE.md) | Intake fields (`target_path`, `toolkit_path`, stack, tools) |
 | [manifest/ARTIFACT_MANIFEST.md](manifest/ARTIFACT_MANIFEST.md) | What to generate and in what order |
 | [manifest/TOOL_LAYOUT.md](manifest/TOOL_LAYOUT.md) | Per-tool paths (Cursor, Claude, Codex, Gemini) |
@@ -94,8 +95,9 @@ Copy from [templates/](templates/) into your target repo and replace `{{PLACEHOL
 
 ### After bootstrap
 
-- **Canonical skills:** `.agents/skills/` for multi-tool `full` emit; run `scripts/sync-skills.sh` after skill edits.
-- **Validate:** `bash scripts/validate-target-harness.sh` (add `--strict` in CI).
+- **Canonical skills:** `.agents/skills/` for multi-tool `full` emit; run `.agent-scripts/sync-skills.sh` after skill edits.
+- **Harness scripts:** `.agent-scripts/` in the target repo (validate/sync — separate from app `scripts/`).
+- **Validate:** `bash .agent-scripts/validate-target-harness.sh` (add `--strict` in CI).
 - **Re-emit:** `bash scripts/emit-from-intake.sh` with intake JSON — see [docs/EMIT_FROM_INTAKE.md](docs/EMIT_FROM_INTAKE.md).
 - **Another app from toolkit:** same bootstrap flow, new **`target_path`** — [docs/TOOLKIT_CONSUMPTION.md](docs/TOOLKIT_CONSUMPTION.md).
 - **Grow the harness:** [docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md).

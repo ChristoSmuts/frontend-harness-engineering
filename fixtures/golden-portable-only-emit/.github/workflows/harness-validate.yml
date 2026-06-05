@@ -13,10 +13,7 @@ on:
       - ".agents/**"
       - ".cursor/**"
       - ".claude/**"
-      - "scripts/validate-target-harness.sh"
-      - "scripts/validate-target-harness.ps1"
-      - "scripts/sync-skills.sh"
-      - "scripts/sync-skills.ps1"
+      - ".agent-scripts/**"
   pull_request:
     paths:
       - "AGENTS.md"
@@ -25,10 +22,7 @@ on:
       - ".agents/**"
       - ".cursor/**"
       - ".claude/**"
-      - "scripts/validate-target-harness.sh"
-      - "scripts/validate-target-harness.ps1"
-      - "scripts/sync-skills.sh"
-      - "scripts/sync-skills.ps1"
+      - ".agent-scripts/**"
 
 jobs:
   validate-unix:
@@ -36,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Validate harness (strict)
-        run: bash scripts/validate-target-harness.sh --strict .
+        run: bash .agent-scripts/validate-target-harness.sh --strict .
 
   sync-check:
     runs-on: ubuntu-latest
@@ -53,7 +47,7 @@ jobs:
             exit 0
           fi
           find .cursor/skills .claude/skills -name SKILL.md -exec sed -i 's/\r$//' {} +
-          bash scripts/sync-skills.sh --all-mirrors
+          bash .agent-scripts/sync-skills.sh --all-mirrors
           git diff --exit-code -- .cursor/skills .claude/skills || {
             echo "Mirror drift: run sync-skills locally and commit"
             exit 1

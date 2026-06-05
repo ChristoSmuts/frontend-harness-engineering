@@ -6,7 +6,7 @@ set -euo pipefail
 
 if git diff --cached --name-only | grep -q '^\.agents/skills/'; then
   if [[ -d .cursor/skills || -d .claude/skills ]]; then
-    bash scripts/sync-skills.sh --all-mirrors
+    bash .agent-scripts/sync-skills.sh --all-mirrors
     git add .cursor/skills .claude/skills 2>/dev/null || true
     git add .claude/skills 2>/dev/null || true
   fi

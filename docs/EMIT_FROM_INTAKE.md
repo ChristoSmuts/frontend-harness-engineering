@@ -45,7 +45,7 @@ PowerShell wrapper normalizes with [`normalize-target-path.ps1`](../scripts/lib/
 | `--merge` | Respect `merge_policy` in answers (skip paths marked `skip`) |
 | `--no-strict` | Do not fail emit when validate warnings occur |
 
-Default: runs `validate-target-harness.sh --strict` on the target after sync.
+Default: runs `.agent-scripts/validate-target-harness.sh --strict` on the target after sync (harness maintenance scripts land in `.agent-scripts/` by default; override with `harness_scripts_dir` in answers JSON).
 
 ## Answers file
 

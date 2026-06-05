@@ -32,7 +32,7 @@ Parent agent: trust the summary; open **Sources** only when implementing.
 
 ## Skills index
 
-Canonical skill files: `.agents/skills//`. After editing, run `scripts/sync-skills.sh` when this repo uses mirrored tool paths.
+Canonical skill files: `.agents/skills//`. After editing, run `.agent-scripts/sync-skills.sh` when this repo uses mirrored tool paths.
 
 | Skill | When to use |
 |-------|-------------|
@@ -60,8 +60,8 @@ Prefer CLI for git/GitHub when possible. Enable design/browser MCP only for task
 1. **Log** user corrections and verify failures to the failure ledger (`.agents/harness/failure-ledger.json` for `full` / `portable-only`; `.cursor/harness/` for `cursor-only`).
 2. **Twice rule:** first occurrence = ledger only; second = load skill `harness-self-improve`.
 3. **Apply** one minimal fix (rule line, skill section, hook pattern, or orchestration note)—not bulk MCP installs.
-4. **Sync** canonical skills: `scripts/sync-skills.sh --all-mirrors --orchestration` (or `.ps1`).
-5. **Validate:** `scripts/validate-target-harness.sh` (or `.ps1`).
+4. **Sync** canonical skills: `.agent-scripts/sync-skills.sh --all-mirrors --orchestration` (or `.ps1`).
+5. **Validate:** `.agent-scripts/validate-target-harness.sh` (or `.ps1`).
 6. **Log** team-visible changes in `HARNESS_CHANGELOG.md` with ledger fingerprint in the trigger column.
 
 See toolkit `docs/HARNESS_GROWTH.md`.

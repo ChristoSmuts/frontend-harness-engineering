@@ -87,12 +87,14 @@ elseif ($Kind -eq "orchestration-row") {
     Add-OrchestrationRow -SkillName $Name -WhenText $When
 }
 
-if (-not $NoSync -and (Test-Path "scripts/sync-skills.ps1")) {
-    pwsh -File scripts/sync-skills.ps1 -AllMirrors -Orchestration 2>$null
+$registerScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+if (-not $NoSync -and (Test-Path (Join-Path $registerScriptDir "sync-skills.ps1"))) {
+    pwsh -File (Join-Path $registerScriptDir "sync-skills.ps1") -AllMirrors -Orchestration 2>$null
 }
 
-if (-not $NoValidate -and (Test-Path "scripts/validate-target-harness.ps1")) {
-    pwsh -File scripts/validate-target-harness.ps1
+if (-not $NoValidate -and (Test-Path (Join-Path $registerScriptDir "validate-target-harness.ps1"))) {
+    pwsh -File (Join-Path $registerScriptDir "validate-target-harness.ps1")
 }
 
 Write-Host "register-harness-growth complete"

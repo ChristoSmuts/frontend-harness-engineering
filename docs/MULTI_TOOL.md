@@ -30,7 +30,7 @@ You do **not** need Cursor to run bootstrap.
 
 4. Approve the Phase B plan, then generate.
 
-The agent should write skills to **canonical** `.agents/skills/` first, then mirror with `scripts/sync-skills.sh` on `full` emit.
+The agent should write skills to **canonical** `.agents/skills/` first, then mirror with `.agent-scripts/sync-skills.sh` on `full` emit.
 
 ## Per-tool usage
 
@@ -70,10 +70,10 @@ The agent should write skills to **canonical** `.agents/skills/` first, then mir
 ## Keeping skills in sync
 
 1. Edit skills only in **canonical** `.agents/skills/<name>/SKILL.md`.
-2. From repo root: `bash scripts/sync-skills.sh --all-mirrors`
-3. Optional orchestration sync: `bash scripts/sync-skills.sh --orchestration` (uses `.cursor/ORCHESTRATION.cursor-hooks.md` when present)
+2. From repo root: `bash .agent-scripts/sync-skills.sh --all-mirrors`
+3. Optional orchestration sync: `bash .agent-scripts/sync-skills.sh --orchestration` (uses `.cursor/ORCHESTRATION.cursor-hooks.md` when present)
 
-Script source: [scripts/sync-skills.sh](../scripts/sync-skills.sh) in this toolkit (copy to target on bootstrap).
+Script source: copied to target `.agent-scripts/sync-skills.sh` on bootstrap (toolkit source: [scripts/sync-skills.sh](../scripts/sync-skills.sh)).
 
 ## What stays tool-specific
 

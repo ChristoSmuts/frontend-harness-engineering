@@ -88,6 +88,8 @@ echo "SHELL_CONVENTIONS_BLOCK=__MULTILINE_SHELL__" >> "$map_tmp"
 emit_strategy=$(jq -r '.emit_strategy' "$ANSWERS")
 platform=$(jq -r '.platform_primary // "unix"' "$ANSWERS")
 canonical=$(jq -r '.canonical_skills_dir // ".agents/skills/"' "$ANSWERS")
+harness_scripts_dir=$(jq -r '.harness_scripts_dir // ".agent-scripts"' "$ANSWERS")
+harness_scripts_dir="${harness_scripts_dir%/}"
 monorepo=$(jq -r '.monorepo // false' "$ANSWERS")
 app_path=$(jq -r '.app_package_path // ""' "$ANSWERS")
 
@@ -111,18 +113,18 @@ emit_substitute() {
   echo "emit $rel_dest"
 }
 
-# Maintenance scripts (no substitution)
+# Maintenance scripts (no substitution) — target dir defaults to .agent-scripts/
 for s in validate-target-harness.sh validate-target-harness.ps1 sync-skills.sh sync-skills.ps1 register-harness-growth.sh register-harness-growth.ps1; do
-  dest="scripts/$s"
+  dest="${harness_scripts_dir}/$s"
   if should_skip "$dest"; then continue; fi
-  mkdir -p scripts
+  mkdir -p "$harness_scripts_dir"
   cp "$TOOLKIT/scripts/$s" "$dest"
   chmod +x "$dest" 2>/dev/null || true
 done
-mkdir -p scripts/lib
+mkdir -p "${harness_scripts_dir}/lib"
 for s in secret-patterns.sh secret-patterns.ps1 normalize-target-path.sh normalize-target-path.ps1 \
   harness-integrity.sh harness-integrity.ps1 shell-guard.sh shell-guard.ps1; do
-  dest="scripts/lib/$s"
+  dest="${harness_scripts_dir}/lib/$s"
   if should_skip "$dest"; then continue; fi
   cp "$TOOLKIT/scripts/lib/$s" "$dest"
   chmod +x "$dest" 2>/dev/null || true
@@ -350,14 +352,18 @@ normalize_text_lf_tree .
 
 # Sync mirrors for full emit
 if [[ "$emit_strategy" == "full" ]]; then
-  bash scripts/sync-skills.sh --all-mirrors --orchestration 2>/dev/null || bash "$TOOLKIT/scripts/sync-skills.sh" --all-mirrors --orchestration
+  if [[ -f "${harness_scripts_dir}/sync-skills.sh" ]]; then
+    bash "${harness_scripts_dir}/sync-skills.sh" --all-mirrors --orchestration
+  else
+    bash "$TOOLKIT/scripts/sync-skills.sh" --all-mirrors --orchestration
+  fi
 fi
 
 # Validate
 validate_args=()
 $STRICT && validate_args+=(--strict)
-if [[ -f scripts/validate-target-harness.sh ]]; then
-  bash scripts/validate-target-harness.sh "${validate_args[@]}" .
+if [[ -f "${harness_scripts_dir}/validate-target-harness.sh" ]]; then
+  bash "${harness_scripts_dir}/validate-target-harness.sh" "${validate_args[@]}" .
 elif [[ -f "$TOOLKIT/scripts/validate-target-harness.sh" ]]; then
   bash "$TOOLKIT/scripts/validate-target-harness.sh" "${validate_args[@]}" .
 fi

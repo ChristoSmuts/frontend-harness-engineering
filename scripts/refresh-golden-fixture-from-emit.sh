@@ -33,6 +33,9 @@ rsync -a \
   --exclude=HARNESS_CHANGELOG.md \
   "$REFRESH_ROOT/" "$FIXTURE/"
 
+# Remove legacy harness scripts/ dir if emit now uses .agent-scripts/
+rm -rf "$FIXTURE/scripts"
+
 bash "$TOOLKIT/scripts/normalize-harness-text-lf.sh" "$FIXTURE"
 
 echo "Refreshed $FIXTURE from emit (kept intake.answers.json and HARNESS_CHANGELOG.md)"

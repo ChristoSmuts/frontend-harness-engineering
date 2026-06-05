@@ -49,7 +49,7 @@ jobs:
         run: |
           cd fixtures/golden-full-emit
           find .cursor/skills .claude/skills -name SKILL.md -exec sed -i 's/\r$//' {} +
-          bash scripts/sync-skills.sh --all-mirrors
+          bash .agent-scripts/sync-skills.sh --all-mirrors
           git diff --exit-code -- .cursor/skills .claude/skills || {
             echo "Mirror drift in golden-full-emit: run sync-skills locally and commit SKILL.md mirrors"
             exit 1
@@ -72,9 +72,9 @@ jobs:
           cp -r fixtures/minimal-full-emit /tmp/harness-sync-smoke
           echo "# smoke" >> /tmp/harness-sync-smoke/.agents/skills/frontend-verify/SKILL.md
           cd /tmp/harness-sync-smoke
-          bash scripts/sync-skills.sh --all-mirrors
+          bash .agent-scripts/sync-skills.sh --all-mirrors
           cmp -s .agents/skills/frontend-verify/SKILL.md .cursor/skills/frontend-verify/SKILL.md
-          bash scripts/validate-target-harness.sh .
+          bash .agent-scripts/validate-target-harness.sh .
 
       - name: Emitter round-trip vs golden
         run: |
@@ -149,11 +149,11 @@ jobs:
           Copy-Item -Recurse fixtures/minimal-full-emit $env:RUNNER_TEMP\harness-sync-smoke
           Add-Content "$env:RUNNER_TEMP\harness-sync-smoke\.agents\skills\frontend-verify\SKILL.md" "`n# smoke"
           Set-Location $env:RUNNER_TEMP\harness-sync-smoke
-          pwsh -File scripts/sync-skills.ps1 -AllMirrors
+          pwsh -File .agent-scripts/sync-skills.ps1 -AllMirrors
           $a = Get-FileHash .agents/skills/frontend-verify/SKILL.md
           $b = Get-FileHash .cursor/skills/frontend-verify/SKILL.md
           if ($a.Hash -ne $b.Hash) { throw "Mirror drift after sync" }
-          pwsh -File scripts/validate-target-harness.ps1
+          pwsh -File .agent-scripts/validate-target-harness.ps1
 
   validate-macos:
     runs-on: macos-latest

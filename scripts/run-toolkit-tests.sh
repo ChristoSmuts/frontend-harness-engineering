@@ -84,7 +84,7 @@ for f in \
   fixtures/golden-full-emit/.agents/skills/frontend-security/SKILL.md \
   fixtures/golden-full-emit/.cursor/hooks/scan-secrets.sh \
   fixtures/golden-full-emit/.cursor/hooks/scan-secrets.ps1 \
-  fixtures/golden-full-emit/scripts/lib/secret-patterns.sh; do
+  fixtures/golden-full-emit/.agent-scripts/lib/secret-patterns.sh; do
   [[ -f "$f" ]] || { echo "Missing: $f"; FULL_SEC_OK=false; }
 done
 if $FULL_SEC_OK && grep -q 'scan-secrets.sh' fixtures/golden-full-emit/.cursor/hooks.json; then
@@ -128,7 +128,7 @@ echo ""
 echo "=== Golden portable-only security (no Cursor hooks) ==="
 PORTABLE_SEC_OK=true
 [[ -f fixtures/golden-portable-only-emit/.agents/skills/frontend-security/SKILL.md ]] || PORTABLE_SEC_OK=false
-[[ -f fixtures/golden-portable-only-emit/scripts/lib/secret-patterns.sh ]] || PORTABLE_SEC_OK=false
+[[ -f fixtures/golden-portable-only-emit/.agent-scripts/lib/secret-patterns.sh ]] || PORTABLE_SEC_OK=false
 [[ ! -d fixtures/golden-portable-only-emit/.cursor ]] || PORTABLE_SEC_OK=false
 if $PORTABLE_SEC_OK; then
   pass "Golden portable-only security layout"
@@ -159,8 +159,8 @@ if (
   git init -q
   git config user.email "test@example.com"
   git config user.name "Toolkit Test"
-  mkdir -p scripts/lib .cursor/hooks src
-  cp "$ROOT/scripts/lib/secret-patterns.sh" scripts/lib/
+  mkdir -p .agent-scripts/lib .cursor/hooks src
+  cp "$ROOT/scripts/lib/secret-patterns.sh" .agent-scripts/lib/
   cp "$ROOT/templates/hooks/scan-secrets.sh" .cursor/hooks/
   chmod +x .cursor/hooks/scan-secrets.sh
   printf '%s\n' '// clean' > src/app.ts
@@ -189,8 +189,8 @@ if (
   git init -q
   git config user.email "test@example.com"
   git config user.name "Toolkit Test"
-  mkdir -p scripts/lib .cursor/hooks src
-  cp "$ROOT/scripts/lib/secret-patterns.sh" scripts/lib/
+  mkdir -p .agent-scripts/lib .cursor/hooks src
+  cp "$ROOT/scripts/lib/secret-patterns.sh" .agent-scripts/lib/
   cp "$ROOT/templates/hooks/scan-secrets.sh" .cursor/hooks/
   chmod +x .cursor/hooks/scan-secrets.sh
   printf '%s\n' 'export const ok = 1;' > src/app.ts
@@ -220,9 +220,9 @@ cp -a fixtures/minimal-full-emit/. "$SMOKE/"
 echo "# smoke" >> "$SMOKE/.agents/skills/frontend-verify/SKILL.md"
 if (
   cd "$SMOKE"
-  bash scripts/sync-skills.sh --all-mirrors
+  bash .agent-scripts/sync-skills.sh --all-mirrors
   cmp -s .agents/skills/frontend-verify/SKILL.md .cursor/skills/frontend-verify/SKILL.md
-  bash scripts/validate-target-harness.sh .
+  bash .agent-scripts/validate-target-harness.sh .
 ); then
   pass "Sync smoke"
 else

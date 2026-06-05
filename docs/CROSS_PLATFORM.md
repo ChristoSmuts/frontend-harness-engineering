@@ -6,8 +6,8 @@ Harness maintenance scripts and Cursor verify hooks must work on **Linux**, **ma
 
 | Component | Linux / macOS | Windows |
 |-----------|---------------|---------|
-| Validate harness | `bash scripts/validate-target-harness.sh` | `pwsh -File scripts/validate-target-harness.ps1` |
-| Sync skill mirrors | `bash scripts/sync-skills.sh --all-mirrors` | `pwsh -File scripts/sync-skills.ps1 -AllMirrors` |
+| Validate harness (target repo) | `bash .agent-scripts/validate-target-harness.sh` | `pwsh -File .agent-scripts/validate-target-harness.ps1` |
+| Sync skill mirrors (target repo) | `bash .agent-scripts/sync-skills.sh --all-mirrors` | `pwsh -File .agent-scripts/sync-skills.ps1 -AllMirrors` |
 | Cursor stop hook (default) | `.cursor/hooks/verify-frontend.sh` | `.cursor/hooks/verify-frontend.ps1` when **Windows-primary** |
 | PowerShell for `.ps1` scripts | Optional (pwsh 7+ if you prefer PS over bash) | **PowerShell 7+** (`pwsh`) — [install](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell) |
 
@@ -46,7 +46,7 @@ bash scripts/emit-from-intake.sh \
 
 (`--target` optional when `target_path` is in the answers JSON—preferred on Windows so paths with spaces stay in JSON.)
 
-Validate before target `scripts/` exist:
+Validate before target `.agent-scripts/` exist (from **toolkit** checkout):
 
 ```bash
 bash scripts/validate-target-harness.sh --strict "/Users/you/dev/acme-web"
@@ -58,45 +58,47 @@ pwsh -File scripts/validate-target-harness.ps1 -Strict -TargetRoot 'C:\dev\acme-
 
 ## Validate
 
-From the **target repo root** (or pass a path as the first argument):
+From the **target repo root** (harness scripts live in `.agent-scripts/`, separate from app `scripts/`):
 
 ```bash
 # Linux / macOS
-bash scripts/validate-target-harness.sh
-bash scripts/validate-target-harness.sh path/to/repo
-bash scripts/validate-target-harness.sh --strict path/to/repo
+bash .agent-scripts/validate-target-harness.sh
+bash .agent-scripts/validate-target-harness.sh path/to/repo
+bash .agent-scripts/validate-target-harness.sh --strict path/to/repo
 ```
 
 ```powershell
 # Windows (PowerShell 7+)
-pwsh -File scripts/validate-target-harness.ps1
-pwsh -File scripts/validate-target-harness.ps1 -TargetRoot path\to\repo
-pwsh -File scripts/validate-target-harness.ps1 -Strict
+pwsh -File .agent-scripts/validate-target-harness.ps1
+pwsh -File .agent-scripts/validate-target-harness.ps1 -TargetRoot path\to\repo
+pwsh -File .agent-scripts/validate-target-harness.ps1 -Strict
 ```
+
+Legacy targets may still have `scripts/validate-target-harness.*` — validate warns and accepts; prefer migrating to `.agent-scripts/` (see [HARNESS_GROWTH.md](HARNESS_GROWTH.md)).
 
 ## Sync skills
 
 After editing **canonical** skills (usually `.agents/skills/` on `full` emit):
 
 ```bash
-bash scripts/sync-skills.sh --all-mirrors
+bash .agent-scripts/sync-skills.sh --all-mirrors
 # Optional: custom canonical dir (cursor-only → full migration)
-CANONICAL_SKILLS_DIR=.cursor/skills bash scripts/sync-skills.sh --canonical .cursor/skills --all-mirrors
+CANONICAL_SKILLS_DIR=.cursor/skills bash .agent-scripts/sync-skills.sh --canonical .cursor/skills --all-mirrors
 ```
 
 ```powershell
-pwsh -File scripts/sync-skills.ps1 -AllMirrors
-pwsh -File scripts/sync-skills.ps1 -Canonical .cursor/skills -AllMirrors
+pwsh -File .agent-scripts/sync-skills.ps1 -AllMirrors
+pwsh -File .agent-scripts/sync-skills.ps1 -Canonical .cursor/skills -AllMirrors
 ```
 
 Orchestration sync (when using split shared + cursor-hooks templates):
 
 ```bash
-bash scripts/sync-skills.sh --orchestration
+bash .agent-scripts/sync-skills.sh --orchestration
 ```
 
 ```powershell
-pwsh -File scripts/sync-skills.ps1 -Orchestration
+pwsh -File .agent-scripts/sync-skills.ps1 -Orchestration
 ```
 
 ## Cursor hooks

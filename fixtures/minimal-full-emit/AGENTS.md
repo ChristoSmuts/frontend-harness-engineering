@@ -25,11 +25,11 @@ Next.js 15 App Router · TypeScript · Tailwind · shadcn/ui
 ## Harness
 
 - **Emit strategy:** full (toolkit CI smoke — partial tree, not manifest-complete) · **Harness owner:** solo · **Platform primary:** unix
-- **Canonical skills:** `.agents/skills/` — edit here; run `scripts/sync-skills.sh` or `scripts/sync-skills.ps1 -AllMirrors` after changes
+- **Canonical skills:** `.agents/skills/` — edit here; run `.agent-scripts/sync-skills.sh` or `.agent-scripts/sync-skills.ps1 -AllMirrors` after changes
 - **Shared entry:** `AGENTS.md` (this file)
 - **Orchestration:** `agents/ORCHESTRATION.md` · Cursor: `.cursor/ORCHESTRATION.md`
 - **Cursor:** rules `.cursor/rules/`, skills `.cursor/skills/` (mirror), hooks `.cursor/hooks.json`
-- **Validate:** `bash scripts/validate-target-harness.sh` or `pwsh -File scripts/validate-target-harness.ps1`
+- **Validate:** `bash .agent-scripts/validate-target-harness.sh` or `pwsh -File .agent-scripts/validate-target-harness.ps1`
 
 ## Sub-agents
 

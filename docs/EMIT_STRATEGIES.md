@@ -22,7 +22,7 @@ How much harness material to generate into a **target frontend project** during 
 ## Canonical hub (multi-tool `full`)
 
 1. **Write skills once** to `.agents/skills/<name>/SKILL.md`.
-2. **Mirror** to tool-specific dirs with `scripts/sync-skills.sh` or `scripts/sync-skills.ps1` (copied to target on bootstrap).
+2. **Mirror** to tool-specific dirs with `.agent-scripts/sync-skills.sh` or `.agent-scripts/sync-skills.ps1` (copied to target on bootstrap).
 3. **Do not edit mirrors by hand** — edit canonical, then sync.
 
 Portable orchestration lives at `agents/ORCHESTRATION.md` (shared template only). Cursor-specific hook notes append in `.cursor/ORCHESTRATION.md` — see [templates/ORCHESTRATION.shared.md.template](../templates/ORCHESTRATION.shared.md.template).
@@ -52,11 +52,11 @@ When adding Codex, Gemini, or Claude Code to a repo that used `cursor-only`:
 4. Sync mirrors:
 
    ```bash
-   bash scripts/sync-skills.sh --all-mirrors
+   bash .agent-scripts/sync-skills.sh --all-mirrors
    ```
 
    ```powershell
-   pwsh -File scripts/sync-skills.ps1 -AllMirrors
+   pwsh -File .agent-scripts/sync-skills.ps1 -AllMirrors
    ```
 
 5. Re-run validate ([CROSS_PLATFORM.md](CROSS_PLATFORM.md)).
@@ -64,11 +64,11 @@ When adding Codex, Gemini, or Claude Code to a repo that used `cursor-only`:
 One-time migration from `.cursor/skills` as source without moving files yet:
 
 ```bash
-bash scripts/sync-skills.sh --canonical .cursor/skills --all-mirrors
+bash .agent-scripts/sync-skills.sh --canonical .cursor/skills --all-mirrors
 ```
 
 ```powershell
-pwsh -File scripts/sync-skills.ps1 -Canonical .cursor/skills -AllMirrors
+pwsh -File .agent-scripts/sync-skills.ps1 -Canonical .cursor/skills -AllMirrors
 ```
 
 Then set canonical to `.agents/skills/` and copy skills there before future edits.

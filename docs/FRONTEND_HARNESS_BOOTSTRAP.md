@@ -24,7 +24,7 @@ your-frontend-app/
 ├── AGENTS.md
 ├── agents/ORCHESTRATION.md
 ├── .agents/skills/*/SKILL.md    # canonical
-├── scripts/
+├── .agent-scripts/
 │   ├── validate-target-harness.sh
 │   ├── validate-target-harness.ps1
 │   ├── sync-skills.sh

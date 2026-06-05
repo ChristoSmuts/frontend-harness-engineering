@@ -29,6 +29,7 @@ harness_integrity_is_guard_hook() {
 # Allowed command path prefixes in hooks.json (relative to repo root).
 HARNESS_INTEGRITY_ALLOWED_HOOK_PREFIXES=(
   ".cursor/hooks/"
+  ".agent-scripts/"
   "scripts/"
 )
 

@@ -8,7 +8,9 @@ cd "$ROOT"
 
 LIB=""
 for candidate in \
+  "$ROOT/.agent-scripts/lib/secret-patterns.sh" \
   "$ROOT/scripts/lib/secret-patterns.sh" \
+  "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/.agent-scripts/lib/secret-patterns.sh" \
   "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/scripts/lib/secret-patterns.sh"; do
   if [[ -f "$candidate" ]]; then
     LIB="$candidate"

@@ -118,6 +118,15 @@ function Test-Placeholders([string]$FilePath) {
     }
 }
 
+if (Test-Path -LiteralPath ".agent-scripts/validate-target-harness.ps1") {
+    $HarnessScriptsDir = ".agent-scripts"
+} elseif (Test-Path -LiteralPath "scripts/validate-target-harness.ps1") {
+    $HarnessScriptsDir = "scripts"
+    Warn "Legacy harness scripts dir scripts/ — prefer .agent-scripts/ (see docs/HARNESS_GROWTH.md)"
+} else {
+    $HarnessScriptsDir = ".agent-scripts"
+}
+
 $HarnessPaths = @("AGENTS.md", "agents", ".agents", ".cursor", ".claude")
 
 foreach ($base in $HarnessPaths) {
@@ -233,7 +242,7 @@ if (Test-Path -LiteralPath ".cursor/hooks.json") {
         foreach ($hookCmd in (Get-HarnessIntegrityHookCommands ".cursor/hooks.json")) {
             if ([string]::IsNullOrWhiteSpace($hookCmd)) { continue }
             if (-not (Test-HarnessIntegrityHookPathAllowed $hookCmd)) {
-                Fail "hooks.json command outside allowed paths (.cursor/hooks/ or scripts/): $hookCmd"
+                Fail "hooks.json command outside allowed paths (.cursor/hooks/, .agent-scripts/, or scripts/): $hookCmd"
             }
         }
     }
@@ -270,7 +279,7 @@ if ((Test-Path "agents/ORCHESTRATION.md") -and (Test-Path -LiteralPath ".claude/
     $hAgents = Get-FileHashHex "agents/ORCHESTRATION.md"
     $hClaude = Get-FileHashHex ".claude/ORCHESTRATION.md"
     if ($hAgents -ne $hClaude) {
-        Warn "ORCHESTRATION.md differs between agents/ and .claude/ (run sync-skills.ps1 -Orchestration)"
+        Warn "ORCHESTRATION.md differs between agents/ and .claude/ (run ${HarnessScriptsDir}/sync-skills.ps1 -Orchestration)"
     }
 }
 
@@ -304,7 +313,7 @@ function Test-MirrorDir([string]$MirrorBase) {
         $name = $_.Directory.Name
         $mirror = Join-Path $MirrorBase "$name/SKILL.md"
         if ((Test-Path -LiteralPath $mirror) -and -not ((Get-FileHash $_.FullName).Hash -eq (Get-FileHash $mirror).Hash)) {
-            Warn "Skill $name differs: canonical vs $MirrorBase mirror (run scripts/sync-skills.ps1)"
+            Warn "Skill $name differs: canonical vs $MirrorBase mirror (run ${HarnessScriptsDir}/sync-skills.ps1)"
         }
     }
 }

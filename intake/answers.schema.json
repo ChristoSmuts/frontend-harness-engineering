@@ -43,6 +43,11 @@
       "type": "string",
       "default": ".agents/skills/"
     },
+    "harness_scripts_dir": {
+      "type": "string",
+      "default": ".agent-scripts",
+      "description": "Target repo dir for harness validate/sync scripts and lib/ (not app build scripts)"
+    },
     "tools_in_use": {
       "type": "array",
       "items": { "type": "string" },

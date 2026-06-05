@@ -26,14 +26,14 @@
         ".cursor/skills/next-app-router/SKILL.md",
         ".cursor/skills/shadcn-components/SKILL.md",
         ".github/workflows/harness-validate.yml",
-        "scripts/validate-target-harness.sh",
-        "scripts/validate-target-harness.ps1",
-        "scripts/sync-skills.sh",
-        "scripts/sync-skills.ps1",
-        "scripts/lib/secret-patterns.sh",
-        "scripts/lib/secret-patterns.ps1",
-        "scripts/lib/normalize-target-path.sh",
-        "scripts/lib/normalize-target-path.ps1"
+        ".agent-scripts/validate-target-harness.sh",
+        ".agent-scripts/validate-target-harness.ps1",
+        ".agent-scripts/sync-skills.sh",
+        ".agent-scripts/sync-skills.ps1",
+        ".agent-scripts/lib/secret-patterns.sh",
+        ".agent-scripts/lib/secret-patterns.ps1",
+        ".agent-scripts/lib/normalize-target-path.sh",
+        ".agent-scripts/lib/normalize-target-path.ps1"
       ]
     },
     "portable-only": {
@@ -43,14 +43,14 @@
         "agents/ORCHESTRATION.md",
         ".agents/skills/frontend-verify/SKILL.md",
         ".agents/skills/frontend-security/SKILL.md",
-        "scripts/validate-target-harness.sh",
-        "scripts/validate-target-harness.ps1",
-        "scripts/sync-skills.sh",
-        "scripts/sync-skills.ps1",
-        "scripts/lib/secret-patterns.sh",
-        "scripts/lib/secret-patterns.ps1",
-        "scripts/lib/normalize-target-path.sh",
-        "scripts/lib/normalize-target-path.ps1"
+        ".agent-scripts/validate-target-harness.sh",
+        ".agent-scripts/validate-target-harness.ps1",
+        ".agent-scripts/sync-skills.sh",
+        ".agent-scripts/sync-skills.ps1",
+        ".agent-scripts/lib/secret-patterns.sh",
+        ".agent-scripts/lib/secret-patterns.ps1",
+        ".agent-scripts/lib/normalize-target-path.sh",
+        ".agent-scripts/lib/normalize-target-path.ps1"
       ]
     },
     "cursor-only": {
@@ -64,14 +64,14 @@
         ".cursor/hooks.json",
         ".cursor/skills/frontend-verify/SKILL.md",
         ".cursor/skills/frontend-security/SKILL.md",
-        "scripts/validate-target-harness.sh",
-        "scripts/validate-target-harness.ps1",
-        "scripts/sync-skills.sh",
-        "scripts/sync-skills.ps1",
-        "scripts/lib/secret-patterns.sh",
-        "scripts/lib/secret-patterns.ps1",
-        "scripts/lib/normalize-target-path.sh",
-        "scripts/lib/normalize-target-path.ps1"
+        ".agent-scripts/validate-target-harness.sh",
+        ".agent-scripts/validate-target-harness.ps1",
+        ".agent-scripts/sync-skills.sh",
+        ".agent-scripts/sync-skills.ps1",
+        ".agent-scripts/lib/secret-patterns.sh",
+        ".agent-scripts/lib/secret-patterns.ps1",
+        ".agent-scripts/lib/normalize-target-path.sh",
+        ".agent-scripts/lib/normalize-target-path.ps1"
       ]
     }
   },
@@ -91,18 +91,20 @@
     { "path": ".cursor/hooks/deny-unapproved-mcp.ps1", "profiles": ["full", "cursor-only"], "feature": "agent_security_hardening" }
   ],
   "maintenance_scripts": [
-    { "template": "scripts/validate-target-harness.sh", "target": "scripts/validate-target-harness.sh", "substitute": false },
-    { "template": "scripts/validate-target-harness.ps1", "target": "scripts/validate-target-harness.ps1", "substitute": false },
-    { "template": "scripts/sync-skills.sh", "target": "scripts/sync-skills.sh", "substitute": false },
-    { "template": "scripts/sync-skills.ps1", "target": "scripts/sync-skills.ps1", "substitute": false },
-    { "template": "scripts/lib/secret-patterns.sh", "target": "scripts/lib/secret-patterns.sh", "substitute": false },
-    { "template": "scripts/lib/secret-patterns.ps1", "target": "scripts/lib/secret-patterns.ps1", "substitute": false },
-    { "template": "scripts/lib/normalize-target-path.sh", "target": "scripts/lib/normalize-target-path.sh", "substitute": false },
-    { "template": "scripts/lib/normalize-target-path.ps1", "target": "scripts/lib/normalize-target-path.ps1", "substitute": false },
-    { "template": "scripts/lib/harness-integrity.sh", "target": "scripts/lib/harness-integrity.sh", "substitute": false },
-    { "template": "scripts/lib/harness-integrity.ps1", "target": "scripts/lib/harness-integrity.ps1", "substitute": false },
-    { "template": "scripts/lib/shell-guard.sh", "target": "scripts/lib/shell-guard.sh", "substitute": false },
-    { "template": "scripts/lib/shell-guard.ps1", "target": "scripts/lib/shell-guard.ps1", "substitute": false }
+    { "template": "scripts/validate-target-harness.sh", "target": ".agent-scripts/validate-target-harness.sh", "substitute": false },
+    { "template": "scripts/validate-target-harness.ps1", "target": ".agent-scripts/validate-target-harness.ps1", "substitute": false },
+    { "template": "scripts/sync-skills.sh", "target": ".agent-scripts/sync-skills.sh", "substitute": false },
+    { "template": "scripts/sync-skills.ps1", "target": ".agent-scripts/sync-skills.ps1", "substitute": false },
+    { "template": "scripts/register-harness-growth.sh", "target": ".agent-scripts/register-harness-growth.sh", "substitute": false },
+    { "template": "scripts/register-harness-growth.ps1", "target": ".agent-scripts/register-harness-growth.ps1", "substitute": false },
+    { "template": "scripts/lib/secret-patterns.sh", "target": ".agent-scripts/lib/secret-patterns.sh", "substitute": false },
+    { "template": "scripts/lib/secret-patterns.ps1", "target": ".agent-scripts/lib/secret-patterns.ps1", "substitute": false },
+    { "template": "scripts/lib/normalize-target-path.sh", "target": ".agent-scripts/lib/normalize-target-path.sh", "substitute": false },
+    { "template": "scripts/lib/normalize-target-path.ps1", "target": ".agent-scripts/lib/normalize-target-path.ps1", "substitute": false },
+    { "template": "scripts/lib/harness-integrity.sh", "target": ".agent-scripts/lib/harness-integrity.sh", "substitute": false },
+    { "template": "scripts/lib/harness-integrity.ps1", "target": ".agent-scripts/lib/harness-integrity.ps1", "substitute": false },
+    { "template": "scripts/lib/shell-guard.sh", "target": ".agent-scripts/lib/shell-guard.sh", "substitute": false },
+    { "template": "scripts/lib/shell-guard.ps1", "target": ".agent-scripts/lib/shell-guard.ps1", "substitute": false }
   ],
   "artifacts": [
     { "id": "agents-md", "template": "templates/AGENTS.md.template", "target": "AGENTS.md", "emit_strategies": ["full", "portable-only", "cursor-only"], "substitute": true },

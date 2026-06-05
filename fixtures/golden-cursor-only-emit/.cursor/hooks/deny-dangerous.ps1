@@ -8,7 +8,9 @@ $root = if ($env:AGENT_PROJECT_ROOT) { $env:AGENT_PROJECT_ROOT }
         else { "." }
 
 $libCandidates = @(
+    (Join-Path $root ".agent-scripts/lib/shell-guard.ps1"),
     (Join-Path $root "scripts/lib/shell-guard.ps1"),
+    (Join-Path (Split-Path -Parent $PSCommandPath) "..\..\.agent-scripts\lib\shell-guard.ps1"),
     (Join-Path (Split-Path -Parent $PSCommandPath) "..\..\scripts\lib\shell-guard.ps1")
 )
 foreach ($lib in $libCandidates) {

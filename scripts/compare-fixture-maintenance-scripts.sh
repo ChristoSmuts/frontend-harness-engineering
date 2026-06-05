@@ -9,6 +9,8 @@ MAINT=(
   validate-target-harness.ps1
   sync-skills.sh
   sync-skills.ps1
+  register-harness-growth.sh
+  register-harness-growth.ps1
 )
 
 LIB_MAINT=(
@@ -23,19 +25,28 @@ LIB_MAINT=(
 )
 
 ERRORS=0
-for fixture_scripts in "$TOOLKIT"/fixtures/*/scripts; do
-  [[ -d "$fixture_scripts" ]] || continue
-  fixture_name=$(basename "$(dirname "$fixture_scripts")")
+for fixture_root in "$TOOLKIT"/fixtures/*/; do
+  [[ -d "$fixture_root" ]] || continue
+  fixture_name=$(basename "$fixture_root")
+  fixture_scripts=""
+  if [[ -d "$fixture_root.agent-scripts" ]]; then
+    fixture_scripts="$fixture_root.agent-scripts"
+  elif [[ -d "$fixture_root/scripts" ]]; then
+    fixture_scripts="$fixture_root/scripts"
+    echo "WARN: $fixture_name still uses legacy scripts/ — refresh fixture to .agent-scripts/" >&2
+  else
+    continue
+  fi
   for s in "${MAINT[@]}"; do
     toolkit_src="$TOOLKIT/scripts/$s"
     fixture_src="$fixture_scripts/$s"
     if [[ ! -f "$fixture_src" ]]; then
-      echo "ERROR: $fixture_name missing scripts/$s" >&2
+      echo "ERROR: $fixture_name missing $(basename "$fixture_scripts")/$s" >&2
       ERRORS=$((ERRORS + 1))
       continue
     fi
     if ! cmp -s "$toolkit_src" "$fixture_src"; then
-      echo "ERROR: $fixture_name/scripts/$s differs from toolkit/scripts/$s" >&2
+      echo "ERROR: $fixture_name/$(basename "$fixture_scripts")/$s differs from toolkit/scripts/$s" >&2
       ERRORS=$((ERRORS + 1))
     fi
   done
@@ -44,12 +55,12 @@ for fixture_scripts in "$TOOLKIT"/fixtures/*/scripts; do
     toolkit_src="$TOOLKIT/scripts/lib/$s"
     fixture_src="$fixture_lib/$s"
     if [[ ! -f "$fixture_src" ]]; then
-      echo "ERROR: $fixture_name missing scripts/lib/$s" >&2
+      echo "ERROR: $fixture_name missing $(basename "$fixture_scripts")/lib/$s" >&2
       ERRORS=$((ERRORS + 1))
       continue
     fi
     if ! cmp -s "$toolkit_src" "$fixture_src"; then
-      echo "ERROR: $fixture_name/scripts/lib/$s differs from toolkit/scripts/lib/$s" >&2
+      echo "ERROR: $fixture_name/$(basename "$fixture_scripts")/lib/$s differs from toolkit/scripts/lib/$s" >&2
       ERRORS=$((ERRORS + 1))
     fi
   done

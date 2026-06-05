@@ -97,7 +97,7 @@ Emitter infers `public_env_prefix` from `framework` when omitted.
 When upgrading the toolkit copy in a target repo:
 
 1. Diff `templates/rules/frontend-security.mdc.template` and `templates/skills/frontend-security/`.
-2. Merge into target harness files; run `scripts/sync-skills.sh` on `full` emit.
+2. Merge into target harness files; run `.agent-scripts/sync-skills.sh` on `full` emit.
 3. Re-copy `scripts/lib/secret-patterns.*`, `shell-guard.*`, `harness-integrity.*`, and hook scripts from toolkit.
 4. Run `validate-target-harness.sh --strict`.
 

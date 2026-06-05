@@ -3,7 +3,7 @@
 Prefer the split templates for new bootstraps:
 
 - **Portable / Claude / Codex / Gemini:** [ORCHESTRATION.shared.md.template](ORCHESTRATION.shared.md.template) → `agents/ORCHESTRATION.md`
-- **Cursor-only hooks section:** [ORCHESTRATION.cursor-hooks.md.template](ORCHESTRATION.cursor-hooks.md.template) → append to `.cursor/ORCHESTRATION.md` and save copy as `.cursor/ORCHESTRATION.cursor-hooks.md` for `scripts/sync-skills.sh --orchestration`
+- **Cursor-only hooks section:** [ORCHESTRATION.cursor-hooks.md.template](ORCHESTRATION.cursor-hooks.md.template) → append to `.cursor/ORCHESTRATION.md` and save copy as `.cursor/ORCHESTRATION.cursor-hooks.md` for `{{HARNESS_SCRIPTS_DIR}}/sync-skills.sh --orchestration`
 
 The monolithic content below matches the old combined file (hooks included). Use only if you cannot use the split.
 

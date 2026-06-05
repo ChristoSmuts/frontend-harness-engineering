@@ -49,8 +49,8 @@ read_manifest_paths() {
         .cursor/hooks.json .cursor/hooks/verify-frontend.sh .cursor/hooks/verify-frontend.ps1 \
         .agents/skills/frontend-verify/SKILL.md \
         .cursor/skills/frontend-verify/SKILL.md \
-        scripts/validate-target-harness.sh scripts/validate-target-harness.ps1 \
-        scripts/sync-skills.sh scripts/sync-skills.ps1
+        .agent-scripts/validate-target-harness.sh .agent-scripts/validate-target-harness.ps1 \
+        .agent-scripts/sync-skills.sh .agent-scripts/sync-skills.ps1
       ;;
     *)
       echo "jq required for profile: $PROFILE" >&2

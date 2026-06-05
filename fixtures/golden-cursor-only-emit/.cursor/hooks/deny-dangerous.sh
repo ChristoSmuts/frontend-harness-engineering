@@ -6,7 +6,9 @@ set -euo pipefail
 ROOT="${AGENT_PROJECT_ROOT:-${CURSOR_PROJECT_DIR:-${CODEX_PROJECT_DIR:-.}}}"
 LIB=""
 for candidate in \
+  "$ROOT/.agent-scripts/lib/shell-guard.sh" \
   "$ROOT/scripts/lib/shell-guard.sh" \
+  "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/.agent-scripts/lib/shell-guard.sh" \
   "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/scripts/lib/shell-guard.sh"; do
   if [[ -f "$candidate" ]]; then
     LIB="$candidate"

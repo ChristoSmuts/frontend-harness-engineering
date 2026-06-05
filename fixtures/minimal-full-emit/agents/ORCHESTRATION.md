@@ -25,7 +25,7 @@ Sources: path:startLine-endLine per claim
 
 ## Skills index
 
-Canonical: `.agents/skills/`. Run `scripts/sync-skills.sh` after edits when mirrors exist.
+Canonical: `.agents/skills/`. Run `.agent-scripts/sync-skills.sh` after edits when mirrors exist.
 
 | Skill | When to use |
 |-------|-------------|

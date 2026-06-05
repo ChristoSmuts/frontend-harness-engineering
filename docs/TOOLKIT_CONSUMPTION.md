@@ -34,7 +34,7 @@ tools/frontend-harness/
   docs/EMIT_FROM_INTAKE.md
 ```
 
-On bootstrap Phase C, copy the four scripts to the **target repo** `scripts/` on **every** emit strategy (`full`, `portable-only`, `cursor-only`).
+On bootstrap Phase C, copy maintenance scripts to the **target repo** `.agent-scripts/` on **every** emit strategy (`full`, `portable-only`, `cursor-only`). The toolkit keeps its own `scripts/` for emit and CI.
 
 Record toolkit git SHA in target `HARNESS_CHANGELOG.md` when bootstrapping or upgrading (see [templates/HARNESS_CHANGELOG.md.template](../templates/HARNESS_CHANGELOG.md.template)).
 
@@ -45,13 +45,13 @@ Record toolkit git SHA in target `HARNESS_CHANGELOG.md` when bootstrapping or up
 3. Re-run validate and sync using [CROSS_PLATFORM.md](CROSS_PLATFORM.md):
 
    ```bash
-   bash scripts/validate-target-harness.sh
-   bash scripts/sync-skills.sh --all-mirrors
+   bash .agent-scripts/validate-target-harness.sh
+   bash .agent-scripts/sync-skills.sh --all-mirrors
    ```
 
    ```powershell
-   pwsh -File scripts/validate-target-harness.ps1
-   pwsh -File scripts/sync-skills.ps1 -AllMirrors
+   pwsh -File .agent-scripts/validate-target-harness.ps1
+   pwsh -File .agent-scripts/sync-skills.ps1 -AllMirrors
    ```
 
 ## See also

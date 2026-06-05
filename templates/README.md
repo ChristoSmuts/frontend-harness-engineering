@@ -47,7 +47,7 @@ Legacy monolithic: `ORCHESTRATION.md.template`.
 3. `rules/*.mdc.template` → `.cursor/rules/*.mdc` (Cursor only; drop `.template`)
 4. `hooks/*` → `.cursor/hooks/` (Cursor only)
 5. `hooks.json.template` or `hooks.windows.json.template` → `.cursor/hooks.json`
-6. Copy four scripts to target `scripts/` (bash + PowerShell validate and sync)
+6. Copy maintenance scripts to target `.agent-scripts/` (bash + PowerShell validate and sync)
 8. `skills/*/` → **canonical** `.agents/skills/` first; mirror with sync scripts
 9. Optional: `CLAUDE.md.template`, `GEMINI.md.template`, `HARNESS_CHANGELOG.md.template`, `codex/config.toml.template`, `github/workflows/harness-validate.yml.template`
 10. Deterministic emit: [../docs/EMIT_FROM_INTAKE.md](../docs/EMIT_FROM_INTAKE.md) + `scripts/emit-from-intake.sh`

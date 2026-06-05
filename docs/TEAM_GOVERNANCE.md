@@ -17,7 +17,7 @@ Apply to `AGENTS.md`, `**/ORCHESTRATION.md`, `**/.agents/skills/**`, mirrors, `.
 1. **One concern per change** — no drive-by refactors across harness + app in one PR unless labeled.
 2. **`AGENTS.md` ≤ ~60 lines** — move depth into skills.
 3. **No duplicate guidance** — if it is in an `alwaysApply` rule, do not repeat verbatim in `AGENTS.md`.
-4. **Canonical first** — edit `.agents/skills/`; run `scripts/sync-skills.sh` before merge when mirrors exist.
+4. **Canonical first** — edit `.agents/skills/`; run `.agent-scripts/sync-skills.sh` before merge when mirrors exist.
 5. **Changelog** — one row in `HARNESS_CHANGELOG.md` per intentional harness change.
 
 ## Brownfield merge policy
@@ -41,7 +41,7 @@ Phase B bootstrap plan must list **create / merge / skip** per path ([USAGE.md](
 
 When `.agents/skills/**` changes in a PR:
 
-1. Run `bash scripts/sync-skills.sh --all-mirrors` locally and commit mirrors, **or**
+1. Run `bash .agent-scripts/sync-skills.sh --all-mirrors` locally and commit mirrors, **or**
 2. Rely on the `sync-check` job in [HARNESS_CI.md](HARNESS_CI.md) (`harness-validate.yml`) to fail the PR if mirrors drift.
 
 ## Security-sensitive harness changes
@@ -55,7 +55,7 @@ Treat PRs that touch **`.cursor/hooks.json`**, **`.cursor/hooks/*`**, **`.cursor
 
 ## Review checklist (human)
 
-- [ ] `scripts/validate-target-harness.sh` passes (use `--strict` for harness-only PRs)
+- [ ] `.agent-scripts/validate-target-harness.sh` passes (use `--strict` for harness-only PRs)
 - [ ] Lint/typecheck commands still match `package.json`
 - [ ] Mirrors synced if multi-tool
 - [ ] No new MCP servers without justification in changelog

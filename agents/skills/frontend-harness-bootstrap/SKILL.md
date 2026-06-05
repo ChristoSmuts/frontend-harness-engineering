@@ -38,11 +38,15 @@ Bootstrap **coding-agent harness + orchestration** at **`target_path`** (see `pr
 
 
 
-- Use `intake/QUESTIONNAIRE.md` — **AskQuestion bundle** when available (`workspace_context` first, then tools/emit/platform/hooks, then `repo_type`); optional `intake/answers.schema.json`.
+- Show `intake/INTAKE_OVERVIEW.md` outcome preview first.
 
-- Collect **Required before Phase C**: `target_path`, `toolkit_path`, `emit_strategy`, `primary_tool`, `harness_owner`, `canonical_skills_dir`, `platform_primary` (`unix` | `windows`).
+- **Path-first:** auto-detect workspace; collect **`target_path`** before the preference AskQuestion form when toolkit is open.
 
-- **target_path in same turn:** `target_repo_open` → `.`; `toolkit_open` → user pastes absolute path before Phase B (spaces OK).
+- Use `intake/QUESTIONNAIRE.md` — **AskQuestion bundle** with descriptive option labels (`emit_strategy`, `primary_tool`, `tools_in_use`, `platform_primary`, `harness_owner`, `hooks_prefs`, `repo_type`); optional `intake/answers.schema.json`.
+
+- Collect **Required before Phase C**: `target_path`, `toolkit_path`, `emit_strategy`, `primary_tool`, `harness_owner`, `canonical_skills_dir`, `harness_scripts_dir` (default `.agent-scripts`), `platform_primary` (`unix` | `windows`).
+
+- Post **intake summary** before Phase B.
 
 - **Answers JSON:** write outside toolkit (`~/frontend-harness-intake/`, target `.harness-intake/`, or `%TEMP%`)—not `intake/*.answers.json` in the toolkit repo.
 
@@ -66,7 +70,7 @@ Bootstrap **coding-agent harness + orchestration** at **`target_path`** (see `pr
 
 - Build table from `manifest/ARTIFACT_MANIFEST.md` (P0/P1/P2 only what applies).
 
-- Header **target_path** (absolute). Include **emit_strategy**, canonical skills path, **platform_primary**, **toolkit_path**, paths per `TOOL_LAYOUT.md` (relative to **target_path**).
+- Header **target_path** (absolute). Include **emit_strategy**, canonical skills path, **platform_primary**, **toolkit_path**, **`.agent-scripts/`**, paths per `TOOL_LAYOUT.md` (relative to **target_path**).
 
 - Show create / merge / skip for existing harness files.
 
@@ -82,7 +86,7 @@ Bootstrap **coding-agent harness + orchestration** at **`target_path`** (see `pr
 
 - Branch on **emit_strategy** per `docs/EMIT_STRATEGIES.md` and `MASTER_BOOTSTRAP` Phase C.
 
-- **Always copy maintenance scripts** to target `scripts/`: validate, sync, `lib/secret-patterns.*`, `lib/shell-guard.*`, `lib/harness-integrity.*`, and `lib/normalize-target-path.*`.
+- **Always copy maintenance scripts** to target **`.agent-scripts/`**: validate, sync, register-harness-growth (when self-improve on), `lib/secret-patterns.*`, `lib/shell-guard.*`, `lib/harness-integrity.*`, and `lib/normalize-target-path.*`.
 
 - **HARNESS_CHANGELOG.md** with `{{TOOLKIT_SHA}}` from toolkit git rev.
 
@@ -108,7 +112,7 @@ Bootstrap **coding-agent harness + orchestration** at **`target_path`** (see `pr
 
 
 
-- Validate **`target_path`**: target-local `scripts/validate-target-harness.*`, or from toolkit: `bash "<toolkit_path>/scripts/validate-target-harness.sh" --strict "<target_path>"`.
+- Validate **`target_path`**: target-local `.agent-scripts/validate-target-harness.*`, or from toolkit: `bash "<toolkit_path>/scripts/validate-target-harness.sh" --strict "<target_path>"`.
 
 - Lint + typecheck at **target_path**; for `full`, sync from target then re-validate.
 

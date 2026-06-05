@@ -10,7 +10,7 @@ Follow this workflow exactly. Do not skip intake. Do not generate artifacts unti
 
 
 
-Reference toolkit paths (if this repo is available): `intake/QUESTIONNAIRE.md`, `intake/answers.schema.json`, `manifest/ARTIFACT_MANIFEST.md`, `manifest/TOOL_LAYOUT.md`, `templates/`, `docs/MULTI_TOOL.md`, `docs/EMIT_STRATEGIES.md`, `docs/TOOLKIT_CONSUMPTION.md`, `docs/CROSS_PLATFORM.md`.
+Reference toolkit paths (if this repo is available): `intake/INTAKE_OVERVIEW.md`, `intake/QUESTIONNAIRE.md`, `intake/answers.schema.json`, `manifest/ARTIFACT_MANIFEST.md`, `manifest/TOOL_LAYOUT.md`, `templates/`, `docs/MULTI_TOOL.md`, `docs/EMIT_STRATEGIES.md`, `docs/TOOLKIT_CONSUMPTION.md`, `docs/CROSS_PLATFORM.md`.
 
 
 
@@ -32,7 +32,7 @@ Reference toolkit paths (if this repo is available): `intake/QUESTIONNAIRE.md`, 
 
 7. **Inspect before inventing** — on brownfield repos, read `package.json`, existing harness dirs (`.cursor/`, `.claude/`, `.agents/`, `.gemini/`), `components.json`, and folder layout under **`target_path`** before generating.
 
-8. **Multi-tool** — intake must record which AI tools the team uses; apply **emit_strategy** (see `docs/EMIT_STRATEGIES.md`). `AGENTS.md` is always the shared entry; canonical skills live in `.agents/skills/` for `full` emit; mirrors sync via `scripts/sync-skills.sh` or `scripts/sync-skills.ps1`.
+8. **Multi-tool** — intake must record which AI tools the team uses; apply **emit_strategy** (see `docs/EMIT_STRATEGIES.md`). `AGENTS.md` is always the shared entry; canonical skills live in `.agents/skills/` for `full` emit; mirrors sync via `.agent-scripts/sync-skills.sh` or `.agent-scripts/sync-skills.ps1` in the target repo.
 
 
 
@@ -40,17 +40,31 @@ Reference toolkit paths (if this repo is available): `intake/QUESTIONNAIRE.md`, 
 
 
 
-Use the AskQuestion tool when available (see **Phase A — AskQuestion bundle** in `intake/QUESTIONNAIRE.md`). Otherwise ask conversationally. Collect every item in `intake/QUESTIONNAIRE.md`, including **Required before Phase C**: `target_path`, `toolkit_path`, `emit_strategy`, `primary_tool`, `harness_owner`, `canonical_skills_dir` (default `.agents/skills/`), and `platform_primary` (`unix` | `windows`). Infer from the repo when possible; only ask for gaps.
+Show the developer **[intake/INTAKE_OVERVIEW.md](intake/INTAKE_OVERVIEW.md)** outcome preview (what bootstrap produces) before collecting answers.
 
-**AskQuestion order:** `workspace_context` → tools/emit/platform/hooks → `repo_type`. Then resolve **target_path** in the **same reply**:
+Collect every item in `intake/QUESTIONNAIRE.md`, including **Required before Phase C**: `target_path`, `toolkit_path`, `emit_strategy`, `primary_tool`, `harness_owner`, `canonical_skills_dir` (default `.agents/skills/`), `harness_scripts_dir` (default `.agent-scripts`), and `platform_primary` (`unix` | `windows`). Infer from the repo when possible; only ask for gaps.
 
-- `target_repo_open` → `target_path` = `.`
-- `toolkit_open` → user **must** paste absolute **target_path** before Phase B (spaces OK)
+### Step 1 — Workspace + path (before preference questions)
 
-**Workspace roles:**
+**Auto-detect workspace** when possible:
 
-- **Toolkit workspace** — `manifest/ARTIFACT_MANIFEST.md` and `prompts/MASTER_BOOTSTRAP.md` at repo root: **must** collect **`target_path`** (absolute path to the frontend app). Default **`toolkit_path`** to `.` (this repo). Do not default `target_path` to `.` (that would mean the toolkit).
-- **Target workspace** — the open folder is the app: default **`target_path`** to `.`; set **`toolkit_path`** from submodule, `tools/frontend-harness/`, multi-root, or user-provided path.
+- **Toolkit open** — `manifest/ARTIFACT_MANIFEST.md` + `prompts/MASTER_BOOTSTRAP.md` at workspace root
+- **Target open** — frontend app markers (`package.json`, app tree) and not the toolkit layout above
+- **Ambiguous** — use AskQuestion with **workspace_context** only (see `intake/QUESTIONNAIRE.md`)
+
+**Path-first rule:** Do **not** show the harness preference AskQuestion bundle until **`target_path`** is resolved:
+
+- **Toolkit detected** → ask user to paste absolute **`target_path`** immediately (spaces OK). Default **`toolkit_path`** to `.`. Do not default `target_path` to `.`.
+- **Target detected** → `target_path` = `.`; confirm **`toolkit_path`** if not obvious (submodule, `tools/frontend-harness/`, multi-root).
+- **Ambiguous + `toolkit_open`** → same as toolkit: collect path before preferences.
+
+### Step 2 — Harness preferences (AskQuestion)
+
+Use AskQuestion when available (see **Phase A — AskQuestion bundle** in `intake/QUESTIONNAIRE.md`). Use **descriptive option labels** from the questionnaire (each option states what it produces). Order: `emit_strategy` → `primary_tool` → `tools_in_use` → `platform_primary` → `harness_owner` → `hooks_prefs` → `repo_type`.
+
+### Step 3 — Intake summary
+
+Before Phase B, post a short **intake summary** table: resolved paths, emit strategy, tools, platform, hooks, and brownfield fields inferred from **`target_path`**.
 
 **`target_path` (cross-platform):** macOS `/Users/you/dev/acme-web`, Linux `/home/you/projects/acme-web`, Windows `C:\dev\acme-web`, `C:/dev/acme-web`, or Git Bash `/c/dev/acme-web`. Prefer absolute paths; emit normalizes via `scripts/lib/normalize-target-path.sh` (see `docs/CROSS_PLATFORM.md`). Quote paths in shell commands. Avoid storing raw `~/...` in answers JSON—expand to absolute. **Never** pass unquoted Windows paths with spaces to bash from PowerShell—use `emit-from-intake.ps1` or JSON-only `--answers` (no broken `--target` argv).
 
@@ -96,7 +110,7 @@ Emit a **Harness Plan** table:
 
 
 
-List only what this project needs (see `manifest/ARTIFACT_MANIFEST.md`). Header: **target_path** (absolute). Include **emit_strategy**, **canonical_skills_dir**, **platform_primary**, **toolkit_path**, and **per-tool paths** from `manifest/TOOL_LAYOUT.md` (paths in the table are relative to **target_path**). Wait for user approval unless they said **"generate without review"**.
+List only what this project needs (see `manifest/ARTIFACT_MANIFEST.md`). Header: **target_path** (absolute). Include **emit_strategy**, **canonical_skills_dir**, **platform_primary**, **toolkit_path**, and **per-tool paths** from `manifest/TOOL_LAYOUT.md` (paths in the table are relative to **target_path**). Include **`.agent-scripts/`** — harness validate/sync (not app build scripts). Wait for user approval unless they said **"generate without review"**.
 
 
 
@@ -114,13 +128,15 @@ Apply **emit_strategy** from `docs/EMIT_STRATEGIES.md` (default paths in `manife
 
 - Root `AGENTS.md` from `templates/AGENTS.md.template` — Harness section from `templates/fragments/HARNESS_PATHS.example.md` pattern; **must** include `emit_strategy`, `harness_owner`, and `platform_primary` (unix | windows); state canonical skills dir and sync/validate scripts
 
-- Copy maintenance scripts to target `scripts/`:
+- Copy maintenance scripts to target **`.agent-scripts/`** (default `harness_scripts_dir`; separate from app `scripts/`):
 
   - `validate-target-harness.sh`, `validate-target-harness.ps1`
 
   - `sync-skills.sh`, `sync-skills.ps1`
 
-  - `lib/secret-patterns.sh`, `lib/secret-patterns.ps1`, `lib/normalize-target-path.sh`, `lib/normalize-target-path.ps1`
+  - `register-harness-growth.sh`, `register-harness-growth.ps1` (when self-improve enabled)
+
+  - `lib/secret-patterns.sh`, `lib/secret-patterns.ps1`, `lib/normalize-target-path.sh`, `lib/normalize-target-path.ps1`, `lib/shell-guard.*`, `lib/harness-integrity.*`
 
 - `HARNESS_CHANGELOG.md` from `templates/HARNESS_CHANGELOG.md.template` — include **Toolkit SHA** (git rev of toolkit at bootstrap) in the initial row or a `Toolkit SHA:` line under the table
 
@@ -178,8 +194,6 @@ Apply **emit_strategy** from `docs/EMIT_STRATEGIES.md` (default paths in `manife
 
 - When `features.agent_security_hardening`: emit `.agents/harness/allowed-domains.txt` and `mcp-allowlist.json` (from intake `mcp_allowlist` if set), copy `deny-unapproved-mcp.*`, patch `hooks.json` with `beforeMCPExecution`
 
-- Copy `scripts/lib/shell-guard.*` and `scripts/lib/harness-integrity.*` with maintenance scripts
-
 - When `features.gitleaks_ci`: emit `.github/workflows/secret-scan.yml`
 
 
@@ -198,7 +212,7 @@ See `docs/EMIT_FROM_INTAKE.md`. Agent still reviews brownfield merges and app-sp
 
 **Target CI (teams):** copy `templates/github/workflows/harness-validate.yml.template` unless user opts out (`features.harness_ci_workflow: false`).
 
-Do not copy the entire toolkit into the target—only selected artifacts plus the four scripts above (emitter lives in toolkit only).
+Do not copy the entire toolkit into the target—only selected artifacts plus maintenance scripts under `.agent-scripts/` (emitter lives in toolkit `scripts/` only).
 
 
 
@@ -208,13 +222,13 @@ Do not copy the entire toolkit into the target—only selected artifacts plus th
 
 1. Run validate on **`target_path`** (`docs/CROSS_PLATFORM.md`):
 
-   - From **target** (after scripts copied): `bash scripts/validate-target-harness.sh` or `pwsh -File scripts/validate-target-harness.ps1`
+   - From **target** (after scripts copied): `bash .agent-scripts/validate-target-harness.sh` or `pwsh -File .agent-scripts/validate-target-harness.ps1`
 
    - From **toolkit** (before or without local scripts): `bash "<toolkit_path>/scripts/validate-target-harness.sh" --strict "<target_path>"` (or pwsh `-TargetRoot`)
 
 2. Run fast lint + typecheck from target `AGENTS.md` / verify hook (cwd = **target_path**). Fix script paths if they fail.
 
-3. For `full` emit with mirrors: run sync from **target_path** (`sync-skills.sh` or `sync-skills.ps1 -AllMirrors`) and re-run validate.
+3. For `full` emit with mirrors: run sync from **target_path** (`.agent-scripts/sync-skills.sh` or `sync-skills.ps1 -AllMirrors`) and re-run validate.
 
 
 

@@ -32,13 +32,14 @@ Use these for agent self-check—not full CI.
 ## Harness
 
 - **Emit strategy:** full · **Harness owner:** solo · **Platform primary:** unix
-- **Canonical skills:** `.agents/skills/` — edit here; run `scripts/sync-skills.sh --all-mirrors` after changes when using mirrors
+- **Canonical skills:** `.agents/skills/` — edit here; run `.agent-scripts/sync-skills.sh --all-mirrors` after changes when using mirrors
+- **Harness scripts:** `.agent-scripts/` — validate/sync (not app build scripts)
 - **Shared entry:** `AGENTS.md` (this file)
 - **Orchestration:** `agents/ORCHESTRATION.md` · Cursor: `.cursor/ORCHESTRATION.md`
 - **Cursor:** rules `.cursor/rules/`, skills `.cursor/skills/` (mirror), hooks `.cursor/hooks.json`
 - **Codex CLI:** skills `.agents/skills/` (canonical)
 
-- **Validate harness:** `bash scripts/validate-target-harness.sh` (Linux/macOS) or `pwsh -File scripts/validate-target-harness.ps1` (Windows/macOS with pwsh); use `--strict` in CI
+- **Validate harness:** `bash .agent-scripts/validate-target-harness.sh` (Linux/macOS) or `pwsh -File .agent-scripts/validate-target-harness.ps1` (Windows/macOS with pwsh); use `--strict` in CI
 - **Cursor:** on stop, hooks run verify scripts; fix all reported errors before finishing
 - **Other tools:** run skill `frontend-verify` or the lint/typecheck commands in this file before claiming done
 - **Shell conventions:** use bash/sh syntax for Shell commands — see Cursor rule `shell-conventions`

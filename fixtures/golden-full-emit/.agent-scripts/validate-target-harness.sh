@@ -103,6 +103,21 @@ file_hash() {
   fi
 }
 
+resolve_harness_scripts_dir() {
+  if [[ -f .agent-scripts/validate-target-harness.sh ]]; then
+    echo ".agent-scripts"
+  elif [[ -f scripts/validate-target-harness.sh ]]; then
+    echo "scripts"
+  else
+    echo ".agent-scripts"
+  fi
+}
+
+HARNESS_SCRIPTS_DIR=$(resolve_harness_scripts_dir)
+if [[ "$HARNESS_SCRIPTS_DIR" == "scripts" ]]; then
+  warn "Legacy harness scripts dir scripts/ — prefer .agent-scripts/ (see docs/HARNESS_GROWTH.md)"
+fi
+
 HARNESS_PATHS=(
   "AGENTS.md"
   "agents"
@@ -228,7 +243,7 @@ if [[ -f .cursor/hooks.json ]]; then
     while IFS= read -r hook_cmd; do
       [[ -n "$hook_cmd" ]] || continue
       if ! harness_integrity_hook_path_allowed "$hook_cmd"; then
-        fail "hooks.json command outside allowed paths (.cursor/hooks/ or scripts/): $hook_cmd"
+        fail "hooks.json command outside allowed paths (.cursor/hooks/, .agent-scripts/, or scripts/): $hook_cmd"
       fi
     done < <(harness_integrity_extract_hook_commands ".cursor/hooks.json")
   fi
@@ -291,7 +306,7 @@ if [[ -f agents/ORCHESTRATION.md ]] && [[ -f .claude/ORCHESTRATION.md ]]; then
   h_agents=$(file_hash "agents/ORCHESTRATION.md")
   h_claude=$(file_hash ".claude/ORCHESTRATION.md")
   if [[ "$h_agents" != "$h_claude" ]]; then
-    warn "ORCHESTRATION.md differs between agents/ and .claude/ (run sync-skills.sh --orchestration)"
+    warn "ORCHESTRATION.md differs between agents/ and .claude/ (run ${HARNESS_SCRIPTS_DIR}/sync-skills.sh --orchestration)"
   fi
 fi
 
@@ -305,7 +320,7 @@ check_mirror_dir() {
     name=$(basename "$(dirname "$skill")")
     mirror="$mirror_base/$name/SKILL.md"
     if [[ -f "$mirror" ]] && ! cmp -s "$skill" "$mirror"; then
-      warn "Skill $name differs: canonical vs $mirror_base mirror (run scripts/sync-skills.sh)"
+      warn "Skill $name differs: canonical vs $mirror_base mirror (run ${HARNESS_SCRIPTS_DIR}/sync-skills.sh)"
     fi
   done
 }

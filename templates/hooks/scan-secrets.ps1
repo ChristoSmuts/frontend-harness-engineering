@@ -9,7 +9,9 @@ if ([string]::IsNullOrWhiteSpace($Root)) { $Root = "." }
 Set-Location $Root
 
 $libCandidates = @(
+    (Join-Path $Root ".agent-scripts/lib/secret-patterns.ps1")
     (Join-Path $Root "scripts/lib/secret-patterns.ps1")
+    (Join-Path (Split-Path $PSScriptRoot -Parent | Split-Path -Parent) ".agent-scripts/lib/secret-patterns.ps1")
     (Join-Path (Split-Path $PSScriptRoot -Parent | Split-Path -Parent) "scripts/lib/secret-patterns.ps1")
 )
 $libPath = $libCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
