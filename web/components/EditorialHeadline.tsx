@@ -11,8 +11,12 @@ export function EditorialHeadline({
 }) {
   return (
     <Tag
-      className={`text-left font-bold tracking-[-0.02em] text-obsidian-ink ${className}`}
-      style={{ fontSize: "var(--text-display)", lineHeight: 1 }}
+      className={`text-left font-bold text-obsidian-ink ${className}`}
+      style={{
+        fontSize: "var(--text-display)",
+        lineHeight: "var(--text-display--line-height)",
+        letterSpacing: "var(--text-display--letter-spacing)",
+      }}
     >
       {children}
     </Tag>

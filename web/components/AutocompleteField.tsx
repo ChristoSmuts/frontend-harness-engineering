@@ -39,13 +39,16 @@ function normalize(value: string) {
 
 function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ash-gray/40 bg-obsidian-ink/[0.04] py-1 pl-3 pr-1.5 text-[14px] leading-tight text-obsidian-ink">
+    <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-ash-gray/30 bg-obsidian-ink/[0.03] py-1 pl-3 pr-1.5 text-[14px] leading-tight text-obsidian-ink">
       <span className="truncate">{label}</span>
       <button
         type="button"
-        onClick={onRemove}
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove();
+        }}
         aria-label={`Remove ${label}`}
-        className="flex size-5 shrink-0 items-center justify-center rounded-full text-ash-gray transition-colors hover:bg-ash-gray/15 hover:text-obsidian-ink"
+        className="flex size-5 shrink-0 items-center justify-center rounded-full text-ash-gray transition-colors hover:bg-ash-gray/15 hover:text-obsidian-ink cursor-pointer"
       >
         <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden>
           <path
@@ -208,8 +211,8 @@ export function AutocompleteField(props: AutocompleteFieldProps) {
 
       <div
         className={[
-          "mt-0 flex min-h-[calc(var(--spacing-15)*2+1.61*var(--text-caption))] flex-wrap items-center gap-2 border border-ash-gray bg-marble-white px-[var(--spacing-15)] py-[var(--spacing-13)]",
-          open ? "ring-1 ring-obsidian-ink/15" : "",
+          "mt-0 flex min-h-[calc(var(--spacing-15)*2+1.61*var(--text-caption))] flex-wrap items-center gap-2 border border-ash-gray bg-marble-white px-[var(--spacing-15)] py-[var(--spacing-13)] cursor-text transition-all duration-200",
+          open ? "border-obsidian-ink" : "",
         ].join(" ")}
         onClick={() => inputRef.current?.focus()}
       >
@@ -242,7 +245,7 @@ export function AutocompleteField(props: AutocompleteFieldProps) {
         ) : (
           <button
             type="button"
-            className="flex-1 text-left text-[14px] text-ash-gray"
+            className="flex-1 text-left text-[14px] text-ash-gray cursor-pointer"
             onClick={() => {
               removeValue(selected[0]);
               requestAnimationFrame(() => inputRef.current?.focus());
@@ -257,7 +260,7 @@ export function AutocompleteField(props: AutocompleteFieldProps) {
         <ul
           id={listboxId}
           role="listbox"
-          className="absolute z-20 mt-1 max-h-56 w-full overflow-y-auto border border-ash-gray/50 bg-marble-white py-1 shadow-[0_8px_24px_rgba(0,13,16,0.08)]"
+          className="absolute z-20 mt-1 max-h-56 w-full overflow-y-auto border border-obsidian-ink bg-marble-white py-1 shadow-[0_8px_24px_rgba(0,13,16,0.12)]"
         >
           {suggestions.length === 0 ? (
             <li className="px-[var(--spacing-22)] py-2 text-[14px] text-ash-gray">No matches</li>
@@ -272,8 +275,8 @@ export function AutocompleteField(props: AutocompleteFieldProps) {
                   <button
                     type="button"
                     className={[
-                      "flex w-full items-center gap-2 px-[var(--spacing-22)] py-2 text-left text-[15px]",
-                      isActive ? "bg-obsidian-ink/5 text-obsidian-ink" : "text-obsidian-ink/90",
+                      "flex w-full items-center gap-2 px-[var(--spacing-22)] py-2 text-left text-[15px] cursor-pointer transition-colors",
+                      isActive ? "bg-obsidian-ink text-marble-white" : "text-obsidian-ink/90 hover:bg-obsidian-ink/5",
                     ].join(" ")}
                     onMouseEnter={() => setHighlight(index)}
                     onMouseDown={(e) => e.preventDefault()}
@@ -281,7 +284,7 @@ export function AutocompleteField(props: AutocompleteFieldProps) {
                   >
                     {isCustom ? (
                       <>
-                        <span className="text-ash-gray">Add</span>
+                        <span className={isActive ? "text-marble-white/70" : "text-ash-gray"}>Add</span>
                         <span className="font-bold">&ldquo;{display}&rdquo;</span>
                       </>
                     ) : (
