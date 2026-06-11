@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { gsap } from "gsap";
+import { useGSAP } from "@gsap/react";
 import { AutocompleteField } from "@/components/AutocompleteField";
 import { Band } from "@/components/Band";
 import { EditorialHeadline } from "@/components/EditorialHeadline";
@@ -34,11 +36,11 @@ const EMPTY: Partial<IntakeAnswers> = {
   primary_tool: "Cursor",
   tools_in_use: ["Cursor"],
   framework: "Next.js 15 App Router",
-  package_manager: "pnpm",
+  package_manager: "npm",
   project_name: "",
-  lint_cmd: "pnpm biome check --write .",
-  typecheck_cmd: "pnpm exec tsc --noEmit",
-  install_cmd: "pnpm install",
+  lint_cmd: "npm run lint",
+  typecheck_cmd: "npm run typecheck",
+  install_cmd: "npm install",
   routes_path: "src/app",
   components_path: "src/components",
   shared_ui_path: "src/components/ui",
@@ -53,17 +55,19 @@ function Field({
   label,
   inferred,
   hint,
+  id,
   children,
 }: {
   label: string;
   inferred?: boolean;
   hint?: string;
+  id?: string;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <div className="flex items-baseline justify-between">
-        <label>
+      <div className="flex items-baseline justify-between mb-1">
+        <label htmlFor={id} className="cursor-pointer">
           {label}
           {inferred ? (
             <span className="ml-2 text-[14px] font-normal text-copper-clay">inferred — confirm</span>
@@ -78,9 +82,31 @@ function Field({
 
 export function HarnessWizard() {
   const [step, setStep] = useState(0);
+  const container = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    if (!container.current) return;
+
+    // Animate content blocks entry
+    gsap.fromTo(container.current.children,
+      {
+        y: 20,
+        opacity: 0
+      },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: "power4.out"
+      }
+    );
+  }, { dependencies: [step], scope: container });
+
   const [answers, setAnswers] = useState<Partial<IntakeAnswers>>(EMPTY);
   const [inferredFields, setInferredFields] = useState<Set<string>>(new Set());
   const [fileTree, setFileTree] = useState<string[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -96,6 +122,43 @@ export function HarnessWizard() {
   useEffect(() => {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(answers));
   }, [answers]);
+
+  // Handle dynamic command pre-population based on package manager
+  const [prevPm, setPrevPm] = useState(answers.package_manager);
+  useEffect(() => {
+    if (answers.package_manager && answers.package_manager !== prevPm) {
+      const pm = answers.package_manager;
+      const patch: Partial<IntakeAnswers> = {};
+
+      // Only update if current value matches the previous default or is empty
+      const isDefault = (cmd: string | undefined, oldPm: string | undefined) => {
+        if (!cmd) return true;
+        if (!oldPm) return false;
+        const defaults: Record<string, any> = {
+          npm: { install: "npm install", lint: "npm run lint", typecheck: "npm run typecheck" },
+          pnpm: { install: "pnpm install", lint: "pnpm run lint", typecheck: "pnpm run typecheck" },
+          yarn: { install: "yarn install", lint: "yarn lint", typecheck: "yarn typecheck" },
+          bun: { install: "bun install", lint: "bun run lint", typecheck: "bun run typecheck" },
+        };
+        return cmd === defaults[oldPm]?.install || cmd === defaults[oldPm]?.lint || cmd === defaults[oldPm]?.typecheck;
+      };
+
+      if (isDefault(answers.install_cmd, prevPm)) {
+        patch.install_cmd = pm === "yarn" ? "yarn install" : `${pm} install`;
+      }
+      if (isDefault(answers.lint_cmd, prevPm)) {
+        patch.lint_cmd = pm === "yarn" ? "yarn lint" : `${pm} run lint`;
+      }
+      if (isDefault(answers.typecheck_cmd, prevPm)) {
+        patch.typecheck_cmd = pm === "yarn" ? "yarn typecheck" : `${pm} run typecheck`;
+      }
+
+      if (Object.keys(patch).length > 0) {
+        setAnswers(prev => ({ ...prev, ...patch }));
+      }
+      setPrevPm(pm);
+    }
+  }, [answers.package_manager, prevPm]);
 
   const update = useCallback((patch: Partial<IntakeAnswers>) => {
     setAnswers((prev) => {
@@ -140,7 +203,11 @@ export function HarnessWizard() {
       body: JSON.stringify(mergedPreview),
     })
       .then((r) => r.json())
-      .then((d: { paths?: string[] }) => setFileTree(d.paths ?? []))
+      .then((d: { paths?: string[] }) => {
+        const paths = d.paths ?? [];
+        setFileTree(paths);
+        setSelectedFiles(new Set(paths));
+      })
       .catch(() => setFileTree([]));
   }, [step, mergedPreview]);
 
@@ -152,7 +219,10 @@ export function HarnessWizard() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          ...payload,
+          includeFiles: Array.from(selectedFiles),
+        }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -187,11 +257,11 @@ export function HarnessWizard() {
               <p
                 className="font-normal leading-[0.8] tracking-[-0.02em] text-obsidian-ink"
                 style={{
-                  fontSize: "clamp(80px, 15vw, var(--text-wordmark))",
+                  fontSize: "clamp(60px, 10vw, var(--text-wordmark))",
                   letterSpacing: "var(--text-wordmark--letter-spacing)",
                 }}
               >
-                Harness<span className="text-[0.25em] align-top ml-1">®</span>
+                Harness Forge<span className="text-[0.25em] align-top ml-1">®</span>
               </p>
               <EditorialHeadline as="h1" className="mt-[var(--spacing-23)] !text-[var(--text-display)]">
                 Agentic Harness Engineering
@@ -221,15 +291,50 @@ export function HarnessWizard() {
         </header>
 
         <div className="grid items-start gap-[var(--spacing-38)] lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-[var(--spacing-119)]">
-          <div className="min-w-0">
+          <div className="min-w-0" ref={container}>
         {step === 0 && (
           <div className="max-w-xl">
             <StepHeading
               title={WIZARD_STEPS[0].title}
-              description="This wizard generates an agent-only harness tailored to your code. No shell scripts, just portable rules and skills."
+              description="Harness Forge standardizes how AI agents (like Cursor or Claude) understand your project's rules, folder structure, and tech stack."
             />
+
+            <div className="mt-[var(--spacing-38)] space-y-[var(--spacing-23)]">
+              <div className="p-6 border border-ash-gray/20 bg-bone/10 rounded-sm">
+                <h3 className="text-[17px] font-bold text-obsidian-ink mb-2">Before you start</h3>
+                <p className="text-[15px] text-obsidian-ink/70 leading-relaxed">
+                  Make sure you have a project ready! If you're starting fresh, scaffold it first:
+                </p>
+                <code className="block mt-3 p-3 bg-obsidian-ink text-marble-white text-[14px] rounded-sm">
+                  npx create-next-app@latest
+                </code>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-[17px] font-bold text-obsidian-ink">What you'll get</h3>
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[15px] text-obsidian-ink/70">
+                  <li className="flex items-start gap-2">
+                    <span className="text-copper-clay">✦</span>
+                    <span><strong>Cursor Rules:</strong> Specialized .mdc files for architectural guardrails.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-copper-clay">✦</span>
+                    <span><strong>Claude Skills:</strong> A CLAUDE.md tailored for Claude Code CLI.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-copper-clay">✦</span>
+                    <span><strong>Shared Skills:</strong> Modular agent instructions for common tasks.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-copper-clay">✦</span>
+                    <span><strong>Orchestration:</strong> A central map of your stack for all agents.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
             <div className="mt-[var(--spacing-38)] flex gap-[var(--spacing-13)]">
-              <PillButton onClick={() => setStep(1)}>Start setup</PillButton>
+              <PillButton onClick={() => setStep(1)}>I'm ready, start setup</PillButton>
             </div>
           </div>
         )}
@@ -241,14 +346,17 @@ export function HarnessWizard() {
               description="Give your project a name and choose the package manager your team uses."
             />
             <HairlineFieldset legend="Identity">
-              <Field label="Project name" inferred={isInferred("project_name")}>
+              <Field id="project_name" label="What's your project's name?" inferred={isInferred("project_name")}>
                 <input
+                  id="project_name"
                   value={answers.project_name ?? ""}
                   onChange={(e) => update({ project_name: e.target.value })}
+                  placeholder="e.g. my-awesome-app"
                 />
               </Field>
               <AutocompleteField
-                label="Package manager"
+                id="package_manager"
+                label="Which package manager do you use?"
                 inferred={isInferred("package_manager")}
                 options={PACKAGE_MANAGER_OPTIONS}
                 allowCustom={false}
@@ -278,26 +386,29 @@ export function HarnessWizard() {
             />
             <HairlineFieldset legend="Stack">
               <AutocompleteField
+                id="framework"
                 mode="multi"
-                label="Framework"
+                label="What framework are you building with?"
                 inferred={isInferred("framework")}
                 options={FRAMEWORK_OPTIONS}
-                placeholder="Search frameworks or add your own…"
+                placeholder="Search frameworks (Next.js, Vite, etc.)…"
                 value={splitDelimited(answers.framework)}
                 onChange={(values) => update({ framework: joinDelimited(values) })}
               />
               <AutocompleteField
+                id="styling"
                 mode="multi"
-                label="Styling"
+                label="How do you style your components?"
                 inferred={isInferred("styling")}
                 options={STYLING_OPTIONS}
-                placeholder="Search styling tools or add your own…"
+                placeholder="Search styling (Tailwind, CSS Modules, etc.)…"
                 value={splitDelimited(answers.styling)}
                 onChange={(values) => update({ styling: joinDelimited(values) })}
               />
               <AutocompleteField
+                id="ui_library"
                 mode="multi"
-                label="UI library"
+                label="Which UI or component library do you use?"
                 inferred={isInferred("ui_library")}
                 options={UI_LIBRARY_OPTIONS}
                 placeholder="Search UI libraries or add your own…"
@@ -321,48 +432,55 @@ export function HarnessWizard() {
               description="Point agents at the right scripts and folder structure so they can run checks and edit files without breaking your build."
             />
             <HairlineFieldset legend="Commands and paths">
-              <Field label="Install command" inferred={isInferred("install_cmd")} hint="e.g. bun install">
+              <Field id="install_cmd" label="How do agents install dependencies?" inferred={isInferred("install_cmd")} hint="e.g. npm install">
                 <input
+                  id="install_cmd"
                   value={answers.install_cmd ?? ""}
                   onChange={(e) => update({ install_cmd: e.target.value })}
                 />
               </Field>
-              <Field label="Lint command" inferred={isInferred("lint_cmd")} hint="e.g. npm run lint">
-                <input value={answers.lint_cmd ?? ""} onChange={(e) => update({ lint_cmd: e.target.value })} />
+              <Field id="lint_cmd" label="How do agents run the linter?" inferred={isInferred("lint_cmd")} hint="e.g. npm run lint">
+                <input id="lint_cmd" value={answers.lint_cmd ?? ""} onChange={(e) => update({ lint_cmd: e.target.value })} />
               </Field>
-              <Field label="Typecheck command" inferred={isInferred("typecheck_cmd")} hint="e.g. tsc --noEmit">
+              <Field id="typecheck_cmd" label="How do agents check types?" inferred={isInferred("typecheck_cmd")} hint="e.g. npm run typecheck">
                 <input
+                  id="typecheck_cmd"
                   value={answers.typecheck_cmd ?? ""}
                   onChange={(e) => update({ typecheck_cmd: e.target.value })}
                 />
               </Field>
-              <Field label="Routes path" inferred={isInferred("routes_path")} hint="e.g. src/app or src/pages">
+              <Field id="routes_path" label="Where are your routes/pages located?" inferred={isInferred("routes_path")} hint="e.g. src/app">
                 <input
+                  id="routes_path"
                   value={answers.routes_path ?? ""}
                   onChange={(e) => update({ routes_path: e.target.value })}
                 />
               </Field>
-              <Field label="Components path" inferred={isInferred("components_path")} hint="e.g. src/components">
+              <Field id="components_path" label="Where are your components kept?" inferred={isInferred("components_path")} hint="e.g. src/components">
                 <input
+                  id="components_path"
                   value={answers.components_path ?? ""}
                   onChange={(e) => update({ components_path: e.target.value })}
                 />
               </Field>
-              <Field label="Shared UI path" inferred={isInferred("shared_ui_path")} hint="e.g. components/ui">
+              <Field id="shared_ui_path" label="Where is your shared UI library?" inferred={isInferred("shared_ui_path")} hint="e.g. src/components/ui">
                 <input
+                  id="shared_ui_path"
                   value={answers.shared_ui_path ?? ""}
                   onChange={(e) => update({ shared_ui_path: e.target.value })}
                 />
               </Field>
-              <Field label="API client path" inferred={isInferred("api_client_path")} hint="e.g. src/lib/api">
+              <Field id="api_client_path" label="Where is your API client code?" inferred={isInferred("api_client_path")} hint="e.g. src/lib/api">
                 <input
+                  id="api_client_path"
                   value={answers.api_client_path ?? ""}
                   onChange={(e) => update({ api_client_path: e.target.value })}
                 />
               </Field>
               <AutocompleteField
+                id="forbidden_paths"
                 mode="multi"
-                label="Forbidden paths"
+                label="Which folders should agents NEVER touch?"
                 options={FORBIDDEN_PATH_OPTIONS}
                 placeholder="Paths agents should not edit…"
                 value={splitDelimited(answers.forbidden_paths)}
@@ -386,7 +504,8 @@ export function HarnessWizard() {
             />
             <HairlineFieldset legend="Configuration">
               <AutocompleteField
-                label="Harness layout"
+                id="emit_strategy"
+                label="How should we organize the files?"
                 options={EMIT_STRATEGY_LABELS}
                 allowCustom={false}
                 placeholder="Choose how files are organized…"
@@ -397,15 +516,17 @@ export function HarnessWizard() {
                 }}
               />
               <AutocompleteField
-                label="Primary tool"
+                id="primary_tool"
+                label="What's your main AI coding tool?"
                 options={TOOL_OPTIONS}
                 placeholder="Your main coding agent…"
                 value={answers.primary_tool ?? "Cursor"}
                 onChange={(value) => update({ primary_tool: value })}
               />
               <AutocompleteField
+                id="tools_in_use"
                 mode="multi"
-                label="Tools in use"
+                label="Which other AI tools do you use?"
                 options={TOOL_OPTIONS}
                 minItems={1}
                 placeholder="Add every agent tool you use…"
@@ -457,16 +578,16 @@ export function HarnessWizard() {
         )}
 
         {step === 5 && (
-          <div>
+          <div className="max-w-4xl">
             <StepHeading
               title={WIZARD_STEPS[5].title}
-              description="Confirm your choices, preview the files that will be included, then download the zip."
+              description="Confirm your choices, pick exactly which files you want, then download your custom harness."
             />
-          <div className="grid gap-[var(--spacing-38)] md:grid-cols-2">
-            <div>
+          <div className="flex flex-col lg:flex-row gap-[var(--spacing-38)]">
+            <div className="lg:w-1/3">
               <HairlineFieldset legend="Summary">
                 {mergedPreview ? (
-                  <ul className="space-y-2 text-[17px]">
+                  <ul className="space-y-3 text-[17px]">
                     <li>
                       <strong>Project:</strong> {mergedPreview.project_name}
                     </li>
@@ -498,11 +619,43 @@ export function HarnessWizard() {
                 </PillButton>
               </div>
             </div>
-            <div>
-              <HairlineFieldset legend="Files in zip">
-                <ul className="max-h-96 overflow-y-auto font-mono text-[14px] leading-relaxed text-ash-gray">
+            <div className="lg:w-2/3">
+              <HairlineFieldset legend="Select files to include">
+                <div className="mb-6 flex items-center gap-3 p-3 bg-bone/10 border border-ash-gray/20 rounded-sm">
+                  <input
+                    type="checkbox"
+                    id="select-all"
+                    checked={fileTree.length > 0 && selectedFiles.size === fileTree.length}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedFiles(new Set(fileTree));
+                      } else {
+                        setSelectedFiles(new Set());
+                      }
+                    }}
+                  />
+                  <label htmlFor="select-all" className="text-[14px] font-bold cursor-pointer">
+                    Select All ({selectedFiles.size} / {fileTree.length})
+                  </label>
+                </div>
+                <ul className="max-h-96 overflow-y-auto font-mono text-[14px] leading-relaxed text-ash-gray space-y-1 border border-ash-gray/10 p-4 bg-bone/5">
                   {fileTree.map((p) => (
-                    <li key={p}>{p}</li>
+                    <li key={p} className="flex items-center gap-2 hover:bg-bone/10 py-0.5 px-1">
+                      <input
+                        type="checkbox"
+                        id={`file-${p}`}
+                        checked={selectedFiles.has(p)}
+                        onChange={(e) => {
+                          const next = new Set(selectedFiles);
+                          if (e.target.checked) next.add(p);
+                          else next.delete(p);
+                          setSelectedFiles(next);
+                        }}
+                      />
+                      <label htmlFor={`file-${p}`} className="cursor-pointer truncate" title={p}>
+                        {p}
+                      </label>
+                    </li>
                   ))}
                 </ul>
               </HairlineFieldset>

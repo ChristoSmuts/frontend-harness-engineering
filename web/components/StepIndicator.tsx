@@ -1,11 +1,11 @@
 export const WIZARD_STEPS = [
-  { label: "Start", title: "Mission brief", description: "Portable harness setup" },
+  { label: "Start", title: "Mission brief", description: "Harness Forge setup" },
   { label: "Project", title: "Project identity", description: "Name and package manager" },
   { label: "Stack", title: "Framework & UI", description: "Stack and component library" },
   { label: "Commands", title: "Control & paths", description: "Scripts and folder layout" },
   { label: "Agents", title: "Agent setup", description: "Tools and skills" },
   { label: "Review", title: "Quality check", description: "Preview files and export" },
-  { label: "Done", title: "Harness ready", description: "Add to your project" },
+  { label: "Done", title: "Harness Forge ready", description: "Add to your project" },
 ] as const;
 
 function StepCircle({

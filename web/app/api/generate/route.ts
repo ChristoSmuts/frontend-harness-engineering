@@ -19,7 +19,18 @@ export async function POST(request: Request) {
       );
     }
     const answers = mergeWebAnswers(parsed.data);
-    const files = emitHarness(answers);
+    let files = emitHarness(answers);
+
+    // Optional filtering for partial selection
+    if (Array.isArray(body.includeFiles)) {
+      const include = new Set(body.includeFiles);
+      const filtered = new Map<string, string>();
+      for (const [path, content] of files) {
+        if (include.has(path)) filtered.set(path, content);
+      }
+      files = filtered;
+    }
+
     const zip = await createZipBuffer(files);
     const slug = answers.project_name.replace(/[^a-zA-Z0-9._-]+/g, "-").toLowerCase();
     return new Response(new Uint8Array(zip), {
