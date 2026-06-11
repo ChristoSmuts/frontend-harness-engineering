@@ -1,8 +1,0 @@
-# Domains allowed for agent shell outbound (curl, wget, Invoke-WebRequest).
-# One host per line; lines starting with # are comments.
-# Subdomains of listed hosts are allowed (e.g. api.github.com matches github.com).
-github.com
-api.github.com
-registry.npmjs.org
-npmjs.org
-pnpm.io

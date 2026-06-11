@@ -1,9 +1,0 @@
-# Harness changelog — {{PROJECT_NAME}}
-
-Record intentional harness changes (not feature work). Reviewed by {{HARNESS_OWNER}}.
-
-**Toolkit SHA:** {{TOOLKIT_SHA}}
-
-| Date | Change | Trigger (failure / decision) |
-|------|--------|------------------------------|
-| {{BOOTSTRAP_DATE}} | Initial bootstrap (emit: {{EMIT_STRATEGY}}) | Frontend Harness Engineering toolkit |
