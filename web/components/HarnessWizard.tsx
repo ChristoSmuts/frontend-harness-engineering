@@ -612,7 +612,7 @@ export function HarnessWizard() {
                 </PillButton>
                 <PillButton
                   variant="accent"
-                  disabled={!mergedPreview || downloading}
+                  disabled={!mergedPreview || downloading || selectedFiles.size === 0}
                   onClick={download}
                 >
                   {downloading ? "Generating…" : "Download harness zip"}

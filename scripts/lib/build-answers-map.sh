@@ -50,7 +50,7 @@ build_answers_map_file() {
 
   local harness_validate_block=""
   if [[ "$delivery_mode" != "agent-only" ]]; then
-    harness_validate_block=$'- **Validate harness:** `bash '"${harness_scripts_dir}"'/validate-target-harness.sh` (Linux/macOS) or `pwsh -File '"${harness_scripts_dir}"'/validate-target-harness.ps1` (Windows/macOS with pwsh); use `--strict` in CI'
+    harness_validate_block="- **Validate harness:** \`bash ${harness_scripts_dir}/validate-target-harness.sh\` (Linux/macOS) or \`pwsh -File ${harness_scripts_dir}/validate-target-harness.ps1\` (Windows/macOS with pwsh); use --strict in CI"
   fi
 
   local codex_hooks_block="# Codex hooks disabled — set features.codex_hooks true and trust repo in Codex"
