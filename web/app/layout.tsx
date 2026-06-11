@@ -9,9 +9,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Harness — Frontend agent configuration",
+  title: "Harness Forge — Agentic orchestration",
   description:
-    "Configure rules, skills, and orchestration for AI coding agents in your frontend project. Answer a short questionnaire and download a ready-to-use harness zip.",
+    "Configure rules, skills, and orchestration for AI coding agents in your frontend project with Harness Forge. Answer a short questionnaire and download a ready-to-use harness zip.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
