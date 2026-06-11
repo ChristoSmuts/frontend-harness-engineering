@@ -53,6 +53,34 @@
         ".agent-scripts/lib/normalize-target-path.ps1"
       ]
     },
+    "agent-only-full": {
+      "description": "full layout with agent-only delivery (no scripts, hooks, or CI)",
+      "delivery_mode": "agent-only",
+      "required_paths": [
+        "AGENTS.md",
+        "HARNESS_CHANGELOG.md",
+        "agents/ORCHESTRATION.md",
+        ".cursor/ORCHESTRATION.md",
+        ".cursor/rules/frontend-core.mdc",
+        ".cursor/rules/frontend-security.mdc",
+        ".cursor/rules/shell-conventions.mdc",
+        ".cursor/rules/typescript-react.mdc",
+        ".cursor/rules/ui-components.mdc",
+        ".agents/skills/frontend-verify/SKILL.md",
+        ".agents/skills/frontend-security/SKILL.md",
+        ".agents/skills/next-app-router/SKILL.md",
+        ".agents/skills/shadcn-components/SKILL.md",
+        ".cursor/skills/frontend-verify/SKILL.md",
+        ".cursor/skills/frontend-security/SKILL.md",
+        ".cursor/skills/next-app-router/SKILL.md",
+        ".cursor/skills/shadcn-components/SKILL.md"
+      ],
+      "forbidden_paths": [
+        ".agent-scripts/validate-target-harness.sh",
+        ".cursor/hooks.json",
+        ".github/workflows/harness-validate.yml"
+      ]
+    },
     "cursor-only": {
       "required_paths": [
         "AGENTS.md",
@@ -76,7 +104,7 @@
     }
   },
   "conditional_paths": [
-    { "path": ".cursor/hooks/scan-secrets.sh", "profiles": ["full", "cursor-only"], "feature": "secret_scan_hook" },
+    { "path": ".cursor/hooks/scan-secrets.sh", "profiles": ["full", "cursor-only"], "feature": "secret_scan_hook", "delivery_mode": "standard" },
     { "path": ".cursor/hooks/scan-secrets.ps1", "profiles": ["full", "cursor-only"], "feature": "secret_scan_hook" },
     { "path": ".cursor/hooks/deny-dangerous.sh", "profiles": ["full", "cursor-only"], "feature": "shell_guard" },
     { "path": ".cursor/hooks/deny-dangerous.ps1", "profiles": ["full", "cursor-only"], "feature": "shell_guard" },

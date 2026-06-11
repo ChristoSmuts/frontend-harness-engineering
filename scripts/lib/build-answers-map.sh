@@ -11,8 +11,9 @@ build_answers_map_file() {
     return 1
   fi
 
-  local emit_strategy canonical skills_dir harness_scripts_dir framework platform toolkit_sha bootstrap_date
+  local emit_strategy delivery_mode canonical skills_dir harness_scripts_dir framework platform toolkit_sha bootstrap_date
   emit_strategy=$(jq -r '.emit_strategy' "$answers_json")
+  delivery_mode=$(jq -r '.delivery_mode // "standard"' "$answers_json")
   canonical=$(jq -r '.canonical_skills_dir // ".agents/skills/"' "$answers_json")
   skills_dir=$(jq -r '.skills_dir // .canonical_skills_dir // ".agents/skills/"' "$answers_json")
   harness_scripts_dir=$(jq -r '.harness_scripts_dir // ".agent-scripts"' "$answers_json")
@@ -43,12 +44,17 @@ build_answers_map_file() {
   fi
 
   cursor_harness_line=""
-  if tool_selected "$answers_json" "Cursor" && [[ "$emit_strategy" != "portable-only" ]]; then
+  if [[ "$delivery_mode" != "agent-only" ]] && tool_selected "$answers_json" "Cursor" && [[ "$emit_strategy" != "portable-only" ]]; then
     cursor_harness_line=$'- **Cursor:** on stop, hooks run verify scripts; fix all reported errors before finishing'
   fi
 
+  local harness_validate_block=""
+  if [[ "$delivery_mode" != "agent-only" ]]; then
+    harness_validate_block=$'- **Validate harness:** `bash '"${harness_scripts_dir}"'/validate-target-harness.sh` (Linux/macOS) or `pwsh -File '"${harness_scripts_dir}"'/validate-target-harness.ps1` (Windows/macOS with pwsh); use `--strict` in CI'
+  fi
+
   local codex_hooks_block="# Codex hooks disabled — set features.codex_hooks true and trust repo in Codex"
-  if [[ "$(jq -r '.features.codex_hooks // false' "$answers_json")" == "true" ]]; then
+  if [[ "$delivery_mode" != "agent-only" ]] && [[ "$(jq -r '.features.codex_hooks // false' "$answers_json")" == "true" ]]; then
     if [[ "$platform" == "windows" ]]; then
       codex_hooks_block='[hooks]\nstop = ["pwsh", "-File", ".cursor/hooks/verify-frontend.ps1"]'
     else
@@ -80,6 +86,8 @@ build_answers_map_file() {
     echo "FRAMEWORK=$framework"
     echo "MONOREPO_SKILL_NOTE=$monorepo_skill_note"
     echo "CURSOR_HARNESS_LINE=$cursor_harness_line"
+    echo "HARNESS_VALIDATE_BLOCK=$harness_validate_block"
+    echo "DELIVERY_MODE=$delivery_mode"
     echo "COMPONENTS_JSON_PATH=$(jq -r '.components_json_path // "components.json"' "$answers_json")"
     echo "TOKENS_PATH=$(jq -r '.tokens_path // "src/app/globals.css"' "$answers_json")"
     echo "SHADCN_ADD_CMD=$(jq -r '.shadcn_add_cmd // "pnpm dlx shadcn@latest add"' "$answers_json")"
@@ -122,8 +130,18 @@ build_answers_map_file() {
 build_shell_conventions_block() {
   local answers_json="$1"
   local toolkit_root="$2"
-  local platform fragment harness_scripts_dir
+  local platform fragment harness_scripts_dir delivery_mode
+  delivery_mode=$(jq -r '.delivery_mode // "standard"' "$answers_json")
   platform=$(jq -r '.platform_primary // "unix"' "$answers_json")
+  if [[ "$delivery_mode" == "agent-only" ]]; then
+    fragment="$toolkit_root/templates/fragments/SHELL_CONVENTIONS.agent-only.md"
+    if [[ -f "$fragment" ]]; then
+      cat "$fragment"
+    else
+      printf '%s' "follow project shell conventions in lint/typecheck commands above"
+    fi
+    return 0
+  fi
   harness_scripts_dir=$(jq -r '.harness_scripts_dir // ".agent-scripts"' "$answers_json")
   harness_scripts_dir="${harness_scripts_dir%/}"
   fragment="$toolkit_root/templates/fragments/SHELL_CONVENTIONS.${platform}.md"
@@ -133,7 +151,12 @@ build_shell_conventions_block() {
 
 build_shell_agents_line() {
   local answers_json="$1"
-  local platform emit_strategy
+  local platform emit_strategy delivery_mode
+  delivery_mode=$(jq -r '.delivery_mode // "standard"' "$answers_json")
+  if [[ "$delivery_mode" == "agent-only" ]]; then
+    printf '%s' "follow project shell conventions; run lint/typecheck commands in this file before claiming done"
+    return 0
+  fi
   platform=$(jq -r '.platform_primary // "unix"' "$answers_json")
   emit_strategy=$(jq -r '.emit_strategy' "$answers_json")
 
@@ -186,8 +209,9 @@ build_verify_cmds_block() {
 
 build_harness_paths_block() {
   local answers_json="$1"
-  local emit_strategy harness_owner platform canonical harness_scripts_dir
+  local emit_strategy delivery_mode harness_owner platform canonical harness_scripts_dir
   emit_strategy=$(jq -r '.emit_strategy' "$answers_json")
+  delivery_mode=$(jq -r '.delivery_mode // "standard"' "$answers_json")
   harness_owner=$(jq -r '.harness_owner' "$answers_json")
   platform=$(jq -r '.platform_primary // "unix"' "$answers_json")
   canonical=$(jq -r '.canonical_skills_dir // ".agents/skills/"' "$answers_json")
@@ -195,14 +219,24 @@ build_harness_paths_block() {
   harness_scripts_dir="${harness_scripts_dir%/}"
 
   local lines=()
-  lines+=("- **Emit strategy:** ${emit_strategy} · **Harness owner:** ${harness_owner} · **Platform primary:** ${platform}")
-  if [[ "$emit_strategy" == "full" ]]; then
-    lines+=("- **Canonical skills:** \`${canonical}\` — edit here; run \`${harness_scripts_dir}/sync-skills.sh --all-mirrors\` after changes when using mirrors")
+  if [[ "$delivery_mode" == "agent-only" ]]; then
+    lines+=("- **Emit strategy:** ${emit_strategy} · **Delivery:** agent-only · **Harness owner:** ${harness_owner}")
+    if [[ "$emit_strategy" == "full" ]]; then
+      lines+=("- **Canonical skills:** \`${canonical}\` — edit here; mirrors pre-copied at emit")
+    else
+      lines+=("- **Canonical skills:** \`${canonical}\` — edit skills in place")
+    fi
+    lines+=("- **Shared entry:** \`AGENTS.md\` (this file)")
   else
-    lines+=("- **Canonical skills:** \`${canonical}\` — edit here; run \`${harness_scripts_dir}/sync-skills.sh\` after skill edits")
+    lines+=("- **Emit strategy:** ${emit_strategy} · **Harness owner:** ${harness_owner} · **Platform primary:** ${platform}")
+    if [[ "$emit_strategy" == "full" ]]; then
+      lines+=("- **Canonical skills:** \`${canonical}\` — edit here; run \`${harness_scripts_dir}/sync-skills.sh --all-mirrors\` after changes when using mirrors")
+    else
+      lines+=("- **Canonical skills:** \`${canonical}\` — edit here; run \`${harness_scripts_dir}/sync-skills.sh\` after skill edits")
+    fi
+    lines+=("- **Harness scripts:** \`${harness_scripts_dir}/\` — validate/sync (not app build scripts)")
+    lines+=("- **Shared entry:** \`AGENTS.md\` (this file)")
   fi
-  lines+=("- **Harness scripts:** \`${harness_scripts_dir}/\` — validate/sync (not app build scripts)")
-  lines+=("- **Shared entry:** \`AGENTS.md\` (this file)")
 
   local tools
   tools=$(jq -r '.tools_in_use[]' "$answers_json")
@@ -219,11 +253,19 @@ build_harness_paths_block() {
 
   if [[ "$emit_strategy" == "cursor-only" ]]; then
     lines+=("- **Orchestration:** \`.cursor/ORCHESTRATION.md\`")
-    lines+=("- **Cursor:** rules \`.cursor/rules/\`, hooks \`.cursor/hooks.json\`, skills \`${canonical}\`")
+    if [[ "$delivery_mode" == "agent-only" ]]; then
+      lines+=("- **Cursor:** rules \`.cursor/rules/\`, skills \`${canonical}\`")
+    else
+      lines+=("- **Cursor:** rules \`.cursor/rules/\`, hooks \`.cursor/hooks.json\`, skills \`${canonical}\`")
+    fi
   else
     if $has_cursor; then
       lines+=("- **Orchestration:** \`agents/ORCHESTRATION.md\` · Cursor: \`.cursor/ORCHESTRATION.md\`")
-      lines+=("- **Cursor:** rules \`.cursor/rules/\`, skills \`.cursor/skills/\` (mirror), hooks \`.cursor/hooks.json\`")
+      if [[ "$delivery_mode" == "agent-only" ]]; then
+        lines+=("- **Cursor:** rules \`.cursor/rules/\`, skills \`.cursor/skills/\` (mirror)")
+      else
+        lines+=("- **Cursor:** rules \`.cursor/rules/\`, skills \`.cursor/skills/\` (mirror), hooks \`.cursor/hooks.json\`")
+      fi
     else
       lines+=("- **Orchestration:** \`agents/ORCHESTRATION.md\`")
     fi

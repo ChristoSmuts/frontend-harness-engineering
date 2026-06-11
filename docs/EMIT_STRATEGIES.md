@@ -2,6 +2,15 @@
 
 How much harness material to generate into a **target frontend project** during bootstrap. Set in intake (`emit_strategy`) and applied in Phase C of [prompts/MASTER_BOOTSTRAP.md](../prompts/MASTER_BOOTSTRAP.md).
 
+**Delivery mode** (`delivery_mode` in intake JSON) is orthogonal to emit strategy:
+
+| Mode | When to use | Includes |
+|------|-------------|----------|
+| **`standard`** (default) | Teams that want maintenance scripts, optional Cursor hooks, optional harness CI | `.agent-scripts/`, hooks, workflows per features |
+| **`agent-only`** | Trust-sensitive teams, web zip generator, paste-into-repo workflow | Agent-readable files only — docs, rules, skills, JSON allowlists; skill mirrors inlined for `full` |
+
+The web generator (`web/`) always uses `agent-only`. For CLI emit, add `"delivery_mode": "agent-only"` to your answers JSON — see [docs/EMIT_FROM_INTAKE.md](EMIT_FROM_INTAKE.md).
+
 ## Strategies
 
 | Strategy | When to use | Emits | Skips |

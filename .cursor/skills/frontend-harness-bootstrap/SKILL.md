@@ -42,9 +42,9 @@ Bootstrap **coding-agent harness + orchestration** at **`target_path`** (see `pr
 
 - **Path-first:** auto-detect workspace; collect **`target_path`** before the preference AskQuestion form when toolkit is open.
 
-- Use `intake/QUESTIONNAIRE.md` — **AskQuestion bundle** with descriptive option labels (`emit_strategy`, `primary_tool`, `tools_in_use`, `platform_primary`, `harness_owner`, `hooks_prefs`, `repo_type`); optional `intake/answers.schema.json`.
+- Use `intake/QUESTIONNAIRE.md` — **AskQuestion bundle** with descriptive option labels (`emit_strategy`, `primary_tool`, `tools_in_use`, `platform_primary`, `harness_owner`, `delivery_mode`, `hooks_prefs` when `standard`, `repo_type`); optional `intake/answers.schema.json`.
 
-- Collect **Required before Phase C**: `target_path`, `toolkit_path`, `emit_strategy`, `primary_tool`, `harness_owner`, `canonical_skills_dir`, `harness_scripts_dir` (default `.agent-scripts`), `platform_primary` (`unix` | `windows`).
+- Collect **Required before Phase C**: `target_path`, `toolkit_path`, `emit_strategy`, `delivery_mode` (`standard` | `agent-only`), `primary_tool`, `harness_owner`, `canonical_skills_dir`, `harness_scripts_dir` (default `.agent-scripts`; omitted on disk when `agent-only`), `platform_primary` (`unix` | `windows`).
 
 - Post **intake summary** before Phase B.
 

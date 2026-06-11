@@ -67,6 +67,23 @@ jobs:
       - name: Validate cursor-only manifest paths
         run: bash scripts/validate-fixture-manifest.sh --profile cursor-only fixtures/golden-cursor-only-emit
 
+      - name: Validate agent-only-full manifest paths
+        run: bash scripts/validate-fixture-manifest.sh --profile agent-only-full fixtures/golden-agent-only-full-emit
+
+      - name: Emitter round-trip agent-only-full
+        run: |
+          bash scripts/normalize-harness-text-lf.sh fixtures/golden-agent-only-full-emit
+          rm -rf /tmp/emit-agent-only
+          mkdir -p /tmp/emit-agent-only
+          bash scripts/emit-from-intake.sh \
+            --answers fixtures/golden-agent-only-full-emit/intake.answers.json \
+            --target /tmp/emit-agent-only \
+            --toolkit .
+          bash scripts/normalize-harness-text-lf.sh /tmp/emit-agent-only
+          diff -ru fixtures/golden-agent-only-full-emit /tmp/emit-agent-only \
+            --exclude=intake.answers.json \
+            --exclude=HARNESS_CHANGELOG.md
+
       - name: Sync smoke (bash)
         run: |
           cp -r fixtures/minimal-full-emit /tmp/harness-sync-smoke
@@ -121,6 +138,16 @@ jobs:
           diff -ru fixtures/golden-cursor-only-emit /tmp/emit-cursor \
             --exclude=intake.answers.json \
             --exclude=HARNESS_CHANGELOG.md
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Build web generator
+        run: |
+          cd web
+          bun install --frozen-lockfile
+          bun test
+          bun run build
 
   validate-windows:
     runs-on: windows-2025

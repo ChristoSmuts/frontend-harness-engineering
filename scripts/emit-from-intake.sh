@@ -86,6 +86,9 @@ echo "HARNESS_PATHS=__MULTILINE_FILE__" >> "$map_tmp"
 echo "SHELL_CONVENTIONS_BLOCK=__MULTILINE_SHELL__" >> "$map_tmp"
 
 emit_strategy=$(jq -r '.emit_strategy' "$ANSWERS")
+delivery_mode=$(jq -r '.delivery_mode // "standard"' "$ANSWERS")
+agent_only=false
+[[ "$delivery_mode" == "agent-only" ]] && agent_only=true
 platform=$(jq -r '.platform_primary // "unix"' "$ANSWERS")
 canonical=$(jq -r '.canonical_skills_dir // ".agents/skills/"' "$ANSWERS")
 harness_scripts_dir=$(jq -r '.harness_scripts_dir // ".agent-scripts"' "$ANSWERS")
@@ -113,22 +116,24 @@ emit_substitute() {
   echo "emit $rel_dest"
 }
 
-# Maintenance scripts (no substitution) — target dir defaults to .agent-scripts/
-for s in validate-target-harness.sh validate-target-harness.ps1 sync-skills.sh sync-skills.ps1 register-harness-growth.sh register-harness-growth.ps1; do
-  dest="${harness_scripts_dir}/$s"
-  if should_skip "$dest"; then continue; fi
-  mkdir -p "$harness_scripts_dir"
-  cp "$TOOLKIT/scripts/$s" "$dest"
-  chmod +x "$dest" 2>/dev/null || true
-done
-mkdir -p "${harness_scripts_dir}/lib"
-for s in secret-patterns.sh secret-patterns.ps1 normalize-target-path.sh normalize-target-path.ps1 \
-  harness-integrity.sh harness-integrity.ps1 shell-guard.sh shell-guard.ps1; do
-  dest="${harness_scripts_dir}/lib/$s"
-  if should_skip "$dest"; then continue; fi
-  cp "$TOOLKIT/scripts/lib/$s" "$dest"
-  chmod +x "$dest" 2>/dev/null || true
-done
+# Maintenance scripts (standard delivery only)
+if ! $agent_only; then
+  for s in validate-target-harness.sh validate-target-harness.ps1 sync-skills.sh sync-skills.ps1 register-harness-growth.sh register-harness-growth.ps1; do
+    dest="${harness_scripts_dir}/$s"
+    if should_skip "$dest"; then continue; fi
+    mkdir -p "$harness_scripts_dir"
+    cp "$TOOLKIT/scripts/$s" "$dest"
+    chmod +x "$dest" 2>/dev/null || true
+  done
+  mkdir -p "${harness_scripts_dir}/lib"
+  for s in secret-patterns.sh secret-patterns.ps1 normalize-target-path.sh normalize-target-path.ps1 \
+    harness-integrity.sh harness-integrity.ps1 shell-guard.sh shell-guard.ps1; do
+    dest="${harness_scripts_dir}/lib/$s"
+    if should_skip "$dest"; then continue; fi
+    cp "$TOOLKIT/scripts/lib/$s" "$dest"
+    chmod +x "$dest" 2>/dev/null || true
+  done
+fi
 
 # Core artifacts
 emit_substitute "$TOOLKIT/templates/AGENTS.md.template" "AGENTS.md"
@@ -146,16 +151,28 @@ if feature_enabled "$ANSWERS" "harness_self_improve"; then
 fi
 
 if tool_selected "$ANSWERS" "Cursor" && [[ "$emit_strategy" != "portable-only" ]]; then
-  emit_substitute "$TOOLKIT/templates/ORCHESTRATION.cursor-hooks.md.template" ".cursor/ORCHESTRATION.cursor-hooks.md"
   mkdir -p .cursor
+  if ! $agent_only; then
+    emit_substitute "$TOOLKIT/templates/ORCHESTRATION.cursor-hooks.md.template" ".cursor/ORCHESTRATION.cursor-hooks.md"
+  fi
   if [[ "$emit_strategy" == "cursor-only" ]]; then
-    orch_tmp=$(mktemp)
-    substitute_from_map_file "$TOOLKIT/templates/ORCHESTRATION.shared.md.template" "$orch_tmp" "$map_tmp" "$HARNESS_PATHS_FILE"
-    cat "$orch_tmp" .cursor/ORCHESTRATION.cursor-hooks.md > .cursor/ORCHESTRATION.md
-    rm -f "$orch_tmp"
-    echo "emit .cursor/ORCHESTRATION.md"
-  elif [[ -f agents/ORCHESTRATION.md && -f .cursor/ORCHESTRATION.cursor-hooks.md ]]; then
-    cat agents/ORCHESTRATION.md .cursor/ORCHESTRATION.cursor-hooks.md > .cursor/ORCHESTRATION.md
+    if $agent_only; then
+      emit_substitute "$TOOLKIT/templates/ORCHESTRATION.shared.md.template" ".cursor/ORCHESTRATION.md"
+    else
+      orch_tmp=$(mktemp)
+      substitute_from_map_file "$TOOLKIT/templates/ORCHESTRATION.shared.md.template" "$orch_tmp" "$map_tmp" "$HARNESS_PATHS_FILE"
+      cat "$orch_tmp" .cursor/ORCHESTRATION.cursor-hooks.md > .cursor/ORCHESTRATION.md
+      rm -f "$orch_tmp"
+      echo "emit .cursor/ORCHESTRATION.md"
+    fi
+  elif [[ -f agents/ORCHESTRATION.md ]]; then
+    if $agent_only; then
+      cp agents/ORCHESTRATION.md .cursor/ORCHESTRATION.md
+      echo "emit .cursor/ORCHESTRATION.md"
+    elif [[ -f .cursor/ORCHESTRATION.cursor-hooks.md ]]; then
+      cat agents/ORCHESTRATION.md .cursor/ORCHESTRATION.cursor-hooks.md > .cursor/ORCHESTRATION.md
+      echo "emit .cursor/ORCHESTRATION.md"
+    fi
   fi
 fi
 
@@ -167,15 +184,15 @@ if tool_selected "$ANSWERS" "Gemini"; then
   emit_substitute "$TOOLKIT/templates/GEMINI.md.template" "GEMINI.md"
 fi
 
-if tool_selected "$ANSWERS" "Codex" && feature_enabled "$ANSWERS" "codex_hooks"; then
+if ! $agent_only && tool_selected "$ANSWERS" "Codex" && feature_enabled "$ANSWERS" "codex_hooks"; then
   emit_substitute "$TOOLKIT/templates/codex/config.toml.template" ".codex/config.toml"
 fi
 
-if feature_enabled "$ANSWERS" "harness_ci_workflow"; then
+if ! $agent_only && feature_enabled "$ANSWERS" "harness_ci_workflow"; then
   emit_substitute "$TOOLKIT/templates/github/workflows/harness-validate.yml.template" ".github/workflows/harness-validate.yml"
 fi
 
-if feature_enabled "$ANSWERS" "gitleaks_ci"; then
+if ! $agent_only && feature_enabled "$ANSWERS" "gitleaks_ci"; then
   emit_substitute "$TOOLKIT/templates/github/workflows/secret-scan.yml.template" ".github/workflows/secret-scan.yml"
 fi
 
@@ -222,8 +239,8 @@ if tool_selected "$ANSWERS" "Claude" && [[ "$emit_strategy" == "full" || "$emit_
   fi
 fi
 
-# Hooks
-if tool_selected "$ANSWERS" "Cursor" && [[ "$emit_strategy" != "portable-only" ]]; then
+# Hooks (standard delivery only)
+if ! $agent_only && tool_selected "$ANSWERS" "Cursor" && [[ "$emit_strategy" != "portable-only" ]]; then
   shell_guard_on=false
   secret_scan_on=true
   feature_enabled "$ANSWERS" "shell_guard" && shell_guard_on=true
@@ -352,21 +369,51 @@ normalize_text_lf_tree .
 
 # Sync mirrors for full emit
 if [[ "$emit_strategy" == "full" ]]; then
-  if [[ -f "${harness_scripts_dir}/sync-skills.sh" ]]; then
+  if $agent_only; then
+    canonical_dir="${canonical%/}"
+    if [[ -d "$canonical_dir" ]]; then
+      if tool_selected "$ANSWERS" "Cursor"; then
+        mkdir -p .cursor/skills
+        for skill_path in "$canonical_dir"/*/SKILL.md; do
+          [[ -f "$skill_path" ]] || continue
+          name=$(basename "$(dirname "$skill_path")")
+          mkdir -p ".cursor/skills/$name"
+          cp "$skill_path" ".cursor/skills/$name/SKILL.md"
+          echo "mirror $name -> .cursor/skills/$name/SKILL.md"
+        done
+      fi
+      if tool_selected "$ANSWERS" "Claude"; then
+        mkdir -p .claude/skills
+        for skill_path in "$canonical_dir"/*/SKILL.md; do
+          [[ -f "$skill_path" ]] || continue
+          name=$(basename "$(dirname "$skill_path")")
+          mkdir -p ".claude/skills/$name"
+          cp "$skill_path" ".claude/skills/$name/SKILL.md"
+          echo "mirror $name -> .claude/skills/$name/SKILL.md"
+        done
+      fi
+      if [[ -f agents/ORCHESTRATION.md && -d .cursor ]]; then
+        cp agents/ORCHESTRATION.md .cursor/ORCHESTRATION.md
+        echo "emit .cursor/ORCHESTRATION.md (agent-only full)"
+      fi
+    fi
+  elif [[ -f "${harness_scripts_dir}/sync-skills.sh" ]]; then
     bash "${harness_scripts_dir}/sync-skills.sh" --all-mirrors --orchestration
   else
     bash "$TOOLKIT/scripts/sync-skills.sh" --all-mirrors --orchestration
   fi
 fi
 
-# Validate
-validate_args=()
-$STRICT && validate_args+=(--strict)
-if [[ -f "${harness_scripts_dir}/validate-target-harness.sh" ]]; then
-  bash "${harness_scripts_dir}/validate-target-harness.sh" "${validate_args[@]}" .
-elif [[ -f "$TOOLKIT/scripts/validate-target-harness.sh" ]]; then
-  bash "$TOOLKIT/scripts/validate-target-harness.sh" "${validate_args[@]}" .
+# Validate (standard delivery only)
+if ! $agent_only; then
+  validate_args=()
+  $STRICT && validate_args+=(--strict)
+  if [[ -f "${harness_scripts_dir}/validate-target-harness.sh" ]]; then
+    bash "${harness_scripts_dir}/validate-target-harness.sh" "${validate_args[@]}" .
+  elif [[ -f "$TOOLKIT/scripts/validate-target-harness.sh" ]]; then
+    bash "$TOOLKIT/scripts/validate-target-harness.sh" "${validate_args[@]}" .
+  fi
 fi
 
 rm -f "$map_tmp" "$HARNESS_PATHS_FILE" "$SHELL_CONVENTIONS_FILE"
-echo "Emit complete -> $TARGET (emit_strategy=$emit_strategy)"
+echo "Emit complete -> $TARGET (emit_strategy=$emit_strategy delivery_mode=$delivery_mode)"

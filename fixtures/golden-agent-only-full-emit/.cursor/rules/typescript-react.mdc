@@ -1,0 +1,22 @@
+---
+description: TypeScript and React conventions
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# TypeScript / React
+
+- Use strict typing; avoid `any` unless interfacing with untyped third-party data.
+- Path alias: `@/` — use it consistently for imports.
+- Prefer function components and hooks; follow existing naming (PascalCase files).
+- Colocate tests with components when the repo already does (`*.test.tsx` next to source).
+
+**Example — imports**
+
+```tsx
+// Good
+import { Button } from "@//components/ui/button";
+
+// Avoid deep relative chains when alias exists
+import { Button } from "../../../components/ui/button";
+```

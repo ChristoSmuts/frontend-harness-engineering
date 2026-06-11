@@ -51,6 +51,29 @@ Default: runs `.agent-scripts/validate-target-harness.sh --strict` on the target
 
 Copy [intake/answers.example.json](../intake/answers.example.json) to a path **outside** the toolkit. Fixture copies under `fixtures/*/intake.answers.json` are for CI only. Required fields match the schema; `features` toggles P2 skills and optional artifacts. `unit_test_single_cmd` is optional—emit defaults to `N/A — no unit test runner configured` when omitted.
 
+### Agent-only delivery
+
+Add `"delivery_mode": "agent-only"` to omit `.agent-scripts/`, Cursor hooks, and GitHub workflows. Skill mirrors for `full` emit are copied inline at emit time.
+
+```bash
+bash scripts/emit-from-intake.sh --answers ./my-app.answers.json --target /path/to/app
+
+# Zip without the web UI:
+bash scripts/emit-harness-zip.sh --answers ./my-app.answers.json --output my-app-harness.zip
+```
+
+Example snippet in answers JSON:
+
+```json
+{
+  "delivery_mode": "agent-only",
+  "emit_strategy": "full",
+  "tools_in_use": ["Cursor", "Codex CLI"]
+}
+```
+
+See [docs/EMIT_STRATEGIES.md](EMIT_STRATEGIES.md) for how `delivery_mode` relates to `emit_strategy`.
+
 | Feature | Effect |
 |---------|--------|
 | `shadcn` | `shadcn-components` skill |

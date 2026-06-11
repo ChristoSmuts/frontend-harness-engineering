@@ -46,6 +46,16 @@ foreach ($entry in $json.conditional_paths) {
     }
 }
 
+$forbidden = $json.profiles.$Profile.forbidden_paths
+if ($forbidden) {
+    foreach ($fp in $forbidden) {
+        if (Test-Path -LiteralPath $fp) {
+            Write-Host "ERROR: forbidden path present for profile ${Profile}: $fp" -ForegroundColor Red
+            $errors++
+        }
+    }
+}
+
 if ($errors -gt 0) { exit 1 }
 Write-Host "Manifest validation OK (profile=$Profile)"
 exit 0

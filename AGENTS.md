@@ -61,6 +61,8 @@ No app build.
 shellcheck scripts/*.sh templates/hooks/*.sh
 
 bash scripts/validate-target-harness.sh fixtures/minimal-full-emit
+
+# Web generator (Bun): cd web && bun run dev
 bash scripts/validate-target-harness.sh --strict fixtures/golden-full-emit
 bash scripts/validate-fixture-manifest.sh --profile full fixtures/golden-full-emit
 

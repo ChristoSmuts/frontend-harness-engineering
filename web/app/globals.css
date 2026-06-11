@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --color-obsidian-ink: #000d10;
+  --color-copper-clay: #bc7155;
+  --color-marble-white: #ffffff;
+  --color-dusk-blue-black: #0f0f1c;
+  --color-midnight-slate: #151623;
+  --color-ash-gray: #8e8e95;
+  --color-bone: #d5d3d4;
+
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --text-caption: 17px;
+  --text-body: 20px;
+  --text-subheading: 23px;
+  --text-heading-sm: 30px;
+  --text-heading: 37px;
+  --text-heading-lg: 52px;
+  --text-display: 63px;
+  --text-wordmark: 96px;
+
+  --spacing-13: 13px;
+  --spacing-15: 15px;
+  --spacing-22: 22px;
+  --spacing-23: 23px;
+  --spacing-38: 38px;
+  --spacing-68: 68px;
+
+  --radius-full: 1000px;
+}
+
+body {
+  font-family: var(--font-display);
+  color: var(--color-obsidian-ink);
+  background: var(--color-marble-white);
+  font-size: var(--text-caption);
+  line-height: 1.61;
+}
+
+input,
+select,
+textarea {
+  border-radius: 0;
+  border: 1px solid var(--color-ash-gray);
+  padding: var(--spacing-15) var(--spacing-22);
+  width: 100%;
+  background: var(--color-marble-white);
+  font-size: var(--text-caption);
+}
+
+label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: var(--spacing-13);
+  font-size: var(--text-caption);
+}

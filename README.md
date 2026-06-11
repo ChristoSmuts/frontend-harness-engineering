@@ -6,114 +6,123 @@ Works with **Cursor**, **Claude Code**, **Codex CLI**, **Gemini CLI**, and other
 
 ## What this toolkit does
 
-A **harness** is the agent-facing layer around your app: `AGENTS.md`, skills, rules, hooks, and orchestration notes. It is not your React/Next/Vite code — it is how coding agents learn your stack, verify their work, and stay aligned with your team.
+A **harness** is the agent-facing layer around your app: `AGENTS.md`, skills, rules, and orchestration notes. It is not your React/Next/Vite code — it is how coding agents learn your stack and stay aligned with your team.
 
-This repo is the **source kit** for that layer. You (or your agent) run a structured bootstrap in a **target frontend repo** and end up with a repeatable layout: thin always-on context, task-shaped skills, optional Cursor hooks for lint/typecheck, and `.agent-scripts/` to validate and sync paths across tools (separate from app `scripts/`).
+With **`standard`** delivery (default for emit/bootstrap), the harness can also include Cursor hooks, `.agent-scripts/` validate/sync tooling, and optional GitHub CI workflows. With **`agent-only`** delivery, you get agent-readable files only — no shell scripts, hooks, or workflows from this toolkit.
 
-Typical flow:
+**Two ways to get a harness:**
 
-1. **Intake** — Outcome preview, workspace auto-detect, **`target_path`** first when the toolkit is open, then preferences (stack, tools, emit strategy, platform). See [intake/INTAKE_OVERVIEW.md](intake/INTAKE_OVERVIEW.md) and [intake/QUESTIONNAIRE.md](intake/QUESTIONNAIRE.md).
-2. **Plan** — Agent proposes which artifacts to create (rules, skills, hooks, CI) from [manifest/ARTIFACT_MANIFEST.md](manifest/ARTIFACT_MANIFEST.md).
-3. **Emit** — Files land at **`target_path`** from [templates/](templates/) (or via [scripts/emit-from-intake.sh](scripts/emit-from-intake.sh) with `--target` / JSON `target_path`).
-4. **Verify** — `validate-target-harness` checks placeholders, emit strategy consistency, skill mirrors, hook references, and harness integrity; target repos can add [harness CI](docs/HARNESS_CI.md).
-5. **Maintain** — Edit canonical skills, run `.agent-scripts/sync-skills`, grow the harness when agents fail the same way twice. With self-improvement enabled (default), repeat failures are logged to a failure ledger and the agent can auto-apply minimal canonical fixes — review harness diffs in git. See [docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md).
+| | **Web generator** ([`web/`](web/)) | **Emit / bootstrap** (this repo + your app) |
+|---|-----------------------------------|---------------------------------------------|
+| **Best for** | Quick zip; no agent session; teams wary of third-party shell scripts | In-repo setup; brownfield merge; hooks, CI, validate/sync |
+| **Repo access** | Form only; optional `package.json` upload to pre-fill | Agent inspects the repo, or you write `answers.json` |
+| **Output** | Zip — extract into your project | Files written to `target_path` |
+| **Delivery** | Always `agent-only` | `standard` (default) or `agent-only` |
 
-Emit modes (`full`, `portable-only`, `cursor-only`) control how much is generated — from Cursor-only rules and hooks to multi-tool parity with `.agents/skills/` as the canonical hub. Details: [docs/EMIT_STRATEGIES.md](docs/EMIT_STRATEGIES.md).
+Local web dev: [web/README.md](web/README.md) (`bun install`, `bun run dev`). Deploy the `web/` directory on Vercel.
+
+### Emit / bootstrap flow
+
+1. **Intake** — preferences, stack, tools, `emit_strategy`, `delivery_mode`. See [intake/INTAKE_OVERVIEW.md](intake/INTAKE_OVERVIEW.md).
+2. **Plan** — artifacts from [manifest/ARTIFACT_MANIFEST.md](manifest/ARTIFACT_MANIFEST.md).
+3. **Emit** — [scripts/emit-from-intake.sh](scripts/emit-from-intake.sh) or agent writes templates.
+4. **Verify** — `validate-target-harness` when `delivery_mode: standard`.
+5. **Maintain** — edit skills, sync mirrors, grow harness — [docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md).
+
+### Web flow
+
+1. Open the generator → optional `package.json` upload.
+2. Complete the questionnaire → review file list.
+3. Download zip → extract at project root → read `HARNESS_NEXT_STEPS.md` in the archive.
+
+`emit_strategy` (`full` / `portable-only` / `cursor-only`) is separate from `delivery_mode` — see [docs/EMIT_STRATEGIES.md](docs/EMIT_STRATEGIES.md).
+
+## Agent-only without the web UI
+
+Add `"delivery_mode": "agent-only"` to your intake JSON (start from [intake/answers.example.json](intake/answers.example.json)):
+
+```bash
+bash scripts/emit-from-intake.sh --answers /path/to/answers.json --target /path/to/your-app
+```
+
+Zip without the web app:
+
+```bash
+bash scripts/emit-harness-zip.sh --answers /path/to/answers.json --output my-app-harness.zip
+```
+
+Or run the bootstrap skill / [prompts/MASTER_BOOTSTRAP.md](prompts/MASTER_BOOTSTRAP.md) and choose **delivery mode → agent-only** at intake.
+
+| Omitted (`agent-only`) | Included |
+|------------------------|----------|
+| `.agent-scripts/`, `.cursor/hooks/`, `.github/workflows/` | `AGENTS.md`, rules, skills, orchestration |
+| `.codex/config.toml` hook wiring | Failure ledger + security allowlists (when features on) |
+| | Skill mirrors inlined for `full` emit |
+
+Use **`standard`** when you want Cursor stop hooks, harness CI, or `sync-skills` maintenance scripts.
 
 ## Why use it
 
 | Benefit | What you get |
 |--------|----------------|
-| **Faster, consistent setup** | One questionnaire and manifest instead of ad-hoc `AGENTS.md` per repo; bootstrap many apps from one toolkit checkout via **`target_path`**. |
-| **Less context noise** | Thin `AGENTS.md` (~60 lines); depth lives in skills loaded only when relevant — agents stay focused on your code. |
-| **Multi-tool without drift** | On `full` emit, write skills once under `.agents/skills/`, mirror to Cursor/Claude with `sync-skills`, and validate parity in CI. |
-| **Automatic quality gates** | Cursor hooks run lint/typecheck on stop; `scan-secrets` and `deny-dangerous` guard secrets and shell; validate scripts catch placeholders and hook drift before merge. |
-| **Agent security harness** | P1 `frontend-security` rule/skill plus optional hardening (MCP allowlist hook, outbound domain allowlist, Gitleaks CI) — see [docs/FRONTEND_SECURITY.md](docs/FRONTEND_SECURITY.md). |
-| **Cross-platform maintenance** | Bash and PowerShell scripts for validate/sync on Linux, macOS, and Windows — same harness on every OS your team uses. |
-| **Failure-driven growth** | Start minimal; optionally auto-grow via failure ledger + `harness-self-improve` skill when the same mistake repeats (twice rule). Always review harness diffs in git — avoids bloated MCP and rule dumps up front. |
-| **Team-ready defaults** | Orchestration handoffs, security skill pairing, governance docs, and golden fixtures so upgrades and reviews stay predictable. |
+| **Web zip (agent-only)** | Questionnaire → download → paste into repo; no shell scripts in the bundle |
+| **Faster, consistent setup** | One intake + manifest instead of ad-hoc `AGENTS.md` per repo |
+| **Less context noise** | Thin `AGENTS.md` (~60 lines); depth in skills on demand |
+| **Multi-tool without drift** | `full` + `standard`: canonical `.agents/skills/` + `sync-skills` + CI |
+| **Quality gates (`standard`)** | Cursor hooks, validate scripts, optional Gitleaks CI |
+| **Failure-driven growth** | Optional failure ledger + `harness-self-improve` skill |
 
-You keep owning the target repo; this toolkit only supplies templates, prompts, and maintenance scripts. Deeper walkthrough: [docs/START_HERE.md](docs/START_HERE.md).
+Deeper walkthrough: [docs/START_HERE.md](docs/START_HERE.md).
 
 ## What this repo provides
 
 | Path | Purpose |
 |------|---------|
-| [prompts/MASTER_BOOTSTRAP.md](prompts/MASTER_BOOTSTRAP.md) | Paste into any coding agent to run the full workflow |
-| [intake/INTAKE_OVERVIEW.md](intake/INTAKE_OVERVIEW.md) | What each intake answer produces (outcome preview) |
-| [intake/QUESTIONNAIRE.md](intake/QUESTIONNAIRE.md) | Intake fields (`target_path`, `toolkit_path`, stack, tools) |
-| [manifest/ARTIFACT_MANIFEST.md](manifest/ARTIFACT_MANIFEST.md) | What to generate and in what order |
-| [manifest/TOOL_LAYOUT.md](manifest/TOOL_LAYOUT.md) | Per-tool paths (Cursor, Claude, Codex, Gemini) |
-| [docs/MULTI_TOOL.md](docs/MULTI_TOOL.md) | How to use the harness with each product |
-| [docs/EMIT_STRATEGIES.md](docs/EMIT_STRATEGIES.md) | `full` / `portable-only` / `cursor-only` emit modes |
-| [docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md) | After bootstrap — scaling multi-tool, team, agents |
-| [scripts/](scripts/) | `sync-skills`, `validate-target-harness`, `emit-from-intake`, `register-harness-growth` |
-| [docs/EMIT_FROM_INTAKE.md](docs/EMIT_FROM_INTAKE.md) | Deterministic emit from `answers.json` |
-| [docs/HARNESS_CI.md](docs/HARNESS_CI.md) | Target-repo harness CI workflow |
-| [docs/FRONTEND_SECURITY.md](docs/FRONTEND_SECURITY.md) | Security harness: hooks, threat model, `agent_security_hardening`, `gitleaks_ci` |
-| [fixtures/golden-full-emit/](fixtures/golden-full-emit/) | Reference `full` emit output for CI |
-| [fixtures/golden-portable-only-emit/](fixtures/golden-portable-only-emit/) | Reference `portable-only` emit for CI |
-| [fixtures/golden-cursor-only-emit/](fixtures/golden-cursor-only-emit/) | Reference `cursor-only` emit for CI |
-| [templates/](templates/) | Copy/adapt into target projects |
-| [.cursor/skills/frontend-harness-bootstrap/](.cursor/skills/frontend-harness-bootstrap/) | Cursor skill |
-| [agents/skills/frontend-harness-bootstrap/](agents/skills/frontend-harness-bootstrap/) | Portable skill (Codex, Gemini, others) |
+| [web/](web/) | Next.js harness generator (agent-only zip) |
+| [prompts/MASTER_BOOTSTRAP.md](prompts/MASTER_BOOTSTRAP.md) | Full agent bootstrap workflow |
+| [intake/QUESTIONNAIRE.md](intake/QUESTIONNAIRE.md) | Intake fields incl. `delivery_mode` |
+| [docs/EMIT_FROM_INTAKE.md](docs/EMIT_FROM_INTAKE.md) | Deterministic emit from JSON |
+| [docs/EMIT_STRATEGIES.md](docs/EMIT_STRATEGIES.md) | `emit_strategy` + `delivery_mode` |
+| [scripts/emit-from-intake.sh](scripts/emit-from-intake.sh) | Emit harness to `target_path` |
+| [scripts/emit-harness-zip.sh](scripts/emit-harness-zip.sh) | Emit to zip (CLI) |
+| [fixtures/golden-agent-only-full-emit/](fixtures/golden-agent-only-full-emit/) | Reference agent-only `full` emit |
+| [fixtures/golden-full-emit/](fixtures/golden-full-emit/) | Reference `standard` `full` emit |
 
 ## Getting Started
 
-Two paths — pick the one that fits how you work.
+### Option A — Web generator
 
-### Option A — Your app repo is already open
+1. Run locally (`cd web && bun run dev`) or use your deployed Vercel URL.
+2. Answer the questionnaire (upload `package.json` optionally).
+3. Download the zip and extract into your frontend repo root.
 
-**Best for:** setting up one project at a time
+### Option B — App repo open (bootstrap)
 
 1. Open your frontend project in your coding agent.
-2. Make this toolkit reachable (as a submodule, a sibling folder, or a multi-root workspace) — see [docs/TOOLKIT_CONSUMPTION.md](docs/TOOLKIT_CONSUMPTION.md).
-3. Run the `frontend-harness-bootstrap` skill, or paste [prompts/MASTER_BOOTSTRAP.md](prompts/MASTER_BOOTSTRAP.md).
-4. At intake, **`target_path`** defaults to `.` (the current repo).
-5. Review and approve the plan — harness files are written here.
+2. Make this toolkit reachable — [docs/TOOLKIT_CONSUMPTION.md](docs/TOOLKIT_CONSUMPTION.md).
+3. Run `frontend-harness-bootstrap` or paste [prompts/MASTER_BOOTSTRAP.md](prompts/MASTER_BOOTSTRAP.md).
+4. Choose `delivery_mode` (`standard` or `agent-only`) and other intake answers.
+5. Approve the plan — harness files are written here.
 
-### Option B — This toolkit repo is open
+### Option C — Toolkit repo open (bootstrap many apps)
 
-**Best for:** bootstrapping multiple apps from one place
+1. Open this toolkit in your agent.
+2. Provide absolute **`target_path`** to each app at intake.
+3. Repeat for additional apps.
 
-1. Open this toolkit repo in your agent.
-2. Run the bootstrap — at intake, provide the full path to your app:
-   - macOS/Linux: `/Users/you/dev/acme-web`
-   - Windows: `C:\dev\acme-web`
-3. The toolkit writes harness files directly into that app repo.
-4. Open the app repo for day-to-day work; repeat with a new path for the next app.
-
-### Already have an existing project?
-
-Same flow as A or B — the agent inspects your existing `package.json` and folder layout before generating anything, so it adapts to what's already there.
-
-Details: [docs/START_HERE.md](docs/START_HERE.md), [docs/CROSS_PLATFORM.md](docs/CROSS_PLATFORM.md).
-
-### Using templates manually
-
-Copy from [templates/](templates/) into your target repo and replace `{{PLACEHOLDER}}` values. See [docs/USAGE.md](docs/USAGE.md) and [docs/MULTI_TOOL.md](docs/MULTI_TOOL.md).
+Brownfield: same as B or C — the agent inspects the repo before generating.
 
 ### After bootstrap
 
-- **Canonical skills:** `.agents/skills/` for multi-tool `full` emit; run `.agent-scripts/sync-skills.sh` after skill edits.
-- **Harness scripts:** `.agent-scripts/` in the target repo (validate/sync — separate from app `scripts/`).
-- **Validate:** `bash .agent-scripts/validate-target-harness.sh` (add `--strict` in CI).
-- **Re-emit:** `bash scripts/emit-from-intake.sh` with intake JSON — see [docs/EMIT_FROM_INTAKE.md](docs/EMIT_FROM_INTAKE.md).
-- **Another app from toolkit:** same bootstrap flow, new **`target_path`** — [docs/TOOLKIT_CONSUMPTION.md](docs/TOOLKIT_CONSUMPTION.md).
-- **Grow the harness:** [docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md).
-- **Self-improvement (default on):** failure ledger under `.agents/harness/` (or `.cursor/harness/` for cursor-only); Cursor stop hook may re-engage the agent when open ledger entries need a harness fix. Opt out at intake with `features.harness_self_improve: false`.
-- **Security hardening (opt-in):** at intake, set `features.agent_security_hardening` for MCP/shell allowlists and `features.gitleaks_ci` for CI secret scanning — [docs/FRONTEND_SECURITY.md](docs/FRONTEND_SECURITY.md).
+**`agent-only`:** edit canonical skills (and mirrors if `full`); no `sync-skills` script — mirrors were copied at emit. See `HARNESS_NEXT_STEPS.md` (web zip) or [docs/HARNESS_GROWTH.md](docs/HARNESS_GROWTH.md).
+
+**`standard`:** run `.agent-scripts/sync-skills.sh` after skill edits; `validate-target-harness.sh --strict` in CI; optional hooks per intake features.
+
+Re-emit: [docs/EMIT_FROM_INTAKE.md](docs/EMIT_FROM_INTAKE.md).
 
 ## Principles
 
-Aligned with [HumanLayer — Skill Issue: Harness Engineering](https://www.humanlayer.dev/blog/skill-issue-harness-engineering-for-coding-agents):
-
-- Thin always-on context (`AGENTS.md`, core rules)
-- Skills for progressive disclosure (portable `SKILL.md`)
-- Sub-agents for **context control** (locate/trace), not role personas
-- Hooks for fast lint + typecheck on stop, plus security guards (`scan-secrets`, `deny-dangerous`) where supported (silent success)
-- Failure-driven: add harness pieces when the agent actually fails; optional structured loop (ledger → twice rule → minimal fix → changelog)
-- Canonical hub: `.agents/skills/` with mirrors for Cursor/Claude on `full` emit
+Aligned with [HumanLayer — Harness Engineering](https://www.humanlayer.dev/blog/skill-issue-harness-engineering-for-coding-agents): thin always-on context, skills for depth, sub-agents for context control, failure-driven growth, canonical `.agents/skills/` hub on `full` emit.
 
 ## License
 

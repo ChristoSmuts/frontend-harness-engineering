@@ -31,8 +31,9 @@ When using AskQuestion, run **one form** in this order:
 | 3 | **tools_in_use** | multi-select: same list + other |
 | 4 | **platform_primary** | `unix` — hooks use bash/sh templates · `windows` — hooks use PowerShell 7 templates |
 | 5 | **harness_owner** | `solo` — I own harness changes · `team` — team owns harness (get `@handle` in chat) |
-| 6 | **hooks_prefs** | `full` — lint + typecheck + secret scan + shell guard on stop · `no_secret_scan` — verify + shell guard, no secret scan · `verify_only` — lint + typecheck only · `no_hooks` — no Cursor stop hooks |
-| 7 | **repo_type** | `brownfield` — existing codebase (merge/skip existing harness) · `greenfield` — new or minimal project |
+| 6 | **delivery_mode** | `standard` — include `.agent-scripts/`, optional Cursor hooks, optional harness CI · `agent-only` — agent-readable files only (no shell scripts, hooks, or workflows) |
+| 7 | **hooks_prefs** | `full` — lint + typecheck + secret scan + shell guard on stop · `no_secret_scan` — verify + shell guard, no secret scan · `verify_only` — lint + typecheck only · `no_hooks` — no Cursor stop hooks *(skipped when `delivery_mode` is `agent-only`)* |
+| 8 | **repo_type** | `brownfield` — existing codebase (merge/skip existing harness) · `greenfield` — new or minimal project |
 
 **target_path rules (before Step 2):**
 
@@ -52,7 +53,8 @@ Windows paths for emit JSON: prefer `C:/dev/app` or `/c/dev/app` (see [docs/CROS
 | **harness_owner** | `@handle` or `solo` | Who approves harness PRs |
 | **canonical_skills_dir** | `.agents/skills/` | Default; `.cursor/skills/` only for `cursor-only` without CLI tools |
 | **harness_scripts_dir** | `.agent-scripts` | Harness validate/sync in target (not app `scripts/`) |
-| **platform_primary** | `unix` / `windows` | Drives `hooks.json` template ([docs/CROSS_PLATFORM.md](../docs/CROSS_PLATFORM.md)) |
+| **platform_primary** | `unix` / `windows` | Drives `hooks.json` template ([docs/CROSS_PLATFORM.md](../docs/CROSS_PLATFORM.md)); ignored when `delivery_mode` is `agent-only` |
+| **delivery_mode** | `standard` / `agent-only` | `standard` (default) copies maintenance scripts and optional hooks/CI; `agent-only` emits docs, rules, skills, and JSON allowlists only |
 
 ## A. Project identity
 

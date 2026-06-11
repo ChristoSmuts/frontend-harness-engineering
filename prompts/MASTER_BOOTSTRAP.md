@@ -60,7 +60,9 @@ Collect every item in `intake/QUESTIONNAIRE.md`, including **Required before Pha
 
 ### Step 2 — Harness preferences (AskQuestion)
 
-Use AskQuestion when available (see **Phase A — AskQuestion bundle** in `intake/QUESTIONNAIRE.md`). Use **descriptive option labels** from the questionnaire (each option states what it produces). Order: `emit_strategy` → `primary_tool` → `tools_in_use` → `platform_primary` → `harness_owner` → `hooks_prefs` → `repo_type`.
+Use AskQuestion when available (see **Phase A — AskQuestion bundle** in `intake/QUESTIONNAIRE.md`). Use **descriptive option labels** from the questionnaire (each option states what it produces). Order: `emit_strategy` → `primary_tool` → `tools_in_use` → `platform_primary` → `harness_owner` → `delivery_mode` → `hooks_prefs` (skip when `agent-only`) → `repo_type`.
+
+Record **`delivery_mode`** in exported JSON: `standard` (default — scripts, optional hooks/CI) or `agent-only` (docs, rules, skills only; inline skill mirrors for `full`). See `docs/EMIT_STRATEGIES.md`.
 
 ### Step 3 — Intake summary
 

@@ -31,6 +31,17 @@
       "type": "string",
       "enum": ["full", "portable-only", "cursor-only"]
     },
+    "delivery_mode": {
+      "type": "string",
+      "enum": ["standard", "agent-only"],
+      "default": "standard",
+      "description": "standard includes .agent-scripts/, optional hooks and CI; agent-only emits agent-readable files only"
+    },
+    "source": {
+      "type": "string",
+      "enum": ["bootstrap", "emit-cli", "web"],
+      "description": "How answers were collected; web may omit target_path/toolkit_path semantics"
+    },
     "primary_tool": {
       "type": "string",
       "description": "Cursor, Claude Code, Codex CLI, Gemini CLI, etc."

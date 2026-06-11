@@ -2,6 +2,8 @@
 
 Entry point for **Frontend Harness Engineering** — bootstrap and maintain coding-agent harness on frontend repos.
 
+**Choose your path:** see the comparison table in [README.md](../README.md#getting-started) — **web zip** ([`web/`](../web/)) vs **emit/bootstrap** (this doc). `delivery_mode` (`standard` vs `agent-only`) is independent of `emit_strategy`.
+
 ## Bootstrap a target project
 
 ### A — Target frontend repo open

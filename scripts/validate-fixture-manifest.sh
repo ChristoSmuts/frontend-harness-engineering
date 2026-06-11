@@ -11,7 +11,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --profile) shift; PROFILE="${1:?}" ;;
     -h|--help)
-      echo "Usage: $0 [--profile full|portable-only|cursor-only] [TARGET_ROOT]"
+      echo "Usage: $0 [--profile full|portable-only|cursor-only|agent-only-full] [TARGET_ROOT]"
       exit 0
       ;;
     *) ROOT="$1" ;;
@@ -84,6 +84,14 @@ if command -v jq >/dev/null 2>&1; then
       ERRORS=$((ERRORS + 1))
     fi
   done < <(jq -c '.conditional_paths[]?' "$MANIFEST")
+
+  while IFS= read -r path; do
+    [[ -z "$path" ]] && continue
+    if [[ -e "$path" ]]; then
+      echo "ERROR: forbidden path present for profile $PROFILE: $path" >&2
+      ERRORS=$((ERRORS + 1))
+    fi
+  done < <(jq -r --arg p "$PROFILE" '.profiles[$p].forbidden_paths[]?' "$MANIFEST")
 fi
 
 if [[ "$ERRORS" -gt 0 ]]; then

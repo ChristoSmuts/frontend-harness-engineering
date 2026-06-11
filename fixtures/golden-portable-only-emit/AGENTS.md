@@ -37,7 +37,6 @@ Use these for agent self-check—not full CI.
 - **Shared entry:** `AGENTS.md` (this file)
 - **Orchestration:** `agents/ORCHESTRATION.md`
 - **Codex CLI:** skills `.agents/skills/` (canonical)
-
 - **Validate harness:** `bash .agent-scripts/validate-target-harness.sh` (Linux/macOS) or `pwsh -File .agent-scripts/validate-target-harness.ps1` (Windows/macOS with pwsh); use `--strict` in CI
 
 - **Other tools:** run skill `frontend-verify` or the lint/typecheck commands in this file before claiming done
