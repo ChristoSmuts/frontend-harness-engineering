@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  /* Colors */
   --color-obsidian-ink: #000d10;
   --color-copper-clay: #bc7155;
   --color-marble-white: #ffffff;
@@ -9,24 +10,56 @@
   --color-ash-gray: #8e8e95;
   --color-bone: #d5d3d4;
 
+  /* Typography */
   --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
   --text-caption: 17px;
-  --text-body: 20px;
-  --text-subheading: 23px;
-  --text-heading-sm: 30px;
-  --text-heading: 37px;
-  --text-heading-lg: 52px;
-  --text-display: 63px;
-  --text-wordmark: 96px;
+  --text-caption--line-height: 1.61;
+  --text-caption--letter-spacing: 0.2px;
 
+  --text-body: 20px;
+  --text-body--line-height: 1.61;
+
+  --text-subheading: 23px;
+  --text-subheading--line-height: 1.2;
+
+  --text-heading-sm: 30px;
+  --text-heading-sm--line-height: 1.1;
+
+  --text-heading: 37px;
+  --text-heading--line-height: 1.1;
+
+  --text-heading-lg: 52px;
+  --text-heading-lg--line-height: 1.09;
+  --text-heading-lg--letter-spacing: -1px;
+
+  --text-display: 63px;
+  --text-display--line-height: 1;
+  --text-display--letter-spacing: -1.2px;
+
+  --text-wordmark: 187px;
+  --text-wordmark--line-height: 0.8;
+  --text-wordmark--letter-spacing: -3.74px;
+
+  /* Spacing */
+  --spacing-11: 11px;
   --spacing-13: 13px;
   --spacing-15: 15px;
+  --spacing-16: 16px;
+  --spacing-17: 17px;
+  --spacing-21: 21px;
   --spacing-22: 22px;
   --spacing-23: 23px;
+  --spacing-31: 31px;
+  --spacing-34: 34px;
   --spacing-38: 38px;
+  --spacing-53: 53px;
+  --spacing-59: 59px;
+  --spacing-60: 60px;
   --spacing-68: 68px;
+  --spacing-119: 119px;
 
+  /* Radius */
   --radius-full: 1000px;
 }
 
@@ -34,8 +67,10 @@ body {
   font-family: var(--font-display);
   color: var(--color-obsidian-ink);
   background: var(--color-marble-white);
-  font-size: var(--text-caption);
+  font-size: var(--text-body);
   line-height: 1.61;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 input,
@@ -47,6 +82,12 @@ textarea {
   width: 100%;
   background: var(--color-marble-white);
   font-size: var(--text-caption);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+input:focus {
+  border-color: var(--color-obsidian-ink);
 }
 
 label {
@@ -54,4 +95,10 @@ label {
   font-weight: 700;
   margin-bottom: var(--spacing-13);
   font-size: var(--text-caption);
+  color: var(--color-obsidian-ink);
+}
+
+::selection {
+  background-color: var(--color-copper-clay);
+  color: var(--color-marble-white);
 }

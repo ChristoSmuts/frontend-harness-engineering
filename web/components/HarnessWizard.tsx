@@ -52,20 +52,25 @@ const EMPTY: Partial<IntakeAnswers> = {
 function Field({
   label,
   inferred,
+  hint,
   children,
 }: {
   label: string;
   inferred?: boolean;
+  hint?: string;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <label>
-        {label}
-        {inferred ? (
-          <span className="ml-2 text-[14px] font-normal text-copper-clay">inferred — confirm</span>
-        ) : null}
-      </label>
+      <div className="flex items-baseline justify-between">
+        <label>
+          {label}
+          {inferred ? (
+            <span className="ml-2 text-[14px] font-normal text-copper-clay">inferred — confirm</span>
+          ) : null}
+        </label>
+        {hint && <span className="text-[13px] text-ash-gray/60 italic">{hint}</span>}
+      </div>
       {children}
     </div>
   );
@@ -175,41 +180,56 @@ export function HarnessWizard() {
   return (
     <>
       {step !== 6 ? (
-      <Band>
-        <header className="mb-[var(--spacing-68)] max-w-3xl">
-          <p
-            className="font-normal leading-[0.85] tracking-[-0.02em] text-obsidian-ink"
-            style={{ fontSize: "clamp(52px, 10vw, var(--text-wordmark))" }}
-          >
-            Harness
-          </p>
-          <EditorialHeadline as="h1" className="mt-[var(--spacing-23)] !text-[var(--text-heading-lg)]">
-            Configure your coding agents
-          </EditorialHeadline>
-          <p className="mt-[var(--spacing-23)] text-[var(--text-body)] leading-[1.61] text-obsidian-ink/80">
-            Tell us about your frontend project and download a tailored harness — rules, skills, and
-            orchestration files your AI agents can read from day one.
-          </p>
+      <Band className="min-h-[80vh]">
+        <header className="mb-[var(--spacing-68)]">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
+            <div className="max-w-2xl">
+              <p
+                className="font-normal leading-[0.8] tracking-[-0.02em] text-obsidian-ink"
+                style={{
+                  fontSize: "clamp(80px, 15vw, var(--text-wordmark))",
+                  letterSpacing: "var(--text-wordmark--letter-spacing)",
+                }}
+              >
+                Harness<span className="text-[0.25em] align-top ml-1">®</span>
+              </p>
+              <EditorialHeadline as="h1" className="mt-[var(--spacing-23)] !text-[var(--text-display)]">
+                Agentic Harness Engineering
+              </EditorialHeadline>
+              <p className="mt-[var(--spacing-23)] text-[var(--text-body)] leading-[1.61] text-obsidian-ink/70 max-w-xl">
+                Standardize how AI agents learn your stack, follow your rules, and maintain your code quality.
+              </p>
+            </div>
+            {step === 0 && (
+              <div className="flex flex-col gap-4 p-6 border border-ash-gray/20 bg-bone/20 rounded-sm md:max-w-xs">
+                 <p className="text-[14px] font-bold uppercase tracking-wider text-ash-gray">Smart Start</p>
+                 <p className="text-[15px] text-obsidian-ink/80">Upload <code className="bg-white px-1">package.json</code> to auto-detect your framework and tools.</p>
+                 <label className="relative cursor-pointer">
+                    <span className="inline-flex w-full items-center justify-center rounded-full border border-obsidian-ink py-2 text-[14px] font-bold hover:bg-obsidian-ink hover:text-white transition-colors">
+                      {inferredFields.size > 0 ? "File uploaded" : "Select file"}
+                    </span>
+                    <input
+                      type="file"
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      accept="application/json,.json"
+                      onChange={(e) => onPackageJson(e.target.files?.[0] ?? null)}
+                    />
+                 </label>
+              </div>
+            )}
+          </div>
         </header>
 
-        <div className="grid items-start gap-[var(--spacing-38)] lg:grid-cols-[minmax(0,1fr)_260px] lg:gap-[var(--spacing-68)]">
+        <div className="grid items-start gap-[var(--spacing-38)] lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-[var(--spacing-119)]">
           <div className="min-w-0">
         {step === 0 && (
           <div className="max-w-xl">
             <StepHeading
               title={WIZARD_STEPS[0].title}
-              description="Walk through a short questionnaire about your stack, then download a zip you can extract into any frontend repository."
+              description="This wizard generates an agent-only harness tailored to your code. No shell scripts, just portable rules and skills."
             />
-            <HairlineFieldset legend="Optional: package.json">
-              <p className="text-ash-gray">Upload to pre-fill stack and commands. We never store your file.</p>
-              <input
-                type="file"
-                accept="application/json,.json"
-                onChange={(e) => onPackageJson(e.target.files?.[0] ?? null)}
-              />
-            </HairlineFieldset>
             <div className="mt-[var(--spacing-38)] flex gap-[var(--spacing-13)]">
-              <PillButton onClick={() => setStep(1)}>Start questionnaire</PillButton>
+              <PillButton onClick={() => setStep(1)}>Start setup</PillButton>
             </div>
           </div>
         )}
@@ -220,7 +240,7 @@ export function HarnessWizard() {
               title={WIZARD_STEPS[1].title}
               description="Give your project a name and choose the package manager your team uses."
             />
-            <HairlineFieldset legend="Project identity">
+            <HairlineFieldset legend="Identity">
               <Field label="Project name" inferred={isInferred("project_name")}>
                 <input
                   value={answers.project_name ?? ""}
@@ -256,7 +276,7 @@ export function HarnessWizard() {
               title={WIZARD_STEPS[2].title}
               description="Describe the framework, styling approach, and component library so agents know your conventions."
             />
-            <HairlineFieldset legend="Framework and UI">
+            <HairlineFieldset legend="Stack">
               <AutocompleteField
                 mode="multi"
                 label="Framework"
@@ -298,43 +318,43 @@ export function HarnessWizard() {
           <div className="max-w-xl">
             <StepHeading
               title={WIZARD_STEPS[3].title}
-              description="Point agents at the right scripts and folder structure so they run checks and edit files in the correct places."
+              description="Point agents at the right scripts and folder structure so they can run checks and edit files without breaking your build."
             />
             <HairlineFieldset legend="Commands and paths">
-              <Field label="Install command" inferred={isInferred("install_cmd")}>
+              <Field label="Install command" inferred={isInferred("install_cmd")} hint="e.g. bun install">
                 <input
                   value={answers.install_cmd ?? ""}
                   onChange={(e) => update({ install_cmd: e.target.value })}
                 />
               </Field>
-              <Field label="Lint command" inferred={isInferred("lint_cmd")}>
+              <Field label="Lint command" inferred={isInferred("lint_cmd")} hint="e.g. npm run lint">
                 <input value={answers.lint_cmd ?? ""} onChange={(e) => update({ lint_cmd: e.target.value })} />
               </Field>
-              <Field label="Typecheck command" inferred={isInferred("typecheck_cmd")}>
+              <Field label="Typecheck command" inferred={isInferred("typecheck_cmd")} hint="e.g. tsc --noEmit">
                 <input
                   value={answers.typecheck_cmd ?? ""}
                   onChange={(e) => update({ typecheck_cmd: e.target.value })}
                 />
               </Field>
-              <Field label="Routes path" inferred={isInferred("routes_path")}>
+              <Field label="Routes path" inferred={isInferred("routes_path")} hint="e.g. src/app or src/pages">
                 <input
                   value={answers.routes_path ?? ""}
                   onChange={(e) => update({ routes_path: e.target.value })}
                 />
               </Field>
-              <Field label="Components path" inferred={isInferred("components_path")}>
+              <Field label="Components path" inferred={isInferred("components_path")} hint="e.g. src/components">
                 <input
                   value={answers.components_path ?? ""}
                   onChange={(e) => update({ components_path: e.target.value })}
                 />
               </Field>
-              <Field label="Shared UI path" inferred={isInferred("shared_ui_path")}>
+              <Field label="Shared UI path" inferred={isInferred("shared_ui_path")} hint="e.g. components/ui">
                 <input
                   value={answers.shared_ui_path ?? ""}
                   onChange={(e) => update({ shared_ui_path: e.target.value })}
                 />
               </Field>
-              <Field label="API client path" inferred={isInferred("api_client_path")}>
+              <Field label="API client path" inferred={isInferred("api_client_path")} hint="e.g. src/lib/api">
                 <input
                   value={answers.api_client_path ?? ""}
                   onChange={(e) => update({ api_client_path: e.target.value })}
@@ -364,7 +384,7 @@ export function HarnessWizard() {
               title={WIZARD_STEPS[4].title}
               description="Choose which AI tools you use and which optional skills to include in your harness."
             />
-            <HairlineFieldset legend="Agents and layout">
+            <HairlineFieldset legend="Configuration">
               <AutocompleteField
                 label="Harness layout"
                 options={EMIT_STRATEGY_LABELS}

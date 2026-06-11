@@ -5,6 +5,8 @@ export const FRAMEWORK_OPTIONS = [
   "Next.js 14 App Router",
   "Vite + React",
   "Remix",
+  "TanStack Start",
+  "Qwik",
   "Nuxt 3",
   "SvelteKit",
   "Astro",
@@ -12,17 +14,21 @@ export const FRAMEWORK_OPTIONS = [
   "Angular",
   "React Native",
   "Expo",
+  "SolidStart",
 ] as const;
 
 export const STYLING_OPTIONS = [
   "Tailwind CSS",
-  "Tailwind",
+  "Tailwind v4",
+  "Tailwind v3",
   "CSS Modules",
   "Styled Components",
   "Emotion",
   "Sass / SCSS",
   "Vanilla CSS",
   "UnoCSS",
+  "Panda CSS",
+  "StyleX",
 ] as const;
 
 export const UI_LIBRARY_OPTIONS = [
@@ -33,6 +39,8 @@ export const UI_LIBRARY_OPTIONS = [
   "Ant Design",
   "Headless UI",
   "Mantine",
+  "DaisyUI",
+  "Park UI",
   "None",
 ] as const;
 
@@ -41,6 +49,8 @@ export const TOOL_OPTIONS = [
   "Claude Code",
   "Codex CLI",
   "Gemini CLI",
+  "Windsurf",
+  "Github Copilot",
   "other",
 ] as const;
 
@@ -58,6 +68,9 @@ export const FORBIDDEN_PATH_OPTIONS = [
   ".turbo",
   "coverage",
   ".vercel",
+  ".output",
+  "out",
+  "public/build",
 ] as const;
 
 /** Split comma-separated intake strings into chip values (strips optional backticks). */

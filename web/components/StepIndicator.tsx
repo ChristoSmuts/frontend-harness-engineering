@@ -1,10 +1,10 @@
 export const WIZARD_STEPS = [
-  { label: "Start", title: "Get started", description: "How this tool works" },
+  { label: "Start", title: "Mission brief", description: "Portable harness setup" },
   { label: "Project", title: "Project identity", description: "Name and package manager" },
   { label: "Stack", title: "Framework & UI", description: "Stack and component library" },
-  { label: "Commands", title: "Commands & paths", description: "Scripts and folder layout" },
+  { label: "Commands", title: "Control & paths", description: "Scripts and folder layout" },
   { label: "Agents", title: "Agent setup", description: "Tools and skills" },
-  { label: "Review", title: "Review & download", description: "Preview files and export" },
+  { label: "Review", title: "Quality check", description: "Preview files and export" },
   { label: "Done", title: "Harness ready", description: "Add to your project" },
 ] as const;
 
@@ -42,8 +42,8 @@ function StepCircle({
       className={[
         "relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full border-2 text-[13px] font-bold tabular-nums transition-colors",
         isActive
-          ? "border-copper-clay bg-marble-white text-copper-clay"
-          : "border-ash-gray/40 bg-marble-white text-ash-gray",
+          ? "border-obsidian-ink bg-marble-white text-obsidian-ink"
+          : "border-ash-gray/30 bg-marble-white text-ash-gray",
       ].join(" ")}
     >
       {String(index + 1).padStart(2, "0")}
@@ -75,7 +75,7 @@ function VerticalTracker({
                   aria-hidden
                   className={[
                     "my-1 w-px min-h-[var(--spacing-23)] flex-1",
-                    isComplete ? "bg-obsidian-ink" : "bg-ash-gray/30",
+                    isComplete ? "bg-obsidian-ink" : "bg-ash-gray/20",
                   ].join(" ")}
                 />
               ) : null}
@@ -86,7 +86,7 @@ function VerticalTracker({
                 <button
                   type="button"
                   onClick={() => onStepClick(i)}
-                  className="group w-full text-left"
+                  className="group w-full text-left cursor-pointer"
                 >
                   <StepLabel step={step} isActive={isActive} isComplete={isComplete} interactive />
                 </button>
@@ -126,7 +126,7 @@ function StepLabel({
       <span
         className={[
           "mt-1 block text-[13px] leading-snug",
-          isActive ? "text-obsidian-ink/70" : "text-ash-gray/80",
+          isActive ? "text-obsidian-ink/70" : "text-ash-gray/60",
         ].join(" ")}
       >
         {step.description}
@@ -148,7 +148,7 @@ function MobileProgress({ current }: { current: number }) {
         <p className="text-[15px] font-bold text-obsidian-ink">{step.label}</p>
       </div>
       <div
-        className="h-px w-full bg-ash-gray/25"
+        className="h-px w-full bg-ash-gray/20"
         role="progressbar"
         aria-valuenow={current + 1}
         aria-valuemin={1}
@@ -160,7 +160,7 @@ function MobileProgress({ current }: { current: number }) {
           style={{ width: `${progress}%` }}
         />
       </div>
-      <p className="mt-[var(--spacing-13)] text-[15px] text-ash-gray">{step.description}</p>
+      <p className="mt-[var(--spacing-13)] text-[15px] text-ash-gray/70">{step.description}</p>
     </div>
   );
 }
